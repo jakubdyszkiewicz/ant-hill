@@ -1,0 +1,38 @@
+<domain type='kvm'>
+  <name>{{ vm_name }}</name>
+  <memory unit='MiB'>{{ vm_ram_mb }}</memory>
+  <currentMemory unit='MiB'>{{ vm_ram_mb }}</currentMemory>
+  <vcpu>{{ vm_vcpus }}</vcpu>
+  <os>
+    <type arch='x86_64' machine='pc-q35-5.2'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='{{ libvirt_pool_dir }}/{{ vm_name }}.qcow2'/>
+      <target dev='vda' bus='virtio'/>
+    </disk>
+    <disk type='file' device='cdrom'>
+	  <driver name='qemu'/>
+	  <source file='{{ libvirt_pool_dir }}/{{ vm_name }}-user-data.iso'/>
+      <target dev='sda' bus='sata'/>
+    </disk>
+    <interface type='bridge'>
+      <mac address='{{ vm_net_mac }}'/>
+      <source bridge='{{ vm_net_host_bridge }}'/>
+      <model type='virtio'/>
+    </interface>
+    <serial type='pty'>
+      <target port='0'/>
+    </serial>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+  </devices>
+</domain>

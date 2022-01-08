@@ -1,0 +1,7 @@
+#cloud-config
+hostname: {{ vm_name }}
+password: {{ vm_root_password }}
+chpasswd: { expire: False }
+disable_root: false
+ssh_authorized_keys:
+  - {{ ssh_authorized_key }}

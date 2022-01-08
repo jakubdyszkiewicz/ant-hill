@@ -1,0 +1,71 @@
+---
+- name: Ensure requirements in place
+  package:
+    name:
+      - libguestfs-tools
+      - cloud-image-utils
+      - python3-libvirt
+    state: present
+  become: yes
+- name: Get VMs list
+  community.libvirt.virt:
+    command: list_vms
+  register: existing_vms
+  changed_when: no
+- name: Create VM if not exists
+  become: true
+  block:
+  - name: Download base image
+    get_url:
+      url: "{{ base_image_url }}"
+      dest: "{{ images_dir }}/{{ base_image_name }}"
+      checksum: "sha256:{{ base_image_sha }}"
+  - name: Copy base image to libvirt directory
+    copy:
+      dest: "{{ libvirt_pool_dir }}/{{ vm_name }}.qcow2"
+      src: "{{ images_dir }}/{{ base_image_name }}"
+      force: no
+      remote_src: yes 
+      mode: 0660
+    register: copy_results
+  - name: Resize image
+    command: |
+      qemu-img resize {{ libvirt_pool_dir }}/{{ vm_name }}.qcow2 {{ vm_disk_size }}
+    when: copy_results is changed
+  - name: Template user data
+    template:
+      src: user-data.yaml.j2
+      dest: "/tmp/{{ vm_name }}-user-data.yaml"
+  - name: Template networking
+    template:
+      src: networking.yaml.j2
+      dest: "/tmp/{{ vm_name }}-networking.yaml"
+  - name: Generate cloud init image
+    command: |
+      cloud-localds -v --network-config=/tmp/{{ vm_name }}-networking.yaml {{ libvirt_pool_dir }}/{{ vm_name }}-user-data.iso /tmp/{{ vm_name }}-user-data.yaml
+  - name: Remove user data
+    file:
+      path: "/tmp/{{ vm_name }}-user-data.yaml"
+      state: absent
+  - name: Remove networking
+    file:
+      path: "/tmp/{{ vm_name }}-networking.yaml"
+      state: absent
+  - name: Define vm
+    community.libvirt.virt:
+      command: define
+      xml: "{{ lookup('template', 'vm-template.xml.j2') }}"
+  when: "vm_name not in existing_vms.list_vms"
+- name: Ensure VM is started
+  community.libvirt.virt:
+    name: "{{ vm_name }}"
+    state: running
+  register: vm_start_results
+  until: "vm_start_results is success"
+  retries: 15
+  delay: 2
+- name: Ensure temporary file is deleted
+  file:
+    path: "/tmp/{{ base_image_name }}"
+    state: absent
+  when: cleanup_images | bool

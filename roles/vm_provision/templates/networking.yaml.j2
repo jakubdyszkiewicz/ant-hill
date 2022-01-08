@@ -1,0 +1,13 @@
+version: 2
+ethernets:
+  enp1s0:
+    dhcp4: false
+    match:
+      macaddress: {{ vm_net_mac }}
+    addresses:
+      - {{ vm_net_ip }}/24
+    gateway4: {{ vm_net_gateway }}
+    nameservers:
+      addresses:
+      - 1.1.1.1
+    set-name: enp1s0

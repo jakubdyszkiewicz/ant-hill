@@ -1,0 +1,17 @@
+---
+base_image_name: focal-server-cloudimg-amd64.img
+base_image_url: "https://cloud-images.ubuntu.com/focal/current/{{ base_image_name }}"
+base_image_sha: f712a18861987417668f56bfcf0d5c86423a79c6ed6eab8fd8046c6a4d2b5bc3
+libvirt_pool_dir: "/var/lib/libvirt/images"
+vm_name: ant_test
+vm_vcpus: 2
+vm_ram_mb: 2048
+vm_disk_size: 5G
+vm_net_mac: '52:54:00:ef:39:11'
+vm_net_ip: '192.168.1.60'
+vm_net_gateway: '192.168.1.1'
+vm_net_host_bridge: vmbridge0
+vm_root_password: test123
+images_dir: /opt/images
+cleanup_images: no
+ssh_authorized_key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0HxL8p3GBMC0pztwrk2Xqgrtezzk2aIDCev+lgWYNpsaULh5+XWM3/NnJx8GaLG2ObtFxD+kbhifpi6FMwgrsSaaW7Lc5ua2ZTy3qcXAW8VkYO+5MBEkCllSgl3AXkGEbyoE29qc6ZtNLL2U083oTGqppNao3PLW+3/4WyYJ4kHjvy/2bWLB745aQUUsiXJt7Juxm8SPbWXIfFqKrQGt20e6LYwUcnA1FlMSL03dPJ6AMAvJUTl/j6N2LcNFztl75EiYNhNptBE6t8SwsTvMa/GpDlvMXiC7z8iPn6MsqqyoGv74nyVMeD9Z23vnOz/UmrL4rNN921h1JwuJPRagr jakub@Jakubs-MacBook-Pro.local'

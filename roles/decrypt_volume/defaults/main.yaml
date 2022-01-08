@@ -1,0 +1,6 @@
+---
+device: ''
+name: ''
+passphrase: ''
+mount_dir: /mnt/{{ name }}
+owner: 'jakub'

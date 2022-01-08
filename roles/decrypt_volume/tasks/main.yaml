@@ -1,0 +1,22 @@
+- name: Decrypt Volume
+  become: true
+  community.crypto.luks_device:
+    device: "{{ device }}"
+    state: opened
+    name: "{{ name }}"
+    passphrase: "{{ passphrase }}"
+- name: Mount directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ mount_dir }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ owner }}"
+- name: Mount backup volume
+  become: true
+  ansible.posix.mount:
+    src: "/dev/mapper/{{ name }}"
+    path: "{{ mount_dir }}"
+    boot: no
+    fstype: ext4
+    state: mounted

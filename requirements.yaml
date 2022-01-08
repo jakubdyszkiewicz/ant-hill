@@ -1,0 +1,7 @@
+---
+roles:
+- name: andrewrothstein.go
+collections:
+- name: community.libvirt
+- name: community.crypto
+- name: ansible.posix

@@ -1,0 +1,54 @@
+---
+- name: Install packages
+  become: true
+  apt:
+    pkg:
+    - tmux
+    - fish
+    - fzf
+    - unzip
+    state: latest
+    update_cache: true
+    cache_valid_time: 86400 # One day
+- name: Clone dotfiles
+  git:
+    repo: 'https://github.com/jakubdyszkiewicz/dotfishy'
+    dest: '~/.dotfishy'
+    force: true # discard any pending changes
+- name: Create directory for z
+  file:
+    path: ~/.local/share/z/
+    state: directory
+- name: Creates user config directory
+  file:
+    path: ~/.config
+    state: directory
+- name: Link fish config
+  file:
+    src: ~/.dotfishy/fish
+    dest: ~/.config/fish
+    state: link
+- name: Link vim config
+  file:
+    src: ~/.dotfishy/vim/vimrc
+    dest: ~/.config/vimrc
+    state: link
+- name: Vim colors directory exists
+  file:
+    path: ~/.vim/colors
+    state: directory
+- name: Link vim config
+  file:
+    src: ~/.dotfishy/vim/solarized.vim
+    dest: ~/.vim/colors/solarized.vim
+    state: link
+- name: Link tmux config
+  file:
+    src: ~/.dotfishy/tmux/tmux.conf
+    dest: ~/.tmux.conf
+    state: link
+- name: Change user shell to fish
+  become: true
+  user:
+    name: "{{ ansible_user_id }}"
+    shell: /usr/bin/fish

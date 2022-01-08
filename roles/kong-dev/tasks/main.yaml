@@ -1,0 +1,35 @@
+---
+- name: Install Go
+  include_role:
+    name: andrewrothstein.go
+- name: Install dependencies for Kuma
+  become: yes
+  apt:
+    pkg:
+    - git
+    - unzip
+    - make
+    - docker.io
+    - docker-compose
+    - clang-format
+    - unzip
+    - build-essential
+    state: latest
+    update_cache: true
+    cache_valid_time: 86400 # One day
+- name: Creates kong working dir
+  file:
+    path: ~/kong
+    state: directory
+- name: Clone Kuma repository
+  git:
+    repo: 'https://github.com/kumahq/kuma'
+    dest: '/tmp/kuma'
+- name: Install Kuma deveoper tools
+  make:
+    chdir: '/tmp/kuma'
+    target: dev/tools
+- name: Remove Kuma repository
+  file:
+    path: '/tmp/kuma'
+    state: absent
