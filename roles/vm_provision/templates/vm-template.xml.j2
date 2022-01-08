@@ -19,9 +19,9 @@
       <target dev='vda' bus='virtio'/>
     </disk>
     <disk type='file' device='cdrom'>
-	  <driver name='qemu'/>
-	  <source file='{{ libvirt_pool_dir }}/{{ vm_name }}-user-data.iso'/>
-      <target dev='sda' bus='sata'/>
+	    <driver name='qemu'/>
+	    <source file='{{ libvirt_pool_dir }}/{{ vm_name }}-user-data.iso'/>
+        <target dev='sda' bus='sata'/>
     </disk>
     <interface type='bridge'>
       <mac address='{{ vm_net_mac }}'/>
