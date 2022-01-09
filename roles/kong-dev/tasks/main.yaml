@@ -29,7 +29,7 @@
   make:
     chdir: '/tmp/kuma'
     target: dev/tools
-- name: Remove Kuma repository
+- name: Remove Kuma repository # it will be sync via Mutagen anyways
   file:
     path: '/tmp/kuma'
     state: absent

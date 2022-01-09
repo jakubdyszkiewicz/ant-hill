@@ -2,7 +2,9 @@
 - hosts: ant-hill
 
   vars:
-    ssh_authorized_key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0HxL8p3GBMC0pztwrk2Xqgrtezzk2aIDCev+lgWYNpsaULh5+XWM3/NnJx8GaLG2ObtFxD+kbhifpi6FMwgrsSaaW7Lc5ua2ZTy3qcXAW8VkYO+5MBEkCllSgl3AXkGEbyoE29qc6ZtNLL2U083oTGqppNao3PLW+3/4WyYJ4kHjvy/2bWLB745aQUUsiXJt7Juxm8SPbWXIfFqKrQGt20e6LYwUcnA1FlMSL03dPJ6AMAvJUTl/j6N2LcNFztl75EiYNhNptBE6t8SwsTvMa/GpDlvMXiC7z8iPn6MsqqyoGv74nyVMeD9Z23vnOz/UmrL4rNN921h1JwuJPRagr jakub@Jakubs-MacBook-Pro.local'
+    ssh_authorized_keys:
+    - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0HxL8p3GBMC0pztwrk2Xqgrtezzk2aIDCev+lgWYNpsaULh5+XWM3/NnJx8GaLG2ObtFxD+kbhifpi6FMwgrsSaaW7Lc5ua2ZTy3qcXAW8VkYO+5MBEkCllSgl3AXkGEbyoE29qc6ZtNLL2U083oTGqppNao3PLW+3/4WyYJ4kHjvy/2bWLB745aQUUsiXJt7Juxm8SPbWXIfFqKrQGt20e6LYwUcnA1FlMSL03dPJ6AMAvJUTl/j6N2LcNFztl75EiYNhNptBE6t8SwsTvMa/GpDlvMXiC7z8iPn6MsqqyoGv74nyVMeD9Z23vnOz/UmrL4rNN921h1JwuJPRagr jakub@Jakubs-MacBook-Pro.local'
+    # TODO add work's public SSH key
   vars_files:
   - vars/main.yaml
 
@@ -17,32 +19,41 @@
       name: backup
       device: /dev/sda
       passphrase: "{{ luks_volumes_passphrase }}"
-  - name: Decrypt data volume
-    include_role: 
-      name: decrypt_volume
-    vars:
-      name: data
-      device: /dev/nvme0n1p4
-      passphrase: "{{ luks_volumes_passphrase }}"
-  - name: Start docker
-    become: yes
-    service:
-      name: docker.socket
-      state: started
+  # TODO: volume should be decrypted but not mounted so it can be passed through to ant-services
+  # - name: Decrypt data volume
+  #   include_role: 
+  #     name: decrypt_volume
+  #   vars:
+  #     name: data
+  #     device: /dev/nvme0n1p4
+  #     passphrase: "{{ luks_volumes_passphrase }}"
+  # - name: Start docker
+  #   become: yes
+  #   service:
+  #     name: docker.socket
+  #     state: started
 
-  - name: Provision ant-test VM
+  - name: Provision ant-dev VM
     include_role:
       name: vm_provision
     vars:
       vm_name: 'ant-test'
-  # - name: Provision ant-test-2 VM
-  #   include_role:
-  #     name: vm_provision
-  #   vars:
-  #     vm_name: 'ant-test-2'
-  #     vm_net_mac: '52:54:00:ef:39:12'
-  #     vm_net_ip: '192.168.1.61'
+      vm_net_mac: '52:54:00:ef:39:12'
+      vm_net_ip: '192.168.1.51'
+  - name: Provision ant-services VM
+    include_role:
+      name: vm_provision
+    vars:
+      vm_name: 'ant-services'
+      vm_net_mac: '52:54:00:ef:39:13'
+      vm_net_ip: '192.168.1.61'
+      # TODO: do not map yet, docker containers are on ant-hill
+      # disk_mappings: 
+      # - source_dev: /dev/mapper/data
+      #   target_dev: vdb
 - hosts: ant-dev
+  vars_files:
+  - vars/main.yaml
   tasks:
   - name: Install dotfiles
     include_role:
@@ -50,11 +61,11 @@
   - name: Install Kong development environment
     include_role:
       name: kong-dev
+  - name: Install VPN (tailscale) # auth key is encrypted in vars/main.yaml
+    include_role:
+      name: artis3n.tailscale
 - hosts: ant-services
   tasks:
   - name: Install dotfiles
     include_role:
       name: dotfiles
-  - name: Install Kong development environment
-    include_role:
-      name: kong-dev

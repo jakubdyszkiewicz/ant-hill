@@ -4,4 +4,6 @@ password: {{ vm_root_password }}
 chpasswd: { expire: False }
 disable_root: false
 ssh_authorized_keys:
-  - {{ ssh_authorized_key }}
+{% for key in ssh_authorized_keys %}
+  - {{ key }}
+{% endfor %}

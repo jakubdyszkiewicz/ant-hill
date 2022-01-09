@@ -14,4 +14,5 @@ vm_net_host_bridge: vmbridge0
 vm_root_password: test123
 images_dir: /opt/images
 cleanup_images: no
-ssh_authorized_key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0HxL8p3GBMC0pztwrk2Xqgrtezzk2aIDCev+lgWYNpsaULh5+XWM3/NnJx8GaLG2ObtFxD+kbhifpi6FMwgrsSaaW7Lc5ua2ZTy3qcXAW8VkYO+5MBEkCllSgl3AXkGEbyoE29qc6ZtNLL2U083oTGqppNao3PLW+3/4WyYJ4kHjvy/2bWLB745aQUUsiXJt7Juxm8SPbWXIfFqKrQGt20e6LYwUcnA1FlMSL03dPJ6AMAvJUTl/j6N2LcNFztl75EiYNhNptBE6t8SwsTvMa/GpDlvMXiC7z8iPn6MsqqyoGv74nyVMeD9Z23vnOz/UmrL4rNN921h1JwuJPRagr jakub@Jakubs-MacBook-Pro.local'
+ssh_authorized_keys: []
+disk_mappings: []

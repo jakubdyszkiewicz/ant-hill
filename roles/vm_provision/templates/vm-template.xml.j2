@@ -21,8 +21,15 @@
     <disk type='file' device='cdrom'>
 	    <driver name='qemu'/>
 	    <source file='{{ libvirt_pool_dir }}/{{ vm_name }}-user-data.iso'/>
-        <target dev='sda' bus='sata'/>
+      <target dev='sda' bus='sata'/>
     </disk>
+    {% for disk_mapping in disk_mappings %}
+    <disk type='block' device='disk'>
+      <driver name='qemu' type='raw' cache='none' io='native'/>
+      <source dev='{{ disk_mapping.source_dev }}'/>
+      <target dev='{{ disk_mapping.target_dev }}' bus='virtio'/>
+    </disk>
+    {% endfor %}
     <interface type='bridge'>
       <mac address='{{ vm_net_mac }}'/>
       <source bridge='{{ vm_net_host_bridge }}'/>
