@@ -4,7 +4,7 @@
   vars:
     ssh_authorized_keys:
     - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0HxL8p3GBMC0pztwrk2Xqgrtezzk2aIDCev+lgWYNpsaULh5+XWM3/NnJx8GaLG2ObtFxD+kbhifpi6FMwgrsSaaW7Lc5ua2ZTy3qcXAW8VkYO+5MBEkCllSgl3AXkGEbyoE29qc6ZtNLL2U083oTGqppNao3PLW+3/4WyYJ4kHjvy/2bWLB745aQUUsiXJt7Juxm8SPbWXIfFqKrQGt20e6LYwUcnA1FlMSL03dPJ6AMAvJUTl/j6N2LcNFztl75EiYNhNptBE6t8SwsTvMa/GpDlvMXiC7z8iPn6MsqqyoGv74nyVMeD9Z23vnOz/UmrL4rNN921h1JwuJPRagr jakub@Jakubs-MacBook-Pro.local'
-    # TODO add work's public SSH key
+    - 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDoGCusJ2rjm051rV2TAtyZsA/sc0g6jEXy2LEsG29xWN+Dt3E5rmwE1CMZ7sQBsUfruIcacdnLj+6804JztZSCMUG8dFYIuZDsL0SrRHacGztnBZBMpcEPBADM67RynXtNdCKkKbV86OPglb0HwRb8W/Q3ox4NgMcLN0S/pcFUnD2FopJ5lokNwagkj/qCQB9DeKwxXfghYC+hj+6c2EuSN0uz2ifdK2Ockge73aF3xz2exlcw5yK1h4T3Fx/7nl5Oy8noQCJfxI+kKyun6udnYpko7GcV1c/3doL8JRxVXDfO0GguhMva4yFiL1gFCPvsPSlohc1jD9q0pXnwEUOH jakob@SFO-M-JDYSZKIEWICZ01.local'
   vars_files:
   - vars/main.yaml
 
@@ -37,9 +37,12 @@
     include_role:
       name: vm_provision
     vars:
-      vm_name: 'ant-test'
+      vm_name: 'ant-dev'
       vm_net_mac: '52:54:00:ef:39:12'
       vm_net_ip: '192.168.1.51'
+      vm_vcpus: 14
+      vm_ram_mb: 16384
+      vm_disk_size: 100G
   - name: Provision ant-services VM
     include_role:
       name: vm_provision
@@ -47,10 +50,16 @@
       vm_name: 'ant-services'
       vm_net_mac: '52:54:00:ef:39:13'
       vm_net_ip: '192.168.1.61'
+      vm_vcpus: 8
+      vm_ram_mb: 8192
+      vm_disk_size: 100G
       # TODO: do not map yet, docker containers are on ant-hill
-      # disk_mappings: 
-      # - source_dev: /dev/mapper/data
-      #   target_dev: vdb
+      disk_mappings: 
+      - source_dev: /dev/mapper/data
+        target_dev: vdb
+      - source_dev: /dev/sdb1
+        target_dev: vdc
+
 - hosts: ant-dev
   vars_files:
   - vars/main.yaml
@@ -64,8 +73,69 @@
   - name: Install VPN (tailscale) # auth key is encrypted in vars/main.yaml
     include_role:
       name: artis3n.tailscale
+
 - hosts: ant-services
+  vars_files:
+  - vars/main.yaml
   tasks:
   - name: Install dotfiles
     include_role:
       name: dotfiles
+  - name: Install docker
+    become: yes
+    apt:
+      pkg:
+      - docker.io
+      - docker-compose
+      state: latest
+      update_cache: true
+      cache_valid_time: 86400 # One day
+  - name: adding existing user '{{ ansible_user }}' to group docker
+    user:
+      name: "{{ ansible_user }}"
+      groups: docker
+      append: yes
+    become: yes
+  - name: Ensure Docker Services directory
+    file:
+      path: ~/docker-services
+      state: directory
+  - name: Template docker-compose
+    template:
+      src: docker-compose.yaml.j2
+      dest: ~/docker-services/docker-compose.yaml
+  - name: Mount data directory exists
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/data"
+      state: directory
+      mode: '0755'
+      owner: "{{ ansible_user }}"
+  - name: Mount data volume
+    become: true
+    ansible.posix.mount:
+      src: "/dev/vdb"
+      path: "/mnt/data"
+      boot: no
+      fstype: ext4
+      state: mounted
+  - name: Mount media directory exists
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/media"
+      state: directory
+      mode: '0755'
+      owner: "{{ ansible_user }}"
+  - name: Mount media volume
+    become: true
+    ansible.posix.mount:
+      src: "/dev/vdc"
+      path: "/mnt/media"
+      boot: no
+      fstype: ext4
+      state: mounted
+  - name: Run all services with docker compose
+    become: yes
+    community.docker.docker_compose:
+      project_src: /home/ubuntu/docker-services
+      state: present
