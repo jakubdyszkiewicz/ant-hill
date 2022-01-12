@@ -19,12 +19,19 @@ $ ./services.sh # configure ant-services
 
 - [X] Script Let's encrypt certs into ant-services (done via docker!)
 - [X] Place docker services into a ant-services VM and passthrough data disk there
-- [ ] Convert as many configs from data disk to static declarative configuration
-- [ ] VPN to ant hill
 - [X] Move time machine to ant-services?
 - [X] Move SMB NAS to ant-services
+- [ ] Convert as many configs from data disk to static declarative configuration
+    - [X] samba
+    - [ ] ddclient
+    - [ ] gickup
+    - [ ] rclone
+    - [ ] swag
+    - [ ] kong
+- [ ] Do not expose port from docker containers, hide everything behind Kong
 
 ### ant-hill
 
+- [ ] VPN to ant hill
 - [ ] Install cockpit via Ansible
 - [ ] Configure vmbridge0
