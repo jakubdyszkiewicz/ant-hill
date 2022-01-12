@@ -10,8 +10,8 @@ Ansible tools to assemble my ~homelab~ ant hill!
 - [X] Place docker services into a ant-services VM and passthrough data disk there
 - [ ] Convert as many configs from data disk to static declarative configuration
 - [ ] VPN to ant hill
-- [ ] Move time machine to ant-services?
-- [ ] Move SMB NAS to ant-services
+- [X] Move time machine to ant-services?
+- [X] Move SMB NAS to ant-services
 
 ### ant-hill
 

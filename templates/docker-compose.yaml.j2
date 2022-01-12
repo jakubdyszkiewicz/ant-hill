@@ -169,3 +169,15 @@ services:
     volumes:
       - /mnt/data/services/swag:/config
     restart: unless-stopped
+  samba:
+    image: crazymax/samba
+    container_name: samba
+    network_mode: host
+    volumes:
+      - /home/ubuntu/docker-services/samba:/data
+      - /mnt/data/nas:/nas
+      - /mnt/data/backup/timemachine:/timemachine
+    environment:
+      - TZ=Europe/Warsaw
+      - SAMBA_LOG_LEVEL=0
+    restart: unless-stopped

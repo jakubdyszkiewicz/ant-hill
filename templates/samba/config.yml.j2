@@ -1,0 +1,26 @@
+auth:
+  - user: jakub
+    group: jakub
+    uid: 1000
+    gid: 1000
+    password: {{ samba_password }}
+global:
+  - "force user = jakub"
+  - "force group = jakub"
+share:
+  - name: nas
+    comment: Network Attached Storage
+    path: /nas
+    browsable: yes
+    readonly: no
+    guestok: no
+    veto: no
+    validusers: jakub
+  - name: timemachine
+    comment: Time Machine
+    path: /timemachine
+    browsable: yes
+    readonly: no
+    guestok: no
+    veto: no
+    validusers: jakub

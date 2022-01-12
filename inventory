@@ -5,4 +5,4 @@
 192.168.1.51 ansible_user=root
 
 [ant-services]
-192.168.1.61 ansible_user=ubuntu
+192.168.1.52 ansible_user=ubuntu

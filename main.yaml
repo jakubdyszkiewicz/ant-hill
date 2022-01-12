@@ -13,13 +13,26 @@
     include_role:
       name: dotfiles
   - name: Decrypt backup volume
-    include_role: 
-      name: decrypt_volume
-    vars:
+    become: true
+    community.crypto.luks_device:
+      device: /dev/sda # # TODO should this be by ID?
+      state: opened
       name: backup
-      device: /dev/sda
       passphrase: "{{ luks_volumes_passphrase }}"
-  # TODO: volume should be decrypted but not mounted so it can be passed through to ant-services
+  - name: Decrypt data volume
+    become: true
+    community.crypto.luks_device:
+      device: /dev/nvme0n1p4 # TODO should this be by ID?
+      state: opened
+      name: data
+      passphrase: "{{ luks_volumes_passphrase }}"
+  # - name: Decrypt backup volume
+  #   include_role: 
+  #     name: decrypt_volume
+  #   vars:
+  #     name: backup
+  #     device: /dev/sda
+  #     passphrase: "{{ luks_volumes_passphrase }}"
   # - name: Decrypt data volume
   #   include_role: 
   #     name: decrypt_volume
@@ -49,16 +62,17 @@
     vars:
       vm_name: 'ant-services'
       vm_net_mac: '52:54:00:ef:39:13'
-      vm_net_ip: '192.168.1.61'
+      vm_net_ip: '192.168.1.52'
       vm_vcpus: 8
       vm_ram_mb: 8192
       vm_disk_size: 100G
-      # TODO: do not map yet, docker containers are on ant-hill
       disk_mappings: 
       - source_dev: /dev/mapper/data
         target_dev: vdb
       - source_dev: /dev/sdb1
         target_dev: vdc
+      - source_dev: /dev/mapper/backup
+        target_dev: vdd
 
 - hosts: ant-dev
   vars_files:
@@ -96,14 +110,7 @@
       groups: docker
       append: yes
     become: yes
-  - name: Ensure Docker Services directory
-    file:
-      path: ~/docker-services
-      state: directory
-  - name: Template docker-compose
-    template:
-      src: docker-compose.yaml.j2
-      dest: ~/docker-services/docker-compose.yaml
+  # --- Volumes ---
   - name: Mount data directory exists
     become: true
     ansible.builtin.file:
@@ -134,6 +141,45 @@
       boot: no
       fstype: ext4
       state: mounted
+  - name: Mount backup directory exists
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/backup"
+      state: directory
+      mode: '0755'
+      owner: "{{ ansible_user }}"
+  - name: Mount backup volume
+    become: true
+    ansible.posix.mount:
+      src: "/dev/vdd"
+      path: "/mnt/backup"
+      boot: no
+      fstype: ext4
+      state: mounted
+  - name: Mount backup directory exists
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/backup"
+      state: directory
+      mode: '0755'
+      owner: "{{ ansible_user }}"
+  # -- Docker compose ---
+  - name: Ensure Docker Services directory
+    file:
+      path: ~/docker-services
+      state: directory
+  - name: Template docker-compose
+    template:
+      src: docker-compose.yaml.j2
+      dest: ~/docker-services/docker-compose.yaml
+  - name: Ensure Docker Services Samba directory
+    file:
+      path: ~/docker-services/samba
+      state: directory
+  - name: Template docker-compose
+    template:
+      src: samba/config.yml.j2
+      dest: ~/docker-services/samba/config.yml
   - name: Run all services with docker compose
     become: yes
     community.docker.docker_compose:
