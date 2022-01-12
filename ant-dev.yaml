@@ -1,7 +1,7 @@
 ---
 - hosts: ant-dev
   vars_files:
-  - vars/main.yaml
+  - vars/secrets.yaml
   tasks:
   - name: Install dotfiles
     include_role:
@@ -9,6 +9,6 @@
   - name: Install Kong development environment
     include_role:
       name: kong-dev
-  - name: Install VPN (tailscale) # auth key is encrypted in vars/main.yaml
+  - name: Install VPN (tailscale) # auth key is encrypted in vars/secrets.yaml
     include_role:
       name: artis3n.tailscale
