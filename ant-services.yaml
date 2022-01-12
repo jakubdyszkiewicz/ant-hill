@@ -1,0 +1,98 @@
+---
+- hosts: ant-services
+  vars_files:
+  - vars/main.yaml
+  tasks:
+  - name: Install dotfiles
+    include_role:
+      name: dotfiles
+  - name: Install docker
+    become: yes
+    apt:
+      pkg:
+      - docker.io
+      - docker-compose
+      state: latest
+      update_cache: true
+      cache_valid_time: 86400 # One day
+  - name: adding existing user '{{ ansible_user }}' to group docker
+    user:
+      name: "{{ ansible_user }}"
+      groups: docker
+      append: yes
+    become: yes
+  # --- Volumes ---
+  - name: Mount data directory exists
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/data"
+      state: directory
+      mode: '0755'
+      owner: "{{ ansible_user }}"
+  - name: Mount data volume
+    become: true
+    ansible.posix.mount:
+      src: "/dev/vdb"
+      path: "/mnt/data"
+      boot: no
+      fstype: ext4
+      state: mounted
+  - name: Mount media directory exists
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/media"
+      state: directory
+      mode: '0755'
+      owner: "{{ ansible_user }}"
+  - name: Mount media volume
+    become: true
+    ansible.posix.mount:
+      src: "/dev/vdc"
+      path: "/mnt/media"
+      boot: no
+      fstype: ext4
+      state: mounted
+  - name: Mount backup directory exists
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/backup"
+      state: directory
+      mode: '0755'
+      owner: "{{ ansible_user }}"
+  - name: Mount backup volume
+    become: true
+    ansible.posix.mount:
+      src: "/dev/vdd"
+      path: "/mnt/backup"
+      boot: no
+      fstype: ext4
+      state: mounted
+  - name: Mount backup directory exists
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/backup"
+      state: directory
+      mode: '0755'
+      owner: "{{ ansible_user }}"
+  # -- Docker compose ---
+  - name: Ensure Docker Services directory
+    file:
+      path: ~/docker-services
+      state: directory
+  - name: Template docker-compose
+    template:
+      src: docker-compose.yaml.j2
+      dest: ~/docker-services/docker-compose.yaml
+  - name: Ensure Docker Services Samba directory
+    file:
+      path: ~/docker-services/samba
+      state: directory
+  - name: Template docker-compose
+    template:
+      src: samba/config.yml.j2
+      dest: ~/docker-services/samba/config.yml
+  - name: Run all services with docker compose
+    become: yes
+    community.docker.docker_compose:
+      project_src: /home/ubuntu/docker-services
+      state: present
