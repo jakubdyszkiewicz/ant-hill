@@ -4,10 +4,13 @@ Ansible tools to assemble my ~homelab~ ant hill!
 
 ## Run
 
-```
+```bash
 $ ansible-galaxy install -r requirements.yaml
 $  set -gx BECOME_PASSWORD sudo-password-to-ant-hill # remember about the space to not write this to history!
 $  set -gx VAULT_PASSWORD vauilt-password
+$ ./hill.sh # configure hill that provisions ant-dev and ant-services
+$ ./dev.sh # configure ant-dev
+$ ./services.sh # configure ant-services
 ```
 
 ## TODO
