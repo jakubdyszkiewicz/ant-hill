@@ -28,7 +28,13 @@ $ ./services.sh # configure ant-services
     - [ ] rclone
     - [ ] swag
     - [ ] kong
+    - [ ] prometheus
+    - [ ] grafana
 - [ ] Do not expose port from docker containers, hide everything behind Kong
+
+#### Observability
+
+- [ ] Node exporter does not report proper network stats :(
 
 ### ant-hill
 

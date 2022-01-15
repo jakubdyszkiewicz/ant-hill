@@ -174,10 +174,76 @@ services:
     container_name: samba
     network_mode: host
     volumes:
-      - /home/ubuntu/docker-services/samba:/data
+      - /home/{{ ansible_user }}/docker-services/samba:/data
       - /mnt/data/nas:/nas
       - /mnt/data/backup/timemachine:/timemachine
     environment:
       - TZ=Europe/Warsaw
       - SAMBA_LOG_LEVEL=0
     restart: unless-stopped
+  nodeexporter:
+    image: prom/node-exporter:v0.18.1
+    container_name: nodeexporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    restart: unless-stopped
+    expose:
+      - 9100
+  prometheus:
+    image: prom/prometheus:v2.17.1
+    container_name: prometheus
+    user: '1000:1000'
+    volumes:
+      - /mnt/data/services/prometheus:/etc/prometheus
+      - /home/{{ ansible_user }}/docker-services/prometheus/data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15000h'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    ports:
+      - 9090:9090
+    expose:
+      - 9090
+  grafana:
+    image: grafana/grafana:6.7.2
+    container_name: grafana
+    user: '1000:1000'
+    volumes:
+      - /home/{{ ansible_user }}/docker-services/grafana/data:/var/lib/grafana
+      - /mnt/data/services/grafana:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin # todo remove password and expose only via Kong
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+  cadvisor:
+    image: gcr.io/google-containers/cadvisor:v0.34.0
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /cgroup:/cgroup:ro
+    restart: unless-stopped
+    expose:
+      - 8080
+  speedtest:
+    image: ghcr.io/danopstech/speedtest_exporter:latest
+    container_name: speedtest
+    restart: unless-stopped
+    expose:
+      - 9090
