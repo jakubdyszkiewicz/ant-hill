@@ -101,9 +101,18 @@
     template:
       src: ddclient/ddclient.conf.j2
       dest: ~/docker-services/ddclient/ddclient.conf
+  ## --- gickup ---
+  - name: Ensure gickup config directory
+    file:
+      path: ~/docker-services/gickup
+      state: directory
+  - name: Template gickup config
+    template:
+      src: gickup/conf.yml.j2
+      dest: ~/docker-services/gickup/conf.yml
   ## --- Run docker ---
   - name: Run all services with docker compose
     become: yes
     community.docker.docker_compose:
-      project_src: /home/ubuntu/docker-services
+      project_src: "/home/{{ ansible_user }}/docker-services"
       state: present

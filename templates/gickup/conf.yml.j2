@@ -1,0 +1,16 @@
+source:
+  gitlab:
+    - user: 'jakub.dyszkiewicz'
+      token: '{{ gitlab_token }}'
+      ssh: false
+  github:
+    - user: 'jakubdyszkiewicz'
+      ssh: false
+destination:
+  local:
+    - path: /data
+      structured: true
+
+log:
+  timeformat: 2006-01-02 15:04:05
+cron: 0 1 * * *

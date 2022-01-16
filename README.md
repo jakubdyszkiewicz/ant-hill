@@ -24,7 +24,7 @@ $ ./services.sh # configure ant-services
 - [ ] Convert as many configs from data disk to static declarative configuration
     - [X] samba
     - [X] ddclient
-    - [ ] gickup
+    - [X] gickup
     - [ ] rclone
     - [ ] swag
     - [ ] kong

@@ -118,7 +118,7 @@ services:
     image: buddyspencer/gickup:latest
     user: '1000:1000'
     volumes:
-      - /mnt/data/services/gickup/conf.yml:/gickup/conf.yml
+      - /home/{{ ansible_user }}/docker-services/gickup/conf.yml:/gickup/conf.yml
       - /mnt/data/gickup:/data
     command: ["./gickup/app", "/gickup/conf.yml"]
   rclone:
