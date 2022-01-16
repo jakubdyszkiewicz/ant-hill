@@ -21,7 +21,7 @@ $ ./services.sh # configure ant-services
 - [X] Place docker services into a ant-services VM and passthrough data disk there
 - [X] Move time machine to ant-services?
 - [X] Move SMB NAS to ant-services
-- [ ] Convert as many configs from data disk to static declarative configuration
+- [X] Convert as many configs from data disk to static declarative configuration
     - [X] samba
     - [X] ddclient
     - [X] gickup
@@ -29,7 +29,7 @@ $ ./services.sh # configure ant-services
     - [X] swag
     - [X] kong
     - [X] prometheus
-    - [ ] grafana
+    - [X] grafana
 - [ ] Do not expose port from docker containers, hide everything behind Kong
 - [ ] Try to remove root user from Kong
 

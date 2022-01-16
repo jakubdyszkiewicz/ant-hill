@@ -221,7 +221,7 @@ services:
     container_name: grafana
     user: '1000:1000'
     volumes:
-      - /home/{{ ansible_user }}/docker-services/grafana/data:/var/lib/grafana
+      - /home/{{ ansible_user }}/docker-services/data/grafana:/var/lib/grafana
       - /mnt/data/services/grafana:/etc/grafana/provisioning
     environment:
       - GF_SECURITY_ADMIN_USER=admin
