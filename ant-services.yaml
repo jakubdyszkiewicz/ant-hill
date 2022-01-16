@@ -74,12 +74,17 @@
       state: directory
       mode: '0755'
       owner: "{{ ansible_user }}"
-  - name: Create docker-services directory
+  - name: Create docker-services directories
     ansible.builtin.file:
-      path: "/home/{{ ansible_user }}/docker-services"
+      path: "{{ item }}"
       state: directory
       mode: '0755'
-  - name: Create docker-services directories
+    loop:
+      - "/home/{{ ansible_user }}/docker-services"
+      - "/home/{{ ansible_user }}/docker-services/data"
+      - "/home/{{ ansible_user }}/docker-services/data/prometheus"
+      - "/home/{{ ansible_user }}/docker-services/data/grafana"
+  - name: Create docker-services template directories
     ansible.builtin.file:
       path: "/home/{{ ansible_user }}/docker-services/{{ item.path }}"
       state: directory
