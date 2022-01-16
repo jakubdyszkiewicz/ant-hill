@@ -149,7 +149,7 @@ services:
       - KONG_SSL_CERT_KEY=/certs/keys/letsencrypt/privkey.pem
     volumes:
       - /home/{{ ansible_user }}/docker-services/kong:/usr/local/kong/declarative
-      - /mnt/data/services/swag:/certs
+      - /home/{{ ansible_user }}/docker-services/swag:/certs
     restart: unless-stopped
   swag:
     image: lscr.io/linuxserver/swag
@@ -162,12 +162,13 @@ services:
       - TZ=Europe/Warsaw
       - URL={{ ant_domain }} 
       - VALIDATION=dns
+      - PROPAGATION=60
       - SUBDOMAINS=wildcard
       - DNSPLUGIN=ovh
       - "EMAIL=jakub.dyszkiewicz@gmail.com"
       - STAGING=false
     volumes:
-      - /mnt/data/services/swag:/config
+      - /home/{{ ansible_user }}/docker-services/swag:/config
     restart: unless-stopped
   samba:
     image: crazymax/samba

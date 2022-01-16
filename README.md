@@ -26,7 +26,7 @@ $ ./services.sh # configure ant-services
     - [X] ddclient
     - [X] gickup
     - [X] rclone
-    - [ ] swag
+    - [X] swag
     - [X] kong
     - [X] prometheus
     - [ ] grafana
