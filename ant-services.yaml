@@ -83,14 +83,25 @@
     template:
       src: docker-compose.yaml.j2
       dest: ~/docker-services/docker-compose.yaml
-  - name: Ensure Docker Services Samba directory
+  ## --- Samba ---
+  - name: Ensure samba config directory
     file:
       path: ~/docker-services/samba
       state: directory
-  - name: Template docker-compose
+  - name: Template samba config
     template:
       src: samba/config.yml.j2
       dest: ~/docker-services/samba/config.yml
+  ## --- ddclient ---
+  - name: Ensure ddclient config directory
+    file:
+      path: ~/docker-services/ddclient
+      state: directory
+  - name: Template samba config
+    template:
+      src: ddclient/ddclient.conf.j2
+      dest: ~/docker-services/ddclient/ddclient.conf
+  ## --- Run docker ---
   - name: Run all services with docker compose
     become: yes
     community.docker.docker_compose:

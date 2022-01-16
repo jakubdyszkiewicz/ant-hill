@@ -95,7 +95,7 @@ services:
       - PGID=1000
       - TZ=Europe/Warsaw
     volumes:
-      - /mnt/data/services/ddclient:/config
+      - /home/{{ ansible_user }}/docker-services/ddclient:/config
     restart: unless-stopped
   duplicacy:
     container_name: duplicacy

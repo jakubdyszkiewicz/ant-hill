@@ -23,7 +23,7 @@ $ ./services.sh # configure ant-services
 - [X] Move SMB NAS to ant-services
 - [ ] Convert as many configs from data disk to static declarative configuration
     - [X] samba
-    - [ ] ddclient
+    - [X] ddclient
     - [ ] gickup
     - [ ] rclone
     - [ ] swag
@@ -31,10 +31,13 @@ $ ./services.sh # configure ant-services
     - [ ] prometheus
     - [ ] grafana
 - [ ] Do not expose port from docker containers, hide everything behind Kong
+- [ ] Try to remove root user from Kong
 
 #### Observability
 
 - [ ] Node exporter does not report proper network stats :(
+- [ ] Report Public IP
+- [ ] Move metrics to location that can survive VM removal, but do not backup them
 
 ### ant-hill
 
