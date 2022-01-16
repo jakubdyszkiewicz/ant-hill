@@ -38,6 +38,8 @@ $ ./services.sh # configure ant-services
 - [ ] Node exporter does not report proper network stats :(
 - [ ] Report Public IP
 - [ ] Move metrics to location that can survive VM removal, but do not backup them
+- [ ] Log retention
+- [ ] Slack channel alarms
 
 ### ant-hill
 

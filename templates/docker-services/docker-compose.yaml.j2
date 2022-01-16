@@ -1,5 +1,12 @@
 ---
 version: "2"
+
+x-logging:
+  &default-logging
+  driver: "json-file"
+  options:
+    tag: "{% raw %}{{ .Name }}{% endraw %}"
+
 services:
   plex:
     image: lscr.io/linuxserver/plex
@@ -13,6 +20,7 @@ services:
       - /mnt/data/services/plex:/config
       - /mnt/media/movies:/movies
       - /mnt/media/tvshows:/tvshows
+    logging: *default-logging
     restart: unless-stopped
   syncthing:
     image: linuxserver/syncthing
@@ -30,6 +38,7 @@ services:
       - 22000:22000/tcp
       - 22000:22000/udp
       - 21027:21027/udp
+    logging: *default-logging
   nzbget:
     image: linuxserver/nzbget
     container_name: nzbget
@@ -43,6 +52,7 @@ services:
       - TZ=Europe/Warsaw
     ports:
       - 6789:6789
+    logging: *default-logging
   sonarr:
     image: linuxserver/sonarr
     container_name: sonarr
@@ -57,6 +67,7 @@ services:
       - /mnt/media/downloads:/downloads
     ports:
       - 8989:8989
+    logging: *default-logging
     restart: unless-stopped
   radarr:
     image: linuxserver/radarr
@@ -71,6 +82,7 @@ services:
       - /mnt/media/downloads:/downloads
     ports:
       - 7878:7878
+    logging: *default-logging
     restart: unless-stopped
   pihole:
     container_name: pihole
@@ -86,6 +98,7 @@ services:
     volumes:
       - /mnt/data/services/pihole:/etc/pihole
       - /mnt/data/services/dnsmasq:/etc/dnsmasq.d
+    logging: *default-logging
     restart: unless-stopped
   ddclient:
     image: lscr.io/linuxserver/ddclient
@@ -96,6 +109,7 @@ services:
       - TZ=Europe/Warsaw
     volumes:
       - /home/{{ ansible_user }}/docker-services/ddclient:/config
+    logging: *default-logging
     restart: unless-stopped
   duplicacy:
     container_name: duplicacy
@@ -113,6 +127,7 @@ services:
       - /home/jakub/docker-services/duplicacy/cache:/cache
       - /home/jakub/docker-services/duplicacy/logs:/logs
       - /mnt/data:/data:ro
+    logging: *default-logging
   gickup:
     container_name: gickup
     image: buddyspencer/gickup:latest
@@ -121,6 +136,7 @@ services:
       - /home/{{ ansible_user }}/docker-services/gickup/conf.yml:/gickup/conf.yml
       - /mnt/data/gickup:/data
     command: ["./gickup/app", "/gickup/conf.yml"]
+    logging: *default-logging
   rclone:
     container_name: rclone
     image: rclone/rclone:latest
@@ -131,6 +147,7 @@ services:
       - /mnt/data/gdrive:/data
     entrypoint: ["/bin/sh", "-c"]
     command: ["while true; do echo 'Syncing...'; /usr/local/bin/rclone sync -v --drive-acknowledge-abuse gdrive:/ /data/; echo 'Sleeping for 1h'; sleep 3600; done"]
+    logging: *default-logging
   kong:
     image: kong
     user: root
@@ -151,6 +168,7 @@ services:
       - /home/{{ ansible_user }}/docker-services/kong:/usr/local/kong/declarative
       - /home/{{ ansible_user }}/docker-services/swag:/certs
     restart: unless-stopped
+    logging: *default-logging
   swag:
     image: lscr.io/linuxserver/swag
     container_name: swag
@@ -170,6 +188,7 @@ services:
     volumes:
       - /home/{{ ansible_user }}/docker-services/swag:/config
     restart: unless-stopped
+    logging: *default-logging
   samba:
     image: crazymax/samba
     container_name: samba
@@ -182,6 +201,7 @@ services:
       - TZ=Europe/Warsaw
       - SAMBA_LOG_LEVEL=0
     restart: unless-stopped
+    logging: *default-logging
   nodeexporter:
     image: prom/node-exporter:v0.18.1
     container_name: nodeexporter
@@ -197,6 +217,7 @@ services:
     restart: unless-stopped
     expose:
       - 9100
+    logging: *default-logging
   prometheus:
     image: prom/prometheus:v2.17.1
     container_name: prometheus
@@ -216,6 +237,7 @@ services:
       - 9090:9090
     expose:
       - 9090
+    logging: *default-logging
   grafana:
     image: grafana/grafana:6.7.2
     container_name: grafana
@@ -242,9 +264,26 @@ services:
     restart: unless-stopped
     expose:
       - 8080
+    logging: *default-logging
   speedtest:
     image: ghcr.io/danopstech/speedtest_exporter:latest
     container_name: speedtest
     restart: unless-stopped
     expose:
       - 9090
+    logging: *default-logging
+  promtail:
+    image: grafana/promtail:2.4.2
+    container_name: promtail
+    volumes:
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - /home/{{ ansible_user }}/docker-services/promtail/docker-config.yml:/etc/promtail/docker-config.yml
+    command: -config.file=/etc/promtail/docker-config.yml
+    logging: *default-logging
+  loki:
+    image: grafana/loki:2.4.2
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    logging: *default-logging
