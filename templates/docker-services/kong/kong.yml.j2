@@ -1,0 +1,119 @@
+_format_version: "2.1"
+_transform: true
+
+services:
+- name: sonarr
+  host: 127.0.0.1
+  port: 8989
+  routes:
+  - name: sonarr
+    hosts:
+    - sonarr.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
+- name: radarr
+  host: 127.0.0.1
+  port: 7878
+  routes:
+  - name: radarr
+    hosts:
+    - radarr.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
+- name: nzbget
+  host: 127.0.0.1
+  port: 6789
+  routes:
+  - name: nzbget
+    hosts:
+    - nzbget.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
+  - name: request-transformer
+    config:
+      add:
+        headers:
+        - 'Authorization:Basic bnpiZ2V0OnRlZ2J6bjY3ODk='
+- name: pihole
+  host: 127.0.0.1
+  port: 7080
+  routes:
+    #- name: pihole-anonymous
+    #hosts:
+    #- pihole.{{ ant_domain }}
+    #strip_path: false
+    #paths:
+    #- /admin/img/favicons/manifest.json
+  - name: pihole
+    hosts:
+    - pihole.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    route: pihole
+    config:
+      hide_credentials: true
+- name: plex
+  host: 127.0.0.1
+  port: 32400
+  routes:
+  - name: plex
+    hosts:
+    - plex.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
+- name: syncthing
+  host: 127.0.0.1
+  port: 8384
+  routes:
+  - name: syncthing
+    hosts:
+    - syncthing.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
+- name: duplicacy
+  host: 127.0.0.1
+  port: 3875
+  routes:
+  - name: duplicacy
+    hosts:
+    - duplicacy.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
+consumers:
+- username: jakub
+  basicauth_credentials:
+  - username: jakub
+    password: '{{ kong_basic_auth_password }}'

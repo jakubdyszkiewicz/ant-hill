@@ -148,7 +148,7 @@ services:
       - KONG_SSL_CERT=/certs/keys/letsencrypt/fullchain.pem
       - KONG_SSL_CERT_KEY=/certs/keys/letsencrypt/privkey.pem
     volumes:
-      - /mnt/data/services/kong:/usr/local/kong/declarative
+      - /home/{{ ansible_user }}/docker-services/kong:/usr/local/kong/declarative
       - /mnt/data/services/swag:/certs
     restart: unless-stopped
   swag:
@@ -201,8 +201,8 @@ services:
     container_name: prometheus
     user: '1000:1000'
     volumes:
-      - /mnt/data/services/prometheus:/etc/prometheus
-      - /home/{{ ansible_user }}/docker-services/prometheus/data:/prometheus
+      - /home/{{ ansible_user }}/docker-services/prometheus:/etc/prometheus
+      - /home/{{ ansible_user }}/docker-services/data/prometheus:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'

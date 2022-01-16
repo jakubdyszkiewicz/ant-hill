@@ -25,10 +25,10 @@ $ ./services.sh # configure ant-services
     - [X] samba
     - [X] ddclient
     - [X] gickup
-    - [ ] rclone
+    - [X] rclone
     - [ ] swag
-    - [ ] kong
-    - [ ] prometheus
+    - [X] kong
+    - [X] prometheus
     - [ ] grafana
 - [ ] Do not expose port from docker containers, hide everything behind Kong
 - [ ] Try to remove root user from Kong
