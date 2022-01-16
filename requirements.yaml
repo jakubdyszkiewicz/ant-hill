@@ -7,3 +7,4 @@ collections:
 - name: community.crypto
 - name: ansible.posix
 - name: community.docker
+- name: community.general

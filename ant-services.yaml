@@ -74,43 +74,27 @@
       state: directory
       mode: '0755'
       owner: "{{ ansible_user }}"
-  # -- Docker compose ---
-  - name: Ensure Docker Services directory
-    file:
-      path: ~/docker-services
+  - name: Create docker-services directory
+    ansible.builtin.file:
+      path: "/home/{{ ansible_user }}/docker-services"
       state: directory
-  - name: Template docker-compose
-    template:
-      src: docker-compose.yaml.j2
-      dest: ~/docker-services/docker-compose.yaml
-  ## --- Samba ---
-  - name: Ensure samba config directory
-    file:
-      path: ~/docker-services/samba
+      mode: '0755'
+  - name: Create docker-services directories
+    ansible.builtin.file:
+      path: "/home/{{ ansible_user }}/docker-services/{{ item.path }}"
       state: directory
-  - name: Template samba config
-    template:
-      src: samba/config.yml.j2
-      dest: ~/docker-services/samba/config.yml
-  ## --- ddclient ---
-  - name: Ensure ddclient config directory
-    file:
-      path: ~/docker-services/ddclient
-      state: directory
-  - name: Template samba config
-    template:
-      src: ddclient/ddclient.conf.j2
-      dest: ~/docker-services/ddclient/ddclient.conf
-  ## --- gickup ---
-  - name: Ensure gickup config directory
-    file:
-      path: ~/docker-services/gickup
-      state: directory
-  - name: Template gickup config
-    template:
-      src: gickup/conf.yml.j2
-      dest: ~/docker-services/gickup/conf.yml
-  ## --- Run docker ---
+      mode: '0755'
+    with_community.general.filetree: templates/docker-services/
+    when: item.state == 'directory'
+  - name: Template docker-services files
+    ansible.builtin.template:
+      src: '{{ item.src }}'
+      # Your template files should be stored with a .j2 file extension,
+      # but should not be deployed with it. splitext|first removes it.
+      dest: "/home/{{ ansible_user }}/docker-services/{{ item.path | splitext | first }}"
+      mode: '0644'
+    with_community.general.filetree: templates/docker-services/
+    when: item.state == 'file'
   - name: Run all services with docker compose
     become: yes
     community.docker.docker_compose:
