@@ -9,7 +9,7 @@ x-logging:
 
 services:
   plex:
-    image: lscr.io/linuxserver/plex
+    image: linuxserver/plex:1.25.3
     container_name: plex
     network_mode: host
     environment:
@@ -23,7 +23,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   syncthing:
-    image: linuxserver/syncthing
+    image: linuxserver/syncthing:1.18.6
     container_name: syncthing
     volumes:
       - /mnt/data/services/syncthing:/config
@@ -40,7 +40,7 @@ services:
       - 21027:21027/udp
     logging: *default-logging
   nzbget:
-    image: linuxserver/nzbget
+    image: linuxserver/nzbget:21.1.20220120
     container_name: nzbget
     volumes:
       - /mnt/data/services/nzbget:/config
@@ -54,7 +54,7 @@ services:
       - 6789:6789
     logging: *default-logging
   sonarr:
-    image: linuxserver/sonarr
+    image: linuxserver/sonarr:3.0.6
     container_name: sonarr
     environment:
       - PUID=1000
@@ -70,7 +70,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   radarr:
-    image: linuxserver/radarr
+    image: linuxserver/radarr:3.2.2
     container_name: radarr
     environment:
       - PUID=1000
@@ -86,7 +86,7 @@ services:
     restart: unless-stopped
   pihole:
     container_name: pihole
-    image: pihole/pihole:latest
+    image: pihole/pihole:2022.01.1
     network_mode: host
     environment:
       - TZ=Europe/Warsaw
@@ -101,7 +101,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   ddclient:
-    image: lscr.io/linuxserver/ddclient
+    image: linuxserver/ddclient:3.9.1
     container_name: ddclient
     environment:
       - PUID=1000
@@ -112,8 +112,8 @@ services:
     logging: *default-logging
     restart: unless-stopped
   duplicacy:
+    image: saspus/duplicacy-web:v1.5.0
     container_name: duplicacy
-    image: saspus/duplicacy-web
     hostname: duplicacy-web
     restart: unless-stopped
     ports:
@@ -130,7 +130,7 @@ services:
     logging: *default-logging
   gickup:
     container_name: gickup
-    image: buddyspencer/gickup:latest
+    image: buddyspencer/gickup:0.9.9-1
     user: '1000:1000'
     volumes:
       - /home/{{ ansible_user }}/docker-services/gickup/conf.yml:/gickup/conf.yml
@@ -139,7 +139,7 @@ services:
     logging: *default-logging
   rclone:
     container_name: rclone
-    image: rclone/rclone:latest
+    image: rclone/rclone:1.57
       #restart: unless-stopped
     user: '1000:1000'
     volumes:
@@ -149,7 +149,7 @@ services:
     command: ["while true; do echo 'Syncing...'; /usr/local/bin/rclone sync -v --drive-acknowledge-abuse gdrive:/ /data/; echo 'Sleeping for 1h'; sleep 3600; done"]
     logging: *default-logging
   kong:
-    image: kong
+    image: kong:2.7.0
     user: root
     container_name: kong
     network_mode: host
@@ -169,7 +169,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   swag:
-    image: lscr.io/linuxserver/swag
+    image: linuxserver/swag:1.22.0
     container_name: swag
     cap_add:
       - NET_ADMIN
@@ -189,7 +189,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   samba:
-    image: crazymax/samba
+    image: crazymax/samba:4.15.2
     container_name: samba
     network_mode: host
     volumes:
@@ -266,7 +266,7 @@ services:
       - 8080
     logging: *default-logging
   speedtest:
-    image: ghcr.io/danopstech/speedtest_exporter:latest
+    image: ghcr.io/danopstech/speedtest_exporter:v0.0.5
     container_name: speedtest
     restart: unless-stopped
     expose:
