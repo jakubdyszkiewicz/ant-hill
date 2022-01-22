@@ -112,6 +112,34 @@ services:
     enabled: true
     config:
       hide_credentials: true
+- name: grafana
+  host: 127.0.0.1
+  port: 3000
+  routes:
+  - name: grafana
+    hosts:
+    - grafana.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
+- name: prometheus
+  host: 127.0.0.1
+  port: 9090
+  routes:
+  - name: prometheus
+    hosts:
+    - prometheus.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
 consumers:
 - username: jakub
   basicauth_credentials:
