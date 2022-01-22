@@ -204,6 +204,7 @@ services:
   nodeexporter:
     image: prom/node-exporter:v0.18.1
     container_name: nodeexporter
+    network_mode: host # required to collect data about host network
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -221,6 +222,8 @@ services:
     image: prom/prometheus:v2.17.1
     container_name: prometheus
     user: '1000:1000'
+    extra_hosts: # required to collect data from nodeexporter
+      - "host.docker.internal:host-gateway"
     volumes:
       - /home/{{ ansible_user }}/docker-services/prometheus:/etc/prometheus
       - /home/{{ ansible_user }}/docker-services/data/prometheus:/prometheus

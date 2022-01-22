@@ -35,8 +35,8 @@ $ ./services.sh # configure ant-services
 
 #### Observability
 
-- [ ] Node exporter does not report proper network stats :(
-- [ ] Report Public IP
+- [X] Node exporter does not report proper network stats :(
+- [X] Report Public IP # it is reported by speedtest exporter
 - [ ] Move metrics to location that can survive VM removal, but do not backup them
 - [ ] Log retention
 - [ ] Slack channel alarms
