@@ -70,20 +70,20 @@ services:
     route: pihole
     config:
       hide_credentials: true
-#- name: plex
-#  host: 127.0.0.1
-#  port: 32400
-#  routes:
-#  - name: plex
-#    hosts:
-#    - plex.{{ ant_domain }}
-#    paths:
-#    - /
-#  plugins:
-#  - name: basic-auth
-#    enabled: true
-#    config:
-#      hide_credentials: true
+- name: plex
+  host: plex
+  port: 32400
+  routes:
+  - name: plex
+    hosts:
+    - plex.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
 - name: syncthing
   host: syncthing
   port: 8384

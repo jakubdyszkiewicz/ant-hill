@@ -11,11 +11,16 @@ services:
   plex:
     image: linuxserver/plex:1.25.3
     container_name: plex
-    network_mode: host
     environment:
       - PUID=1000
       - PGID=1000
       - VERSION=docker
+    ports:
+      - 32400:32400
+      - "32410:32410/udp"
+      - "32412:32412/udp"
+      - "32413:32413/udp"
+      - "32414:32414/udp"
     volumes:
       - /mnt/data/services/plex:/config
       - /mnt/media/movies:/movies
