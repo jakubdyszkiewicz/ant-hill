@@ -39,10 +39,11 @@ services:
       - PGID=1000
       - TZ=Europe/Warsaw
     ports:
-      - 8384:8384
       - 22000:22000/tcp
       - 22000:22000/udp
       - 21027:21027/udp
+    expose:
+      - 8343
     logging: *default-logging
   nzbget:
     image: linuxserver/nzbget:21.1.20220120
@@ -55,8 +56,8 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Warsaw
-    ports:
-      - 6789:6789
+    expose:
+      - 6789
     logging: *default-logging
   sonarr:
     image: linuxserver/sonarr:3.0.6
@@ -70,8 +71,8 @@ services:
       - /mnt/data/services/sonarr:/config
       - /mnt/media/tvshows:/mnt/media
       - /mnt/media/downloads:/downloads
-    ports:
-      - 8989:8989
+    expose:
+      - 8989
     logging: *default-logging
     restart: unless-stopped
   radarr:
@@ -85,8 +86,8 @@ services:
       - /mnt/data/services/radarr:/config
       - /mnt/media/movies:/mnt/media
       - /mnt/media/downloads:/downloads
-    ports:
-      - 7878:7878
+    expose:
+      - 7878
     logging: *default-logging
     restart: unless-stopped
   pihole:
@@ -122,8 +123,8 @@ services:
     container_name: duplicacy
     hostname: duplicacy-web
     restart: unless-stopped
-    ports:
-      - 3875:3875
+    expose:
+      - 3875
     environment:
       - USR_ID=1000
       - GRP_ID=1000
@@ -198,7 +199,6 @@ services:
   samba:
     image: crazymax/samba:4.15.2
     container_name: samba
-    network_mode: host
     volumes:
       - /home/{{ ansible_user }}/docker-services/samba:/data
       - /mnt/data/nas:/nas
@@ -206,6 +206,8 @@ services:
     environment:
       - TZ=Europe/Warsaw
       - SAMBA_LOG_LEVEL=0
+    ports:
+      - 445:445
     restart: unless-stopped
     logging: *default-logging
   nodeexporter:
@@ -242,8 +244,6 @@ services:
       - '--storage.tsdb.retention.time=15000h'
       - '--web.enable-lifecycle'
     restart: unless-stopped
-    ports:
-      - 9090:9090
     expose:
       - 9090
     logging: *default-logging
@@ -259,8 +259,8 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Editor
       - GF_USERS_ALLOW_SIGN_UP=false
-    ports:
-      - 3000:3000
+    expose:
+      - 3000
     restart: unless-stopped
   cadvisor:
     image: gcr.io/google-containers/cadvisor:v0.34.0
@@ -293,7 +293,7 @@ services:
   loki:
     image: grafana/loki:2.4.2
     container_name: loki
-    ports:
-      - "3100:3100"
+    expose:
+      - 3100
     command: -config.file=/etc/loki/local-config.yaml
     logging: *default-logging
