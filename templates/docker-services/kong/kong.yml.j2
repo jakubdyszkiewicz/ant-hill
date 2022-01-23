@@ -3,7 +3,7 @@ _transform: true
 
 services:
 - name: sonarr
-  host: 127.0.0.1
+  host: sonarr
   port: 8989
   routes:
   - name: sonarr
@@ -17,7 +17,7 @@ services:
     config:
       hide_credentials: true
 - name: radarr
-  host: 127.0.0.1
+  host: radarr
   port: 7878
   routes:
   - name: radarr
@@ -31,7 +31,7 @@ services:
     config:
       hide_credentials: true
 - name: nzbget
-  host: 127.0.0.1
+  host: nzbget
   port: 6789
   routes:
   - name: nzbget
@@ -50,7 +50,7 @@ services:
         headers:
         - 'Authorization:Basic bnpiZ2V0OnRlZ2J6bjY3ODk='
 - name: pihole
-  host: 127.0.0.1
+  host: pihole
   port: 7080
   routes:
     #- name: pihole-anonymous
@@ -70,22 +70,22 @@ services:
     route: pihole
     config:
       hide_credentials: true
-- name: plex
-  host: 127.0.0.1
-  port: 32400
-  routes:
-  - name: plex
-    hosts:
-    - plex.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
+#- name: plex
+#  host: 127.0.0.1
+#  port: 32400
+#  routes:
+#  - name: plex
+#    hosts:
+#    - plex.{{ ant_domain }}
+#    paths:
+#    - /
+#  plugins:
+#  - name: basic-auth
+#    enabled: true
+#    config:
+#      hide_credentials: true
 - name: syncthing
-  host: 127.0.0.1
+  host: syncthing
   port: 8384
   routes:
   - name: syncthing
@@ -99,7 +99,7 @@ services:
     config:
       hide_credentials: true
 - name: duplicacy
-  host: 127.0.0.1
+  host: duplicacy
   port: 3875
   routes:
   - name: duplicacy
@@ -113,7 +113,7 @@ services:
     config:
       hide_credentials: true
 - name: grafana
-  host: 127.0.0.1
+  host: grafana
   port: 3000
   routes:
   - name: grafana
@@ -127,7 +127,7 @@ services:
     config:
       hide_credentials: true
 - name: prometheus
-  host: 127.0.0.1
+  host: prometheus
   port: 9090
   routes:
   - name: prometheus
