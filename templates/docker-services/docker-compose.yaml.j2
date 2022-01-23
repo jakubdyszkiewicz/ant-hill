@@ -87,14 +87,15 @@ services:
   pihole:
     container_name: pihole
     image: pihole/pihole:2022.01.1
-    network_mode: host
     environment:
       - TZ=Europe/Warsaw
       - WEBPASSWORD=piholepasswd
       - WEB_PORT=7080
-      - DNSMASQ_LISTENING=single
-      - INTERFACE=enp1s0
       - CORS_HOSTS=pihole.{{ ant_domain }}
+    ports: # bind only to specific network interface, 0.0.0.0 has a clash with builtin Ubuntu systemd caching DNS on 127.0.0.1
+      - "{{ ansible_ssh_host }}:53:53/tcp"
+      - "{{ ansible_ssh_host }}:53:53/udp"
+      - "7080:7080/tcp"
     volumes:
       - /mnt/data/services/pihole:/etc/pihole
       - /mnt/data/services/dnsmasq:/etc/dnsmasq.d
