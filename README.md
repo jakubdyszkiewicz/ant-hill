@@ -31,7 +31,7 @@ $ ./services.sh # configure ant-services
     - [X] prometheus
     - [X] grafana
 - [X] Do not expose port from docker containers, hide everything behind Kong
-- [ ] Try to remove root user from Kong
+- [X] Try to remove root user from Kong
 
 #### Observability
 

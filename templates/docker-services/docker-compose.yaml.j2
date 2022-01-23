@@ -157,20 +157,21 @@ services:
     logging: *default-logging
   kong:
     image: kong:2.7.0
-    user: root
+    user: '1000:1000'
     container_name: kong
     environment:
+      - KONG_PREFIX=/tmp/ # the default /usr/local/kong is not writable by non-root user
       - KONG_DATABASE=off
       - KONG_DECLARATIVE_CONFIG=/usr/local/kong/declarative/kong.yml
       - KONG_PROXY_ACCESS_LOG=/dev/stdout
       - KONG_ADMIN_ACCESS_LOG=/dev/stdout
       - KONG_PROXY_ERROR_LOG=/dev/stderr
       - KONG_ADMIN_ERROR_LOG=/dev/stderr
-      - KONG_PROXY_LISTEN=0.0.0.0:80, 0.0.0.0:443 ssl
+      - KONG_PROXY_LISTEN=0.0.0.0:8080, 0.0.0.0:8443 ssl
       - KONG_SSL_CERT=/certs/keys/letsencrypt/fullchain.pem
       - KONG_SSL_CERT_KEY=/certs/keys/letsencrypt/privkey.pem
     ports:
-      - 443:443
+      - 443:8443
     volumes:
       - /home/{{ ansible_user }}/docker-services/kong:/usr/local/kong/declarative
       - /mnt/data/services/swag:/certs
