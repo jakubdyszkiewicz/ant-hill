@@ -15,6 +15,11 @@ $ ./services.sh # configure ant-services
 
 ## TODO
 
+### all VMs
+
+- [ ] mDNS to autodiscover with MacOS
+- [ ] Mount disk by labels
+
 ### ant-services
 
 - [X] Script Let's encrypt certs into ant-services (done via docker!)

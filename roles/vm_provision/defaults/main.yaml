@@ -1,7 +1,7 @@
 ---
-base_image_name: focal-server-cloudimg-amd64.img
-base_image_url: "https://cloud-images.ubuntu.com/focal/current/{{ base_image_name }}"
-base_image_sha: f712a18861987417668f56bfcf0d5c86423a79c6ed6eab8fd8046c6a4d2b5bc3
+base_image_name: jammy-server-cloudimg-amd64.img
+base_image_url: "https://cloud-images.ubuntu.com/jammy/current/{{ base_image_name }}"
+base_image_sha: b63ec58af8dfa161c5420dc6462ed312ca19f8c3e3e316b1cd55779831d52e58
 libvirt_pool_dir: "/var/lib/libvirt/images"
 vm_name: ant_test
 vm_vcpus: 2

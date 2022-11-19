@@ -84,6 +84,7 @@
       - "/home/{{ ansible_user }}/docker-services/data"
       - "/home/{{ ansible_user }}/docker-services/data/prometheus"
       - "/home/{{ ansible_user }}/docker-services/data/grafana"
+      - "/home/{{ ansible_user }}/docker-services/data/downloads"
   - name: Create docker-services template directories
     ansible.builtin.file:
       path: "/home/{{ ansible_user }}/docker-services/{{ item.path }}"

@@ -49,11 +49,11 @@
       vm_net_ip: '192.168.1.52'
       vm_vcpus: 8
       vm_ram_mb: 8192
-      vm_disk_size: 100G
+      vm_disk_size: 250G
       disk_mappings: 
       - source_dev: /dev/mapper/data
         target_dev: vdb
-      - source_dev: /dev/sdb1
+      - source_dev: /dev/sdc1
         target_dev: vdc
       - source_dev: /dev/mapper/backup
         target_dev: vdd

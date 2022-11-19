@@ -50,7 +50,7 @@ services:
     container_name: nzbget
     volumes:
       - /mnt/data/services/nzbget:/config
-      - /mnt/media/downloads:/downloads
+      - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
     restart: always
     environment:
       - PUID=1000
@@ -70,7 +70,7 @@ services:
     volumes:
       - /mnt/data/services/sonarr:/config
       - /mnt/media/tvshows:/mnt/media
-      - /mnt/media/downloads:/downloads
+      - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
     expose:
       - 8989
     logging: *default-logging
@@ -85,7 +85,7 @@ services:
     volumes:
       - /mnt/data/services/radarr:/config
       - /mnt/media/movies:/mnt/media
-      - /mnt/media/downloads:/downloads
+      - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
     expose:
       - 7878
     logging: *default-logging
