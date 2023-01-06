@@ -3,6 +3,14 @@
   vars_files:
   - vars/secrets.yaml
   tasks:
+  - name: Install mDNS Discovery
+    become: yes
+    apt:
+      pkg:
+      - avahi-daemon
+      state: latest
+      update_cache: true
+      cache_valid_time: 86400 # One day
   - name: Install dotfiles
     include_role:
       name: dotfiles

@@ -17,7 +17,7 @@ $ ./services.sh # configure ant-services
 
 ### all VMs
 
-- [ ] mDNS to autodiscover with MacOS
+- [X] mDNS to autodiscover with MacOS
 - [ ] Mount disk by labels
 
 ### ant-services
