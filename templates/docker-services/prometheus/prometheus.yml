@@ -15,3 +15,7 @@ scrape_configs:
     scrape_timeout: 1m
     static_configs:
       - targets: ['speedtest:9090']
+  - job_name: 'ant-sensors'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['192.168.1.50:9255']
