@@ -51,7 +51,5 @@ $ ./services.sh # configure ant-services
 - [ ] VPN to ant hill
 - [ ] Install cockpit via Ansible
 - [ ] Configure vmbridge0
-
-### ant
-
 - [ ] Automate Sensors with https://hub.docker.com/r/amkay/sensor-exporter + Podman
+- [ ] Try to get rid of additional network card?
