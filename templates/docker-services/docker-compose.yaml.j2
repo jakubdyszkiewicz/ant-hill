@@ -298,3 +298,9 @@ services:
       - 3100
     command: -config.file=/etc/loki/local-config.yaml
     logging: *default-logging
+  antui:
+    image: jakubdyszkiewicz/ant-ui:0.0.1
+    container_name: antui
+    expose:
+      - 80
+    logging: *default-logging

@@ -140,6 +140,20 @@ services:
     enabled: true
     config:
       hide_credentials: true
+- name: antui
+  host: antui
+  port: 80
+  routes:
+  - name: antui
+    hosts:
+    - {{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
 consumers:
 - username: jakub
   basicauth_credentials:
