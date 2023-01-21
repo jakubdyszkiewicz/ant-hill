@@ -53,3 +53,7 @@ $ ./services.sh # configure ant-services
 - [ ] Configure vmbridge0
 - [ ] Automate Sensors with https://hub.docker.com/r/amkay/sensor-exporter + Podman
 - [ ] Try to get rid of additional network card?
+
+## Updates
+
+Last `ant-services` container updates: 21.01.2023
