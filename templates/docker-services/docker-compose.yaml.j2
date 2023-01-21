@@ -25,6 +25,7 @@ services:
       - /mnt/data/services/plex:/config
       - /mnt/media/movies:/movies
       - /mnt/media/tvshows:/tvshows
+      - /mnt/media/music:/music
     logging: *default-logging
     restart: unless-stopped
   syncthing:
@@ -88,6 +89,22 @@ services:
       - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
     expose:
       - 7878
+    logging: *default-logging
+    restart: unless-stopped
+  lidarr:
+    image: linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=PST
+      - UMASK_SET=022 #optional
+    volumes:
+      - /mnt/data/services/lidarr:/config
+      - /mnt/media/music:/mnt/media
+      - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
+    expose:
+      - 8686
     logging: *default-logging
     restart: unless-stopped
   pihole:
