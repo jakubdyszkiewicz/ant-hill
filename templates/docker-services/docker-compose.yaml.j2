@@ -159,7 +159,6 @@ services:
     volumes:
       - /home/{{ ansible_user }}/docker-services/gickup/conf.yml:/gickup/conf.yml
       - /mnt/data/gickup:/data
-    command: ["./gickup/app", "/gickup/conf.yml"]
     logging: *default-logging
   rclone:
     container_name: rclone
