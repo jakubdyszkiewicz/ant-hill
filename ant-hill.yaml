@@ -61,7 +61,7 @@
       disk_mappings: 
       - source_dev: /dev/mapper/data
         target_dev: vdb
-      - source_dev: /dev/sdc1
+      - source_dev: /dev/disk/by-label/media
         target_dev: vdc
       - source_dev: /dev/mapper/backup
         target_dev: vdd
