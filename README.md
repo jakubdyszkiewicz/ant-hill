@@ -6,8 +6,8 @@ Ansible tools to assemble my ~homelab~ ant hill!
 
 ```bash
 $ ansible-galaxy install -r requirements.yaml
-$  set -gx BECOME_PASSWORD sudo-password-to-ant-hill # remember about the space to not write this to history!
-$  set -gx VAULT_PASSWORD vauilt-password
+$  export BECOME_PASSWORD=sudo-password-to-ant-hill # remember about the space to not write this to history!
+$  export VAULT_PASSWORD=vauilt-password
 $ ./hill.sh # configure hill that provisions ant-dev and ant-services
 $ ./dev.sh # configure ant-dev
 $ ./services.sh # configure ant-services
@@ -18,7 +18,7 @@ $ ./services.sh # configure ant-services
 ### all VMs
 
 - [X] mDNS to autodiscover with MacOS
-- [ ] Mount disk by labels
+- [X] Mount disk by labels
 
 ### ant-services
 
@@ -49,8 +49,8 @@ $ ./services.sh # configure ant-services
 ### ant-hill
 
 - [ ] VPN to ant hill
-- [ ] Install cockpit via Ansible
-- [ ] Configure vmbridge0
+- [X] Install cockpit via Ansible
+- [X] Configure vmbridge0
 - [ ] Automate Sensors with https://hub.docker.com/r/amkay/sensor-exporter + Podman
 - [ ] Try to get rid of additional network card?
 
