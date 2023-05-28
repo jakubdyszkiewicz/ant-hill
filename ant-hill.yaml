@@ -9,14 +9,28 @@
   - vars/secrets.yaml
 
   tasks:
-  - name: Install mDNS Discovery
+  - name: Install packages
     become: yes
     apt:
       pkg:
-      - avahi-daemon
+      - avahi-daemon # mDNS Discovery: ant-hill.local, ant-dev.local, ant-services.local
+      - cockpit
+      - cockpit-machines
+      - libvirt-daemon-system
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
+  - name: adding existing user '{{ ansible_user }}' to group libvirt
+    user:
+      name: "{{ ansible_user }}"
+      groups: libvirt,kvm
+      append: yes
+    become: yes
+  - name: Enable and start cockpit service
+    ansible.builtin.systemd:
+      name: cockpit.socket
+      state: started
+      enabled: true
   - name: Install dotfiles
     include_role:
       name: dotfiles
@@ -27,17 +41,31 @@
   - name: Decrypt backup volume
     become: true
     community.crypto.luks_device:
-      device: /dev/sda # # TODO should this be by ID?
+      device: /dev/disk/by-id/ata-CT1000MX500SSD1_2144E5E0D596
       state: opened
       name: backup
       passphrase: "{{ luks_volumes_passphrase }}"
   - name: Decrypt data volume
     become: true
     community.crypto.luks_device:
-      device: /dev/nvme0n1p4 # TODO should this be by ID?
+      device: /dev/disk/by-id/nvme-WD_Blue_SN570_1TB_224306803372-part3
       state: opened
       name: data
       passphrase: "{{ luks_volumes_passphrase }}"
+  - name: Copy networking configuration
+    copy:
+      src: '02-ant-hill-networking.yaml'
+      dest: "/etc/netplan/02-ant-hill-networking.yaml"
+      mode: '0644'
+    become: true
+  - name: Apply network configuration
+    shell: netplan apply
+    become: true
+  - name: Restart networking service
+    become: true
+    service:
+      name: systemd-networkd
+      state: restarted
   - name: Provision ant-dev VM
     include_role:
       name: vm_provision

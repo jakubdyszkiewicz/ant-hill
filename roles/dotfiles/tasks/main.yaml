@@ -3,6 +3,8 @@
   become: true
   apt:
     pkg:
+    - git
+    - vim
     - tmux
     - fish
     - fzf

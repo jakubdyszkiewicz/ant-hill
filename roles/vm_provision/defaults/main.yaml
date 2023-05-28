@@ -1,7 +1,7 @@
 ---
 base_image_name: jammy-server-cloudimg-amd64.img
 base_image_url: "https://cloud-images.ubuntu.com/jammy/current/{{ base_image_name }}"
-base_image_sha: b63ec58af8dfa161c5420dc6462ed312ca19f8c3e3e316b1cd55779831d52e58
+base_image_sha: 1b78127cd4bccf943cd43ee7489b5d96a73028e2835d2f8d8d41c8e8ef47a825
 libvirt_pool_dir: "/var/lib/libvirt/images"
 vm_name: ant_test
 vm_vcpus: 2

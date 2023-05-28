@@ -12,6 +12,12 @@
     command: list_vms
   register: existing_vms
   changed_when: no
+- name: Ensures images directory exist
+  file:
+    path: "{{ images_dir }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+  become: yes
 - name: Create VM if not exists
   become: true
   block:

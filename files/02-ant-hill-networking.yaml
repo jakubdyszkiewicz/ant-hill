@@ -1,0 +1,20 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp1s0f0:
+      dhcp4: no
+    enp9s0:
+      dhcp4: yes
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
+  bridges:
+    vmbridge0:
+      interfaces: [enp1s0f0]
+      dhcp4: no
+      addresses: [192.168.1.100/24]
+      routes:
+      - to: default
+        via: 192.168.1.1
+      nameservers:
+        addresses: [8.8.8.8, 8.8.4.4]
