@@ -44,6 +44,34 @@ services:
     enabled: true
     config:
       hide_credentials: true
+- name: readarr
+  host: readarr
+  port: 8989
+  routes:
+  - name: readarr
+    hosts:
+    - readarr.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
+- name: bazarr
+  host: bazarr
+  port: 6767
+  routes:
+  - name: bazarr
+    hosts:
+    - bazarr.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: basic-auth
+    enabled: true
+    config:
+      hide_credentials: true
 - name: nzbget
   host: nzbget
   port: 6789

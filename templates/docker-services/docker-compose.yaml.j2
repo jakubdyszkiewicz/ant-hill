@@ -70,7 +70,7 @@ services:
       - UMASK_SET=022 #optional
     volumes:
       - /mnt/data/services/sonarr:/config
-      - /mnt/media/tvshows:/mnt/media
+      - /mnt/media/tvshows:/mnt/media/tvshows
       - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
     expose:
       - 8989
@@ -85,7 +85,7 @@ services:
       - TZ=PST
     volumes:
       - /mnt/data/services/radarr:/config
-      - /mnt/media/movies:/mnt/media
+      - /mnt/media/movies:/mnt/media/movies
       - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
     expose:
       - 7878
@@ -105,6 +105,38 @@ services:
       - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
     expose:
       - 8686
+    logging: *default-logging
+    restart: unless-stopped
+  readarr:
+    image: linuxserver/readarr:develop
+    container_name: readarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=PST
+      - UMASK_SET=022 #optional
+    volumes:
+      - /mnt/data/services/readarr:/config
+      - /mnt/media/books:/mnt/media
+      - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
+    expose:
+      - 8989
+    logging: *default-logging
+    restart: unless-stopped
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Warsaw
+      - UMASK_SET=022 #optional
+    volumes:
+      - /mnt/data/services/bazarr:/config
+      - /mnt/media/tvshows:/mnt/media/tvshows # this path has to be the same as in Sonarr
+      - /mnt/media/movies:/mnt/media/movies # # this path has to be the same as in Radarr
+    expose:
+      - 6767
     logging: *default-logging
     restart: unless-stopped
   pihole:
