@@ -2,13 +2,27 @@ _format_version: "2.1"
 _transform: true
 
 services:
-- name: sonarr
-  host: sonarr
-  port: 8989
+{% for service in [
+  {"name": "sonarr", "port": 8989},
+  {"name": "radarr", "port": 7878},
+  {"name": "lidarr", "port": 8686},
+  {"name": "readarr", "port": 8989},
+  {"name": "bazarr", "port": 6767},
+  {"name": "nzbget", "port": 6789},
+  {"name": "pihole", "port": 7080},
+  {"name": "plex", "port": 32400},
+  {"name": "syncthing", "port": 8384},
+  {"name": "duplicacy", "port": 3875},
+  {"name": "grafana", "port": 3000},
+  {"name": "prometheus", "port": 9090},
+] %}
+- name: {{ service.name }}
+  host: {{ service.name }}
+  port: {{ service.port }}
   routes:
-  - name: sonarr
+  - name: {{ service.name }}
     hosts:
-    - sonarr.{{ ant_domain }}
+    - {{ service.name }}.{{ ant_domain }}
     paths:
     - /
   plugins:
@@ -16,62 +30,7 @@ services:
     enabled: true
     config:
       hide_credentials: true
-- name: radarr
-  host: radarr
-  port: 7878
-  routes:
-  - name: radarr
-    hosts:
-    - radarr.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
-- name: lidarr
-  host: lidarr
-  port: 8686
-  routes:
-  - name: lidarr
-    hosts:
-    - lidarr.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
-- name: readarr
-  host: readarr
-  port: 8989
-  routes:
-  - name: readarr
-    hosts:
-    - readarr.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
-- name: bazarr
-  host: bazarr
-  port: 6767
-  routes:
-  - name: bazarr
-    hosts:
-    - bazarr.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
+{% endfor %}
 - name: nzbget
   host: nzbget
   port: 6789
@@ -91,97 +50,6 @@ services:
       add:
         headers:
         - 'Authorization:Basic bnpiZ2V0OnRlZ2J6bjY3ODk='
-- name: pihole
-  host: pihole
-  port: 7080
-  routes:
-    #- name: pihole-anonymous
-    #hosts:
-    #- pihole.{{ ant_domain }}
-    #strip_path: false
-    #paths:
-    #- /admin/img/favicons/manifest.json
-  - name: pihole
-    hosts:
-    - pihole.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    route: pihole
-    config:
-      hide_credentials: true
-- name: plex
-  host: plex
-  port: 32400
-  routes:
-  - name: plex
-    hosts:
-    - plex.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
-- name: syncthing
-  host: syncthing
-  port: 8384
-  routes:
-  - name: syncthing
-    hosts:
-    - syncthing.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
-- name: duplicacy
-  host: duplicacy
-  port: 3875
-  routes:
-  - name: duplicacy
-    hosts:
-    - duplicacy.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
-- name: grafana
-  host: grafana
-  port: 3000
-  routes:
-  - name: grafana
-    hosts:
-    - grafana.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
-- name: prometheus
-  host: prometheus
-  port: 9090
-  routes:
-  - name: prometheus
-    hosts:
-    - prometheus.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: basic-auth
-    enabled: true
-    config:
-      hide_credentials: true
 - name: antui
   host: antui
   port: 80
