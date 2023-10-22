@@ -120,7 +120,7 @@ services:
       - /mnt/media/books:/mnt/media
       - /home/{{ ansible_user }}/docker-services/data/downloads:/downloads
     expose:
-      - 8989
+      - 8787
     logging: *default-logging
     restart: unless-stopped
   bazarr:
