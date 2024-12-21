@@ -1,0 +1,11 @@
+#!/bin/sh
+
+CALENDAR_URL={{ ical_url }}
+OUTPUT_PATH="/data/GoogleCalendarBackup.ics"
+wget -q -O "$OUTPUT_PATH" "$CALENDAR_URL"
+
+if [ $? -eq 0 ]; then
+  echo "$(date): Calendar fetched and saved to $OUTPUT_PATH"
+else
+  echo "$(date): Failed to fetch calendar"
+fi

@@ -396,3 +396,11 @@ services:
       - 8080
     environment:
       - TZ=Europe/Warsaw
+  calendar-fetcher:
+    image: alpine:latest
+    container_name: calendar-fetcher
+    volumes:
+      - /home/{{ ansible_user }}/docker-services/calendar-fetcher/fetch.sh:/usr/local/bin/fetch.sh
+      - /mnt/data/calendar:/data
+    entrypoint: /bin/sh -c "chmod +x /usr/local/bin/fetch.sh && while true; do /usr/local/bin/fetch.sh; sleep 3600; done"
+    restart: unless-stopped
