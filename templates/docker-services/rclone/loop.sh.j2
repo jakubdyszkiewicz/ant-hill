@@ -1,0 +1,17 @@
+#!/bin/sh
+
+while true;
+do
+  echo 'Syncing...'
+  /usr/local/bin/rclone sync -v --drive-acknowledge-abuse gdrive:/ /data/
+  echo "Sending HC"
+  wget -q -O- {{ rclone_hc_url }}
+  if [ $? -eq 0 ]; then
+    echo "HC successful"
+  else
+    echo "Failure to send HC"
+  fi
+  
+  echo 'Sleeping for 1h'
+  sleep 3600
+done

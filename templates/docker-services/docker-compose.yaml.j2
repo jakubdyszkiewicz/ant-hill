@@ -201,8 +201,7 @@ services:
     volumes:
       - /home/{{ ansible_user }}/docker-services/rclone:/config/rclone
       - /mnt/data/gdrive:/data
-    entrypoint: ["/bin/sh", "-c"]
-    command: ["while true; do echo 'Syncing...'; /usr/local/bin/rclone sync -v --drive-acknowledge-abuse gdrive:/ /data/; echo 'Sleeping for 1h'; sleep 3600; done"]
+    entrypoint: ["/bin/sh", "/config/rclone/loop.sh"]
     logging: *default-logging
   kong:
     image: kong:3.3.1
