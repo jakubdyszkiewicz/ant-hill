@@ -6,6 +6,13 @@ wget -q -O "$OUTPUT_PATH" "$CALENDAR_URL"
 
 if [ $? -eq 0 ]; then
   echo "$(date): Calendar fetched and saved to $OUTPUT_PATH"
+  echo "Sending HC"
+  wget -q -O- {{ calendar_fetcher_hc_url }}
+  if [ $? -eq 0 ]; then
+    echo "HC successful"
+  else
+    echo "Failure to send HC"
+  fi
 else
   echo "$(date): Failed to fetch calendar"
 fi
