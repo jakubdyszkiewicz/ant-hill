@@ -404,3 +404,15 @@ services:
       - /mnt/data/calendar:/data
     entrypoint: /bin/sh -c "chmod +x /usr/local/bin/fetch.sh && while true; do /usr/local/bin/fetch.sh; sleep 3600; done"
     restart: unless-stopped
+  spotify-exporter:
+    container_name: spotify-exporter
+    restart: unless-stopped
+    image: jakubdyszkiewicz/spotify-exporter:v0.0.2
+    volumes:
+      - /home/{{ ansible_user }}/docker-services/spotify-exporter/config.toml:/app/config.toml
+      - /mnt/data/services/spotify-exporter/auth-cache:/app/auth-cache
+      - /mnt/data/services/spotify-exporter/out:/app/data
+    expose:
+      - 8888
+    environment:
+      - TZ=Europe/Warsaw

@@ -74,6 +74,15 @@ services:
     - homeassistant.{{ ant_domain }}
     paths:
     - /
+- name: spotify-exporter
+  host: spotify-exporter
+  port: 8888
+  routes:
+  - name: spotify-exporter
+    hosts:
+    - {{ spotify_exporter_domain }}
+    paths:
+    - /
 consumers:
 - username: jakub
   basicauth_credentials:

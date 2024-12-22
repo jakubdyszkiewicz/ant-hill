@@ -1,0 +1,13 @@
+client_id = "{{ spotify_exporter_client_id }}"
+client_secret = "{{ spotify_exporter_client_secret }}"
+redirect_uri = "https://{{ spotify_exporter_domain }}/callback"  # has to be the same as in spotify app dev account
+ping_url = "{{ spotify_exporter_hc_url }}"
+results_dir = "/app/data"
+auth_cache_dir = "/app/auth-cache"
+
+[server]
+host = "0.0.0.0"
+port = 8888
+
+[schedule]
+cron = "0 1 * * *"  # Every day at 1 AM
