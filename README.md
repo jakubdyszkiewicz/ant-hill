@@ -56,4 +56,4 @@ $ ./services.sh # configure ant-services
 
 ## Updates
 
-Last `ant-services` container updates: 21.01.2023
+Last `ant-services` container updates: 08.02.2025
