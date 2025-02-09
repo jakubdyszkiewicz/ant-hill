@@ -16,3 +16,4 @@ images_dir: /opt/images
 cleanup_images: no
 ssh_authorized_keys: []
 disk_mappings: []
+usb_mappings: []

@@ -30,6 +30,14 @@
       <target dev='{{ disk_mapping.target_dev }}' bus='virtio'/>
     </disk>
     {% endfor %}
+    {% for usb_mapping in usb_mappings %}
+    <hostdev mode='subsystem' type='usb' managed='yes'>
+      <source>
+        <vendor id='{{ usb_mapping.source_vendor }}'/>
+        <product id='{{ usb_mapping.source_product }}'/>
+      </source>
+    </hostdev>
+    {% endfor %}
     <interface type='bridge'>
       <mac address='{{ vm_net_mac }}'/>
       <source bridge='{{ vm_net_host_bridge }}'/>

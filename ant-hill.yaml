@@ -86,6 +86,9 @@
       vm_vcpus: 8
       vm_ram_mb: 8192
       vm_disk_size: 250G
+      usb_mappings:
+      - source_vendor: "0x1a86" # Zigbee Dongle
+        source_product: "0x55d4"
       disk_mappings: 
       - source_dev: /dev/mapper/data
         target_dev: vdb

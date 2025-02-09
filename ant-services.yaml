@@ -11,6 +11,14 @@
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
+  # Extra modules are needed to support drivers for Zigbee Dongle
+  - name: Install extra modules for the current kernel
+    become: yes
+    apt:
+      pkg: "linux-modules-extra-{{ ansible_kernel }}"
+      state: latest
+      update_cache: true
+      cache_valid_time: 86400 # One day
   - name: Install dotfiles
     include_role:
       name: dotfiles

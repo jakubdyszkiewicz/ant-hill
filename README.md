@@ -15,7 +15,6 @@ $ ./services.sh # configure ant-services
 
 ## TODO
 
-- [ ] Put zigbee2mqtt on ant-services instead of ant-hill (can't mount USB zigbee adapter)
 - [ ] Configure log retention
 - [ ] Slack channel alarms
 - [ ] VPN to ant hill (Tailscale is broken)
