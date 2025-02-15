@@ -15,9 +15,7 @@ $ ./services.sh # configure ant-services
 
 ## TODO
 
-- [ ] Configure log retention
 - [ ] Slack channel alarms
-- [ ] VPN to ant hill (Tailscale is broken)
 - [ ] Automate Sensors with https://hub.docker.com/r/amkay/sensor-exporter + Podman
 - [ ] Try to get rid of additional network card?
 

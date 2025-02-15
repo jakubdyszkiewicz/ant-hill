@@ -17,6 +17,6 @@
   - name: Install Kong development environment
     include_role:
       name: kong-dev
-  # - name: Install VPN (tailscale) # auth key is encrypted in vars/secrets.yaml
-  #   include_role:
-  #     name: artis3n.tailscale
+  - name: Install VPN (tailscale) # auth key is encrypted in vars/secrets.yaml
+    include_role:
+      name: artis3n.tailscale

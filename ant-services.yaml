@@ -22,6 +22,9 @@
   - name: Install dotfiles
     include_role:
       name: dotfiles
+  - name: Install VPN (tailscale) # auth key is encrypted in vars/secrets.yaml
+    include_role:
+      name: artis3n.tailscale
   - name: Install docker
     become: yes
     apt:

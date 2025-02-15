@@ -21,15 +21,17 @@
   file:
     path: ~/kong
     state: directory
-- name: Clone Kuma repository
-  git:
-    repo: 'https://github.com/kumahq/kuma'
-    dest: '/tmp/kuma'
-- name: Install Kuma deveoper tools
-  make:
-    chdir: '/tmp/kuma'
-    target: dev/tools
-- name: Remove Kuma repository # it will be sync via Mutagen anyways
-  file:
-    path: '/tmp/kuma'
-    state: absent
+# Does not work currently, because dev/tools requires yq
+#
+# - name: Clone Kuma repository
+#   git:
+#     repo: 'https://github.com/kumahq/kuma'
+#     dest: '/tmp/kuma'
+# - name: Install Kuma deveoper tools
+#   make:
+#     chdir: '/tmp/kuma'
+#     target: dev/tools
+# - name: Remove Kuma repository # it will be sync via Mutagen anyways
+#   file:
+#     path: '/tmp/kuma'
+#     state: absent
