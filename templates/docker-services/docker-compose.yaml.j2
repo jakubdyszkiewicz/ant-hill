@@ -202,6 +202,8 @@ services:
       - KONG_PROXY_LISTEN=0.0.0.0:8080, 0.0.0.0:8443 ssl
       - KONG_SSL_CERT=/certs/live/{{ ant_domain }}/fullchain.pem
       - KONG_SSL_CERT_KEY=/certs/live/{{ ant_domain }}/privkey.pem
+      - KONG_MEM_CACHE_SIZE=32m
+      - KONG_NGINX_WORKER_PROCESSES="1"
     ports:
       - 443:8443
     volumes:
