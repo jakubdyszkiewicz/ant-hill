@@ -15,6 +15,7 @@ services:
   {"name": "grafana", "port": 3000},
   {"name": "prometheus", "port": 9090},
   {"name": "zigbee2mqtt", "port": 8080},
+  {"name": "actual", "port": 5006},
 ] %}
 - name: {{ service.name }}
   host: {{ service.name }}

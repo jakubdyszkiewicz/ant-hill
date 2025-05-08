@@ -123,21 +123,16 @@ services:
       - 6767
     logging: *default-logging
     restart: unless-stopped
-  pihole:
-    container_name: pihole
-    image: pihole/pihole:2023.01.6
-    environment:
-      - TZ=Europe/Warsaw
-      - WEBPASSWORD=piholepasswd
-      - WEB_PORT=7080
-      - CORS_HOSTS=pihole.{{ ant_domain }}
+  adguardhome:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
     ports: # bind only to specific network interface, 0.0.0.0 has a clash with builtin Ubuntu systemd caching DNS on 127.0.0.1
       - "{{ inventory_hostname }}:53:53/tcp"
       - "{{ inventory_hostname }}:53:53/udp"
-      - "7080:7080/tcp" # do not hide it in Kong yet. I need DNS to access all services in local network
+      - "3000:3000/tcp" # do not hide it in Kong yet. I need DNS to access all services in local network
     volumes:
-      - /mnt/data/services/pihole:/etc/pihole
-      - /mnt/data/services/dnsmasq:/etc/dnsmasq.d
+      - /mnt/data/services/adguardhome/work:/opt/adguardhome/work
+      - /mnt/data/services/adguardhome/conf:/opt/adguardhome/conf
     logging: *default-logging
     restart: unless-stopped
   ddclient:
@@ -407,6 +402,17 @@ services:
       - /mnt/data/services/spotify-exporter/out:/app/data
     expose:
       - 8888
+    environment:
+      - TZ=Europe/Warsaw
+    logging: *default-logging
+  actual:
+    container_name: actual
+    restart: unless-stopped
+    image: actualbudget/actual-server:25.5.0
+    volumes:
+      - /mnt/data/services/actual:/data
+    expose:
+      - 5006
     environment:
       - TZ=Europe/Warsaw
     logging: *default-logging
