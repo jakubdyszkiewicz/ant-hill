@@ -16,6 +16,7 @@ services:
   {"name": "prometheus", "port": 9090},
   {"name": "zigbee2mqtt", "port": 8080},
   {"name": "actual", "port": 5006},
+  {"name": "paperless", "port": 8000},
 ] %}
 - name: {{ service.name }}
   host: {{ service.name }}
@@ -83,8 +84,23 @@ services:
     - {{ spotify_exporter_domain }}
     paths:
     - /
+- name: paperless-apikey
+  host: paperless
+  port: 8000
+  routes:
+  - name: paperless-apikey
+    hosts:
+    - paperless-apikey.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: key-auth
+    enabled: true
 consumers:
 - username: jakub
   basicauth_credentials:
   - username: jakub
     password: '{{ kong_basic_auth_password }}'
+keyauth_credentials:
+- consumer: jakub-apikey
+  key: '{{ kong_api_key }}'

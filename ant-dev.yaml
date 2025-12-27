@@ -17,6 +17,22 @@
   - name: Install Kong development environment
     include_role:
       name: kong-dev
-  - name: Install VPN (tailscale) # auth key is encrypted in vars/secrets.yaml
-    include_role:
+  - name: Enable IPv4 forwarding for exit node
+    become: true
+    ansible.posix.sysctl:
+      name: net.ipv4.ip_forward
+      value: '1'
+      state: present
+      reload: yes
+  - name: Enable IPv6 forwarding for exit node
+    become: true
+    ansible.posix.sysctl:
+      name: net.ipv6.conf.all.forwarding
+      value: '1'
+      state: present
+      reload: yes
+  - name: Install VPN (tailscale) as exit node
+    vars:
+      tailscale_args: "--advertise-exit-node"
+    ansible.builtin.include_role:
       name: artis3n.tailscale

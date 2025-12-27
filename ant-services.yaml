@@ -133,6 +133,6 @@
       - item.path.endswith('.j2') == False
   - name: Run all services with docker compose
     become: yes
-    community.docker.docker_compose:
+    community.docker.docker_compose_v2:
       project_src: "/home/{{ ansible_user }}/docker-services"
       state: present

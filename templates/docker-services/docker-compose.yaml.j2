@@ -29,7 +29,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   syncthing:
-    image: linuxserver/syncthing:1.29.2
+    image: linuxserver/syncthing:2.0.12
     container_name: syncthing
     volumes:
       - /mnt/data/services/syncthing:/config
@@ -45,6 +45,18 @@ services:
       - 21027:21027/udp
     expose:
       - 8343
+    logging: *default-logging
+  syncthing-healthcheck:
+    image: jakubdyszkiewicz/syncthing-healthcheck:0.0.1
+    container_name: syncthing-healthcheck
+    volumes:
+      - /home/{{ ansible_user }}/docker-services/syncthing-healthcheck:/config
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Warsaw
+      - SYNCTHING_API_KEY={{ syncthing_api_key }}
     logging: *default-logging
   nzbget:
     image: linuxserver/nzbget:24.5.20250207
@@ -338,7 +350,7 @@ services:
     logging: *default-logging
   homeassistant:
     container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:2025.2.1"
+    image: "ghcr.io/home-assistant/home-assistant:2025.7.1"
     volumes:
       - /home/{{ ansible_user }}/docker-services/homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
@@ -416,3 +428,26 @@ services:
     environment:
       - TZ=Europe/Warsaw
     logging: *default-logging
+  paperless-redis:
+    container_name: paperless-redis
+    image: docker.io/library/redis:8
+    restart: unless-stopped
+    volumes:
+      - /mnt/data/services/paperless/redis:/data
+  paperless:
+    container_name: paperless
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    restart: unless-stopped
+    depends_on:
+      - paperless-redis
+    volumes:
+      - /mnt/data/services/paperless/data:/usr/src/paperless/data
+      - /mnt/data/services/paperless/media:/usr/src/paperless/media
+      - /mnt/data/services/paperless/export:/usr/src/paperless/export
+      - /mnt/data/services/paperless/consume:/usr/src/paperless/consume
+    environment:
+      - PAPERLESS_TIME_ZONE=Europe/Warsaw
+      - PAPERLESS_URL=https://paperless.{{ ant_domain }}
+      - "PAPERLESS_OCR_LANGUAGE=pol+eng"
+      - PAPERLESS_OCR_LANGUAGES=pol
+      - PAPERLESS_REDIS=redis://paperless-redis:6379

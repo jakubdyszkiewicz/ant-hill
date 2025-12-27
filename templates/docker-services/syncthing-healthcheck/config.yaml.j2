@@ -1,0 +1,7 @@
+check_interval: 24h
+syncthing:
+  url: http://syncthing:8384
+devices:
+  - id: FMZ3PUL-6ERUTMF-OGATO5L-O5KPKJS-LCP4HQP-7BEGNM6-4OB6ZVA-XTUNXA7
+    max_unavailability: 168h
+    webhook_url: "{{ syncthing_hc_url }}"
