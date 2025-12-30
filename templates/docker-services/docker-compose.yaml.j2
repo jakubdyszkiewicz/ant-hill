@@ -211,11 +211,11 @@ services:
       - KONG_SSL_CERT_KEY=/certs/live/{{ ant_domain }}/privkey.pem
       - KONG_MEM_CACHE_SIZE=32m
       - KONG_NGINX_WORKER_PROCESSES="1"
-      - KONG_LICENSE_DATA='{{ kong_ee_license }}'
     ports:
       - 443:8443
     volumes:
       - /home/{{ ansible_user }}/docker-services/kong:/usr/local/kong/declarative
+      - /home/{{ ansible_user }}/docker-services/kong/license.json:/etc/kong/license.json
       - /mnt/data/services/swag/etc/letsencrypt:/certs
     restart: unless-stopped
     logging: *default-logging
@@ -462,10 +462,10 @@ services:
       - DB_USER=romm-user # Should match MARIADB_USER in mariadb
       - DB_PASSWD={{ romm_db_passwd }}
       - ROMM_AUTH_SECRET_KEY={{ romm_auth_key }}
-      - SCREENSCRAPER_USER= # These are the recommended metadata providers
-      - SCREENSCRAPER_PASSWORD= # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#screenscraper
-      - RETROACHIEVEMENTS_API_KEY= # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#retroachievements
-      - STEAMGRIDDB_API_KEY= # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#steamgriddb
+      - SCREENSCRAPER_USER=jacqud # These are the recommended metadata providers
+      - SCREENSCRAPER_PASSWORD={{ screenscraper_fr_password }} # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#screenscraper
+      - RETROACHIEVEMENTS_API_KEY={{ retroachievements_api_key }} # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#retroachievements
+      - STEAMGRIDDB_API_KEY={{ steamgriddb_api_key }} # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#steamgriddb
       - HASHEOUS_API_ENABLED=true # https://docs.romm.app/latest/Getting-Started/Metadata-Providers/#hasheous
     volumes:
       - /mnt/data/services/romm/resources:/romm/resources # Resources fetched from IGDB (covers, screenshots, etc.)

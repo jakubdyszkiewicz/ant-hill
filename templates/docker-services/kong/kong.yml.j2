@@ -5,7 +5,6 @@ services:
 {% for service in [
   {"name": "sonarr", "port": 8989},
   {"name": "radarr", "port": 7878},
-  {"name": "lidarr", "port": 8686},
   {"name": "readarr", "port": 8787},
   {"name": "bazarr", "port": 6767},
   {"name": "pihole", "port": 7080},
@@ -17,6 +16,8 @@ services:
   {"name": "zigbee2mqtt", "port": 8080},
   {"name": "actual", "port": 5006},
   {"name": "paperless", "port": 8000},
+  {"name": "nzbget", "port": 6789},
+  {"name": "romm", "port": 8080},
 ] %}
 - name: {{ service.name }}
   host: {{ service.name }}
@@ -28,30 +29,34 @@ services:
     paths:
     - /
   plugins:
-  - name: basic-auth
-    enabled: true
+  - name: mtls-auth
     config:
-      hide_credentials: true
+      skip_consumer_lookup: true
+      revocation_check_mode: SKIP
+      send_ca_dn: true
+      ca_certificates:
+      - 8f6a7b5e-2b7a-4d1d-b7c9-3f6d6b0c3e1a
 {% endfor %}
-- name: nzbget
-  host: nzbget
-  port: 6789
+
+{% for service in [
+  {"name": "sonarr", "port": 8989},
+  {"name": "radarr", "port": 7878},
+  {"name": "paperless", "port": 8000},
+] %}
+- name: {{ service.name }}-api
+  host: {{ service.name }}
+  port: {{ service.port }}
   routes:
-  - name: nzbget
+  - name: {{ service.name }}-api
     hosts:
-    - nzbget.{{ ant_domain }}
+    - {{ service.name }}-api.{{ ant_domain }}
     paths:
     - /
   plugins:
-  - name: basic-auth
+  - name: key-auth
     enabled: true
-    config:
-      hide_credentials: true
-  - name: request-transformer
-    config:
-      add:
-        headers:
-        - 'Authorization:Basic bnpiZ2V0OnRlZ2J6bjY3ODk='
+{% endfor %}
+
 - name: antui
   host: antui
   port: 80
@@ -84,27 +89,6 @@ services:
     - {{ spotify_exporter_domain }}
     paths:
     - /
-- name: paperless-apikey
-  host: paperless
-  port: 8000
-  routes:
-  - name: paperless-apikey
-    hosts:
-    - paperless-apikey.{{ ant_domain }}
-    paths:
-    - /
-  plugins:
-  - name: key-auth
-    enabled: true
-- name: romm
-  host: romm
-  port: 8080
-  routes:
-  - name: romm
-    hosts:
-    - romm.{{ ant_domain }}
-    paths:
-    - /
 consumers:
 - username: jakub
   basicauth_credentials:
@@ -116,3 +100,36 @@ keyauth_credentials:
 - consumer:
     id: 9f3a6f6e-2b6f-4f2d-9c1d-1b2c3d4e5f60
   key: '{{ kong_api_key }}'
+ca_certificates:
+  - id: 8f6a7b5e-2b7a-4d1d-b7c9-3f6d6b0c3e1a
+    cert: |
+      -----BEGIN CERTIFICATE-----
+      MIIFIzCCAwugAwIBAgIUcxpdltNpBRlJrQqEg2Up8Iycxh4wDQYJKoZIhvcNAQEL
+      BQAwGTEXMBUGA1UEAwwOY2xpZW50LWF1dGgtY2EwHhcNMjUxMjI1MTU0MjI1WhcN
+      MzUxMjIzMTU0MjI1WjAZMRcwFQYDVQQDDA5jbGllbnQtYXV0aC1jYTCCAiIwDQYJ
+      KoZIhvcNAQEBBQADggIPADCCAgoCggIBAKcP8PgV9KRX6iqCnTRnQh3OZY2/mHam
+      HuoNSPP8X6vsYoQj1ND0HiKQMR3dvJ0OTIcKesV6JllVdgI2TcLs9HRnLttv/IMh
+      2uiWanyOkMaG/xKL45CZ1yYhcz7OxuvPMHcwoPzrElxX6/3PnndTbHZt7xc3rfyN
+      UeXOYKDJSE0PPSoVTE8dgCVOdvXE0GgGwE+7zLIPbKPFcI7L7+3dtfVVMVu3JgCs
+      hVs2chc+2mSTtHYepd7zVd0yRa0h2k8FoWUAZ3kd6BRcXrf0hpltIbJSrRXLbbNh
+      rFxxBPPIPnp0pS+7TSQ10mTWL+2DtgXvTZMCoHyLhRrf0E+KQtGyTax/yd/bmO3x
+      uzdoUtV9oPA6/jJ8L78dGMgbrGJ+p7FZHHGefg0TSmHS1a6gj84yDFy1P5BlOt/o
+      UwHrl5/K2h+pEdh8U6KVXnjZO+BK6y/WLicRXz28crkfFMgIic0LyOjr5K0p03Rr
+      l4Exo0MCZOU+LCUlU/KJOONxgogOTuQEdOHjuipu17BQYQsQHw4RlLBK5mNV9rPo
+      ZfaxUSzD0ST+APeNith5v21Fr24D4HzfqZL9/5YXZbeL5WzQyBStv7RauMvsOMrS
+      +VNUirda7bsECzIEvqCUDiJSZ6Awy9Fx6aL184HBpGAFxQtsb174vC2eGyMW84C2
+      CU+gN3cUe61FAgMBAAGjYzBhMB8GA1UdIwQYMBaAFNdL9oElh6Jm8qbgu9eMC8Lu
+      gzYcMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBTX
+      S/aBJYeiZvKm4LvXjAvC7oM2HDANBgkqhkiG9w0BAQsFAAOCAgEAZs/1s6jKKWdT
+      vuVLLB6umT7wBn70VwqKv/oSqIedcv/JTTf1/lqRm1bh5rSD4ut2U/oj1BbKFQv/
+      CDxYbMf49SuC+M1EeH4greqMriLAlxoWO5Mwn2AhvB3Fxz6xkt7wB8esDLtp2wSI
+      Npkj02LfdKcPgK76OmiivYEgNjb3BrnFa5dMtIGgmrVLPBS2A4Dw6Ms+UEDKVC0k
+      xJZwGrfER8/rOzfoUADFcXhYtW+Jor12rv1vYW/J0s5H9ftoAT4bzUipcoX8Aswd
+      2NjV4i5ZQnTYheuW1xhf5bbw0pHq/qgZUiudc2XAlJTpz/X1nbm4V5PhZc0PfaAO
+      bnC7D6yjjCz9r5psc7M8t+xzyLiL7mFJjOGaBLzUik6LFseoOa8Xj370ZpISwftn
+      +sbt7IZvOI6qJ8l3r7PlJJG7qnC8js7Bv+x5MvR227yNPI9dYVByjo+9h+ycaVhv
+      NGaEnfTu8sN6JFA0NM9jThPkhONh7RnRb4yowLLHyiAVIZM6MlJkGnYEGQKtCj0Q
+      bWUnglQJ9dgSBKYkIoGNreRcKDV8qCX6IuiPG7UFfvahIRpkBPF1VGTZJlJrFZpa
+      FLuga+O0uF5U9hHXhRe+3mPk9GMUf4T0XiMG0fjZIbiAHGjVLl36qvC3ab9UJm7a
+      JEgOChPn4/4fVmw4uIfM6WSD9+xjIR4=
+      -----END CERTIFICATE-----
