@@ -35,4 +35,4 @@
     vars:
       tailscale_args: "--advertise-exit-node"
     ansible.builtin.include_role:
-      name: artis3n.tailscale
+      name: artis3n.tailscale.machine

@@ -278,7 +278,7 @@ services:
       - "host.docker.internal:host-gateway"
     volumes:
       - /home/{{ ansible_user }}/docker-services/prometheus:/etc/prometheus
-      - /home/{{ ansible_user }}/docker-services/data/prometheus:/prometheus
+      - /mnt/backup/prometheus:/prometheus # intentially mounted to backup to survive VM rebuild, but not be backed up to B2
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -296,7 +296,7 @@ services:
     container_name: grafana
     user: '1000:1000'
     volumes:
-      - /home/{{ ansible_user }}/docker-services/data/grafana:/var/lib/grafana
+      - /mnt/data/services/grafana:/var/lib/grafana
       - /home/{{ ansible_user }}/docker-services/grafana:/etc/grafana/provisioning
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true # secured via Kong
@@ -353,7 +353,7 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:2025.7.1"
     volumes:
-      - /home/{{ ansible_user }}/docker-services/homeassistant:/config
+      - /mnt/data/services/homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     ports:
@@ -386,7 +386,7 @@ services:
   zigbee2mqtt:
     container_name: zigbee2mqtt
     restart: unless-stopped
-    image: koenkk/zigbee2mqtt
+    image: koenkk/zigbee2mqtt:1.42.0
     volumes:
       - /mnt/data/services/zigbee2mqtt:/app/data
       - /run/udev:/run/udev:ro

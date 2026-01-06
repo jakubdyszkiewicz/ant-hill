@@ -1,10 +1,11 @@
 ---
 roles:
 - name: andrewrothstein.go
-- name: artis3n.tailscale
+  version: "v2.5.0"
 collections:
 - name: community.libvirt
 - name: community.crypto
 - name: ansible.posix
 - name: community.docker
 - name: community.general
+- name: artis3n.tailscale

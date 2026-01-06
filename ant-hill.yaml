@@ -17,6 +17,7 @@
       - cockpit
       - cockpit-machines
       - libvirt-daemon-system
+      - python3-lxml
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
@@ -36,7 +37,7 @@
       name: dotfiles
   - name: Install VPN (tailscale) # auth key is encrypted in vars/secrets.yaml
     include_role:
-      name: artis3n.tailscale
+      name: artis3n.tailscale.machine
   - name: Decrypt backup volume
     become: true
     community.crypto.luks_device:
@@ -69,6 +70,9 @@
     include_role:
       name: vm_provision
     vars:
+      base_image_name: noble-server-cloudimg-amd64.img
+      base_image_url: "https://cloud-images.ubuntu.com/noble/20251213/{{ base_image_name }}"
+      base_image_sha: 2b5f90ffe8180def601c021c874e55d8303e8bcbfc66fee2b94414f43ac5eb1f
       vm_name: 'ant-dev'
       vm_net_mac: '52:54:00:ef:39:12'
       vm_net_ip: '192.168.1.51'
@@ -79,6 +83,9 @@
     include_role:
       name: vm_provision
     vars:
+      base_image_name: noble-server-cloudimg-amd64.img
+      base_image_url: "https://cloud-images.ubuntu.com/noble/20251213/{{ base_image_name }}"
+      base_image_sha: 2b5f90ffe8180def601c021c874e55d8303e8bcbfc66fee2b94414f43ac5eb1f
       vm_name: 'ant-services'
       vm_net_mac: '52:54:00:ef:39:13'
       vm_net_ip: '192.168.1.52'

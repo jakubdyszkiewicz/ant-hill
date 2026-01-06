@@ -52,5 +52,5 @@
 - name: Change user shell to fish
   become: true
   user:
-    name: "{{ ansible_user_id }}"
+    name: "{{ ansible_facts['user_id'] }}"
     shell: /usr/bin/fish
