@@ -34,6 +34,19 @@
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
+  - name: Ensure cli-plugins dir exists (system-wide)
+    become: yes
+    file:
+      path: /usr/local/lib/docker/cli-plugins
+      state: directory
+      mode: "0755"
+  - name: Install Docker Compose plugin binary
+    become: yes
+    get_url:
+      url: "https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64"
+      dest: /usr/local/lib/docker/cli-plugins/docker-compose
+      mode: "0755"
+      checksum: "sha256:7af95166a730b87e172d4fc9aefea8725d3c6c7327d59149267b452114ddb7d4"
   - name: adding existing user '{{ ansible_user }}' to group docker
     user:
       name: "{{ ansible_user }}"

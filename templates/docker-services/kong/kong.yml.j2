@@ -18,6 +18,7 @@ services:
   {"name": "paperless", "port": 8000},
   {"name": "nzbget", "port": 6789},
   {"name": "romm", "port": 8080},
+  {"name": "ghostfolio", "port": 3333},
 ] %}
 - name: {{ service.name }}
   host: {{ service.name }}
@@ -42,6 +43,7 @@ services:
   {"name": "sonarr", "port": 8989},
   {"name": "radarr", "port": 7878},
   {"name": "paperless", "port": 8000},
+  {"name": "ghostfolio", "port": 3333},
 ] %}
 - name: {{ service.name }}-api
   host: {{ service.name }}
@@ -89,6 +91,23 @@ services:
     - {{ spotify_exporter_domain }}
     paths:
     - /
+- name: kroczek
+  host: 192.168.1.110
+  port: 13000
+  routes:
+  - name: kroczek
+    hosts:
+    - kroczek.{{ ant_domain }}
+    paths:
+    - /
+  plugins:
+  - name: mtls-auth
+    config:
+      skip_consumer_lookup: true
+      revocation_check_mode: SKIP
+      send_ca_dn: true
+      ca_certificates:
+      - 8f6a7b5e-2b7a-4d1d-b7c9-3f6d6b0c3e1a
 consumers:
 - username: jakub
   basicauth_credentials:
