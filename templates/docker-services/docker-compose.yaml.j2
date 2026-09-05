@@ -228,7 +228,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Europe/Warsaw
-      - URL={{ ant_domain }} 
+      - URL={{ ant_domain }}
       - VALIDATION=dns
       - PROPAGATION=60
       - SUBDOMAINS=wildcard
@@ -307,17 +307,21 @@ services:
       - 3000
     restart: unless-stopped
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    image: ghcr.io/google/cadvisor:0.56.2
     container_name: cadvisor
+    privileged: true
+    devices:
+    - /dev/kmsg:/dev/kmsg
     volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker:/var/lib/docker:ro
-      - /cgroup:/cgroup:ro
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    - /var/lib/docker:/var/lib/docker:ro
+    - /dev/disk:/dev/disk:ro
     restart: unless-stopped
     expose:
-      - 8080
+    - "8080"
     logging: *default-logging
   speedtest:
     image: ghcr.io/danopstech/speedtest_exporter:v0.0.5
@@ -421,7 +425,7 @@ services:
   actual:
     container_name: actual
     restart: unless-stopped
-    image: actualbudget/actual-server:26.2.0
+    image: actualbudget/actual-server:26.8.1
     volumes:
       - /mnt/data/services/actual:/data
     expose:
@@ -468,7 +472,7 @@ services:
       - PAPERLESS_OCR_LANGUAGES=pol
       - PAPERLESS_REDIS=redis://paperless-redis:6379
   romm:
-    image: rommapp/romm:4.4.1
+    image: rommapp/romm:5.1.0
     container_name: romm
     restart: unless-stopped
     environment:
@@ -492,6 +496,8 @@ services:
       romm-db:
         condition: service_healthy
         restart: true
+    ports:
+      - 18082:8080
   romm-db:
     image: mariadb:latest
     container_name: romm-db
@@ -592,6 +598,83 @@ services:
     depends_on:
       - ghostfolio
     logging: *default-logging
+  bubblewrap-postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: bubblewrap-postgres
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Warsaw
+      - POSTGRES_DB=bubblewrap
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD={{ bubblewrap_postgres_password }}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d bubblewrap -U app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - /mnt/data/services/bubblewrap/postgres:/var/lib/postgresql/data
+    logging: *default-logging
+  bubblewrap-minio:
+    image: quay.io/minio/minio:RELEASE.2022-02-16T00-35-27Z
+    container_name: bubblewrap-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      - TZ=Europe/Warsaw
+      - MINIO_ROOT_USER=app
+      - MINIO_ROOT_PASSWORD={{ bubblewrap_minio_password }}
+    volumes:
+      - /mnt/data/services/bubblewrap/minio:/data
+    logging: *default-logging
+  bubblewrap:
+    image: ghcr.io/jakubdyszkiewicz/bubblewrap:sha-afabc86
+    container_name: bubblewrap
+    restart: unless-stopped
+    environment:
+      - API_PORT=8080
+      - API_HOST=0.0.0.0
+      - API_ALLOWED_ORIGINS="https://bubblewrap.{{ ant_domain}}"
+      - DATABASE_URL=postgres://app:{{ bubblewrap_postgres_password }}@bubblewrap-postgres:5432/bubblewrap?sslmode=disable
+      - MINIO_ENDPOINT=bubblewrap-minio:9000
+      - MINIO_ACCESS_KEY=app
+      - MINIO_SECRET_KEY={{ bubblewrap_minio_password }}
+      - MINIO_BUCKET=family-media
+      - AUTH_TOKEN_SECRET={{ bubblewrap_auth_token_secret }}
+      - RESEND_API_KEY={{ resend_api_key }}
+      - RESEND_FROM_EMAIL=no-reply@updates.{{ ant_domain }}
+      - APP_BASE_URL=https://bubblewrap.{{ ant_domain }}
+      - NEXT_PUBLIC_GOOGLE_CLIENT_ID={{ bubblewrap_google_client_id }}
+      - GOOGLE_CLIENT_ID={{ bubblewrap_google_client_id }}
+      - TRUST_PROXY_HEADERS=true
+      - WEB_PUSH_VAPID_PUBLIC_KEY={{ bubblewrap_vapid_public_key }}
+      - WEB_PUSH_VAPID_PRIVATE_KEY={{ bubblewrap_vapid_private_key }}
+      - WEB_PUSH_VAPID_SUBJECT=mailto:jakub.dyszkiewicz@gmail.com
+      - ACCOUNT_CREATION_ENABLED=false
+    depends_on:
+      bubblewrap-postgres:
+        condition: service_healthy
+      bubblewrap-minio:
+        condition: service_started
+    logging: *default-logging
+  kroczek:
+    image: ghcr.io/jakubdyszkiewicz/kroczek:sha-2c66a32
+    container_name: kroczek
+    restart: unless-stopped
+    environment:
+      - DB_PATH=/app/data/baby-tracker.db
+      - LISTEN_ADDR=0.0.0.0:8080
+    volumes:
+      - /mnt/data/services/kroczek:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    logging: *default-logging
+    ports:
+      - 13002:8080
   terminus-init-certificates:
     image: ghcr.io/usetrmnl/terminus:0.72.0
     container_name: terminus-init-certificates

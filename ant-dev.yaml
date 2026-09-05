@@ -1,38 +1,38 @@
 ---
 - hosts: ant-dev
   vars_files:
-  - vars/secrets.yaml
+    - vars/secrets.yaml
   tasks:
-  - name: Install mDNS Discovery
-    become: yes
-    apt:
-      pkg:
-      - avahi-daemon
-      state: latest
-      update_cache: true
-      cache_valid_time: 86400 # One day
-  - name: Install dotfiles
-    include_role:
-      name: dotfiles
-  - name: Install Kong development environment
-    include_role:
-      name: kong-dev
-  - name: Enable IPv4 forwarding for exit node
-    become: true
-    ansible.posix.sysctl:
-      name: net.ipv4.ip_forward
-      value: '1'
-      state: present
-      reload: yes
-  - name: Enable IPv6 forwarding for exit node
-    become: true
-    ansible.posix.sysctl:
-      name: net.ipv6.conf.all.forwarding
-      value: '1'
-      state: present
-      reload: yes
-  - name: Install VPN (tailscale) as exit node
-    vars:
-      tailscale_args: "--advertise-exit-node"
-    ansible.builtin.include_role:
-      name: artis3n.tailscale.machine
+    - name: Install mDNS Discovery
+      become: yes
+      apt:
+        pkg:
+          - avahi-daemon
+        state: latest
+        update_cache: true
+        cache_valid_time: 86400 # One day
+    - name: Install dotfiles
+      include_role:
+        name: dotfiles
+    - name: Install Kong development environment
+      include_role:
+        name: kong-dev
+    - name: Enable IPv4 forwarding for exit node
+      become: true
+      ansible.posix.sysctl:
+        name: net.ipv4.ip_forward
+        value: "1"
+        state: present
+        reload: yes
+    - name: Enable IPv6 forwarding for exit node
+      become: true
+      ansible.posix.sysctl:
+        name: net.ipv6.conf.all.forwarding
+        value: "1"
+        state: present
+        reload: yes
+    - name: Install VPN (tailscale) as exit node
+      vars:
+        tailscale_args: "--advertise-exit-node"
+      ansible.builtin.include_role:
+        name: artis3n.tailscale.machine
