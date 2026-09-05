@@ -117,6 +117,8 @@
       - "/home/{{ ansible_user }}/docker-services/data/prometheus"
       - "/home/{{ ansible_user }}/docker-services/data/grafana"
       - "/home/{{ ansible_user }}/docker-services/data/downloads"
+      - "/mnt/data/services/terminus/fonts"
+      - "/mnt/data/services/terminus/uploads"
   - name: Create docker-services template directories
     ansible.builtin.file:
       path: "/home/{{ ansible_user }}/docker-services/{{ item.path }}"
@@ -135,6 +137,13 @@
     when:
     - item.state == 'file'
     - item.path.endswith('.j2')
+    - item.path != 'kong/kong.yml.j2'
+  - name: Template Kong config
+    ansible.builtin.template:
+      src: templates/docker-services/kong/kong.yml.j2
+      dest: "/home/{{ ansible_user }}/docker-services/kong/kong.yml"
+      mode: '0644'
+    register: kong_config
   - name: Copy docker-services files
     ansible.builtin.copy:
       src: '{{ item.src }}'
@@ -149,3 +158,11 @@
     community.docker.docker_compose_v2:
       project_src: "/home/{{ ansible_user }}/docker-services"
       state: present
+  - name: Restart Kong if config changed
+    become: yes
+    community.docker.docker_compose_v2:
+      project_src: "/home/{{ ansible_user }}/docker-services"
+      services:
+        - kong
+      state: restarted
+    when: kong_config.changed

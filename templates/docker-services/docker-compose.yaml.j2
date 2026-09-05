@@ -592,3 +592,106 @@ services:
     depends_on:
       - ghostfolio
     logging: *default-logging
+  terminus-init-certificates:
+    image: ghcr.io/usetrmnl/terminus:0.72.0
+    container_name: terminus-init-certificates
+    user: root
+    volumes:
+      - terminus-certificates:/etc/ssl/certs
+    entrypoint: ["/bin/bash", "-c"]
+    command: scripts/docker/install-certificates
+    restart: on-failure:3
+    logging: *default-logging
+  terminus:
+    image: ghcr.io/usetrmnl/terminus:0.72.0
+    container_name: terminus
+    init: true
+    environment:
+      - APP_SETUP=true
+      - HANAMI_PORT=2300
+      - API_URI=http://{{ inventory_hostname }}:2300
+      - APP_SECRET={{ terminus_app_secret }}
+      - DATABASE_URL=postgres://terminus:{{ terminus_database_password }}@terminus-database:5432/terminus
+      - KEYVALUE_URL=redis://:{{ terminus_keyvalue_password }}@terminus-keyvalue:6379/0
+    ports:
+      - "2300:2300"
+    volumes:
+      - terminus-certificates:/etc/ssl/certs
+      - /mnt/data/services/terminus/fonts:/app/public/fonts
+      - /mnt/data/services/terminus/fonts:/usr/share/fonts/terminus
+      - /mnt/data/services/terminus/uploads:/app/public/uploads
+    depends_on:
+      terminus-init-certificates:
+        condition: service_completed_successfully
+      terminus-database:
+        condition: service_healthy
+      terminus-keyvalue:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:2300/up"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    restart: unless-stopped
+    logging: *default-logging
+  terminus-worker:
+    image: ghcr.io/usetrmnl/terminus:0.72.0
+    container_name: terminus-worker
+    init: true
+    environment:
+      - HANAMI_PORT=2300
+      - API_URI=http://{{ inventory_hostname }}:2300
+      - APP_SECRET={{ terminus_app_secret }}
+      - DATABASE_URL=postgres://terminus:{{ terminus_database_password }}@terminus-database:5432/terminus
+      - KEYVALUE_URL=redis://:{{ terminus_keyvalue_password }}@terminus-keyvalue:6379/0
+    command: bundle exec sidekiq -r ./config/sidekiq.rb
+    volumes:
+      - terminus-certificates:/etc/ssl/certs
+      - /mnt/data/services/terminus/fonts:/app/public/fonts
+      - /mnt/data/services/terminus/fonts:/usr/share/fonts/terminus
+      - /mnt/data/services/terminus/uploads:/app/public/uploads
+    depends_on:
+      terminus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "sidekiq"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+    restart: unless-stopped
+    logging: *default-logging
+  terminus-database:
+    image: postgres:18.6-alpine
+    container_name: terminus-database
+    environment:
+      - POSTGRES_USER=terminus
+      - POSTGRES_DB=terminus
+      - POSTGRES_PASSWORD={{ terminus_database_password }}
+    volumes:
+      - /mnt/data/services/terminus/postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready --username terminus --dbname terminus --port 5432"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    logging: *default-logging
+  terminus-keyvalue:
+    image: valkey/valkey:9.1-alpine
+    container_name: terminus-keyvalue
+    command: ["valkey-server", "--requirepass", "{{ terminus_keyvalue_password }}", "--maxmemory", "512mb", "--maxmemory-policy", "noeviction", "--port", "6379"]
+    volumes:
+      - /mnt/data/services/terminus/valkey:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --no-auth-warning -a {{ terminus_keyvalue_password }} ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 2s
+    restart: unless-stopped
+    logging: *default-logging
+
+volumes:
+  terminus-certificates:
