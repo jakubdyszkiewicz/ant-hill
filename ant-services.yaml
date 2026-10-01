@@ -119,6 +119,15 @@
       - "/home/{{ ansible_user }}/docker-services/data/downloads"
       - "/mnt/data/services/terminus/fonts"
       - "/mnt/data/services/terminus/uploads"
+  - name: Create Tergeo data directory
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/data/services/tergeo"
+      state: directory
+      mode: '0755'
+      # The Tergeo image runs as its Alpine system user (UID 100, GID 101).
+      owner: '100'
+      group: '101'
   - name: Create docker-services template directories
     ansible.builtin.file:
       path: "/home/{{ ansible_user }}/docker-services/{{ item.path }}"
