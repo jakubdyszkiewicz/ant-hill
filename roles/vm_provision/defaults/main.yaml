@@ -6,6 +6,7 @@ libvirt_pool_dir: "/var/lib/libvirt/images"
 vm_name: ant_test
 vm_vcpus: 2
 vm_ram_mb: 2048
+vm_swap_size: 0
 vm_disk_size: 5G
 vm_net_mac: '52:54:00:ef:39:11'
 vm_net_ip: '192.168.1.60'

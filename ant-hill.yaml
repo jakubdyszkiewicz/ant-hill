@@ -90,7 +90,8 @@
       vm_net_mac: '52:54:00:ef:39:13'
       vm_net_ip: '192.168.1.52'
       vm_vcpus: 8
-      vm_ram_mb: 8192
+      vm_ram_mb: 12288
+      vm_swap_size: 4G
       vm_disk_size: 250G
       usb_mappings:
       - source_vendor: "0x1a86" # Zigbee Dongle
