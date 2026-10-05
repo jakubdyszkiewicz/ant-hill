@@ -799,5 +799,69 @@ services:
     restart: unless-stopped
     logging: *default-logging
 
+  sure-web:
+    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched
+    container_name: sure-web
+    environment: &sure-env
+      SECRET_KEY_BASE: {{ sure_secret_key_base | to_json }}
+      SELF_HOSTED: "true"
+      DB_HOST: sure-db
+      POSTGRES_USER: sure
+      POSTGRES_PASSWORD: {{ sure_postgres_password | to_json }}
+      REDIS_URL: redis://sure-redis:6379/1
+    volumes:
+      - /mnt/data/services/sure/storage:/rails/storage
+    expose:
+      - 3000
+    depends_on:
+      sure-db:
+        condition: service_healthy
+      sure-redis:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *default-logging
+  sure-worker:
+    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched
+    container_name: sure-worker
+    command: bundle exec sidekiq
+    environment: *sure-env
+    volumes:
+      - /mnt/data/services/sure/storage:/rails/storage
+    depends_on:
+      sure-db:
+        condition: service_healthy
+      sure-redis:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *default-logging
+  sure-db:
+    image: postgres:16
+    container_name: sure-db
+    environment:
+      POSTGRES_USER: sure
+      POSTGRES_PASSWORD: {{ sure_postgres_password | to_json }}
+      POSTGRES_DB: sure_production
+    volumes:
+      - /mnt/data/services/sure/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sure -d sure_production"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    logging: *default-logging
+  sure-redis:
+    image: redis:8
+    container_name: sure-redis
+    volumes:
+      - /mnt/data/services/sure/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    logging: *default-logging
+
 volumes:
   terminus-certificates:

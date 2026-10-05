@@ -119,6 +119,14 @@
       - "/home/{{ ansible_user }}/docker-services/data/downloads"
       - "/mnt/data/services/terminus/fonts"
       - "/mnt/data/services/terminus/uploads"
+  - name: Create Sure storage directory
+    become: true
+    ansible.builtin.file:
+      path: "/mnt/data/services/sure/storage"
+      state: directory
+      mode: '0755'
+      owner: '1000'
+      group: '1000'
   - name: Create Tergeo data directory
     become: true
     ansible.builtin.file:
