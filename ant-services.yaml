@@ -2,6 +2,15 @@
 - hosts: ant-services
   vars_files:
   - vars/secrets.yaml
+  pre_tasks:
+  - name: Validate dedicated observability API key
+    ansible.builtin.assert:
+      that:
+      - kong_observability_api_key is string
+      - kong_observability_api_key | trim | length > 0
+      - kong_observability_api_key != kong_api_key
+      fail_msg: "kong_observability_api_key must be a non-empty dedicated key, different from kong_api_key."
+    no_log: true
   tasks:
   - name: Install mDNS Discovery
     become: yes

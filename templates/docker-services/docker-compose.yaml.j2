@@ -195,7 +195,7 @@ services:
     entrypoint: ["/bin/sh", "/config/rclone/loop.sh"]
     logging: *default-logging
   kong:
-    image: kong/kong-gateway:3.13.0.0
+    image: kong/kong-gateway:3.14
     user: '1000:1000'
     container_name: kong
     environment:
@@ -516,88 +516,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  ghostfolio:
-    image: docker.io/ghostfolio/ghostfolio:2.228.0
-    container_name: ghostfolio
-    restart: unless-stopped
-    init: true
-    environment:
-      - TZ=Europe/Warsaw
-      - REDIS_HOST=ghostfolio-redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD={{ ghostfolio_redis_password }}
-      - POSTGRES_DB=ghostfolio-db
-      - POSTGRES_USER=ghostfolio
-      - POSTGRES_PASSWORD={{ ghostfolio_postgres_password }}
-      - DATABASE_URL=postgresql://ghostfolio:{{ ghostfolio_postgres_password }}@ghostfolio-postgres:5432/ghostfolio-db?connect_timeout=300&sslmode=prefer
-      - ACCESS_TOKEN_SALT={{ ghostfolio_access_token_salt }}
-      - JWT_SECRET_KEY={{ ghostfolio_jwt_secret_key }}
-    depends_on:
-      ghostfolio-postgres:
-        condition: service_healthy
-      ghostfolio-redis:
-        condition: service_healthy
-    expose:
-      - 3333
-    healthcheck:
-      test: ['CMD-SHELL', 'curl -fsS http://localhost:3333/api/v1/health >/dev/null || exit 1']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    logging: *default-logging
-  ghostfolio-postgres:
-    image: docker.io/library/postgres:15.6-alpine
-    container_name: ghostfolio-postgres
-    restart: unless-stopped
-    environment:
-      - TZ=Europe/Warsaw
-      - POSTGRES_DB=ghostfolio-db
-      - POSTGRES_USER=ghostfolio
-      - POSTGRES_PASSWORD={{ ghostfolio_postgres_password }}
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -d "ghostfolio-db" -U "ghostfolio"']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - /mnt/data/services/ghostfolio/postgres:/var/lib/postgresql/data
-    logging: *default-logging
-  ghostfolio-redis:
-    image: docker.io/library/redis:7.4-alpine
-    container_name: ghostfolio-redis
-    restart: unless-stopped
-    environment:
-      - TZ=Europe/Warsaw
-      - REDIS_PASSWORD={{ ghostfolio_redis_password }}
-    command:
-      - /bin/sh
-      - -c
-      - redis-server --requirepass "$${REDIS_PASSWORD}"
-    healthcheck:
-      test: ['CMD-SHELL', 'redis-cli --pass "$${REDIS_PASSWORD}" ping | grep PONG']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    volumes:
-      - /mnt/data/services/ghostfolio/redis:/data
-    logging: *default-logging
-  ghostfolio-mcp:
-    image: ghcr.io/mhajder/ghostfolio-mcp:1.1.0
-    container_name: ghostfolio-mcp
-    restart: unless-stopped
-    environment:
-      - GHOSTFOLIO_URL=http://ghostfolio:3333
-      - GHOSTFOLIO_TOKEN={{ ghostfolio_access_token }}
-      - MCP_TRANSPORT=http
-      - MCP_HTTP_HOST=0.0.0.0
-      - MCP_HTTP_PORT=3000
-    expose:
-      - 3000
-    ports:
-      - 13001:3000
-    depends_on:
-      - ghostfolio
-    logging: *default-logging
   bubblewrap-postgres:
     image: docker.io/library/postgres:16-alpine
     container_name: bubblewrap-postgres
