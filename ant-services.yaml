@@ -20,11 +20,14 @@
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
-  # Extra modules are needed to support drivers for Zigbee Dongle
-  - name: Install extra modules for the current kernel
+  # Track extra modules across kernel upgrades and cover the running kernel too.
+  # The Zigbee dongle needs cdc_acm, which is absent from linux-virtual alone.
+  - name: Install extra modules for current and future kernels
     become: yes
     apt:
-      pkg: "linux-modules-extra-{{ ansible_kernel }}"
+      pkg:
+      - linux-image-extra-virtual
+      - "linux-modules-extra-{{ ansible_kernel }}"
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
