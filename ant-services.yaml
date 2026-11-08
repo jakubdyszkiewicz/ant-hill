@@ -63,21 +63,6 @@
       append: yes
     become: yes
   # --- Volumes ---
-  - name: Mount data directory exists
-    become: true
-    ansible.builtin.file:
-      path: "/mnt/data"
-      state: directory
-      mode: '0755'
-      owner: "{{ ansible_user }}"
-  - name: Mount data volume
-    become: true
-    ansible.posix.mount:
-      src: "/dev/vdb"
-      path: "/mnt/data"
-      boot: no
-      fstype: ext4
-      state: mounted
   - name: Mount media directory exists
     become: true
     ansible.builtin.file:
@@ -88,33 +73,26 @@
   - name: Mount media volume
     become: true
     ansible.posix.mount:
-      src: "/dev/vdc"
+      src: "UUID=dfac02bd-ac6d-4450-8636-7429cbcd5651"
       path: "/mnt/media"
-      boot: no
+      boot: true
       fstype: ext4
       state: mounted
-  - name: Mount backup directory exists
+  - name: Mount data directory exists
     become: true
     ansible.builtin.file:
-      path: "/mnt/backup"
+      path: "/mnt/data"
       state: directory
       mode: '0755'
       owner: "{{ ansible_user }}"
-  - name: Mount backup volume
+  - name: Mount data volume
     become: true
     ansible.posix.mount:
-      src: "/dev/vdd"
-      path: "/mnt/backup"
-      boot: no
+      src: "UUID=2ca0e49d-cf92-4b1d-9d6b-a2f8b38fa77a"
+      path: "/mnt/data"
+      boot: true
       fstype: ext4
       state: mounted
-  - name: Mount backup directory exists
-    become: true
-    ansible.builtin.file:
-      path: "/mnt/backup"
-      state: directory
-      mode: '0755'
-      owner: "{{ ansible_user }}"
   - name: Create docker-services directories
     ansible.builtin.file:
       path: "{{ item }}"

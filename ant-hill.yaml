@@ -96,10 +96,8 @@
       usb_mappings:
       - source_vendor: "0x1a86" # Zigbee Dongle
         source_product: "0x55d4"
-      disk_mappings: 
-      - source_dev: /dev/mapper/data
-        target_dev: vdb
+      disk_mappings:
       - source_dev: /dev/disk/by-label/media
         target_dev: vdc
-      - source_dev: /dev/mapper/backup
+      - source_dev: /dev/mapper/backup # the new data
         target_dev: vdd
