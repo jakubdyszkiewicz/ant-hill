@@ -45,13 +45,6 @@
       state: opened
       name: backup
       passphrase: "{{ luks_volumes_passphrase }}"
-  - name: Decrypt data volume
-    become: true
-    community.crypto.luks_device:
-      device: /dev/disk/by-id/nvme-WD_Blue_SN570_1TB_224306803372-part3
-      state: opened
-      name: data
-      passphrase: "{{ luks_volumes_passphrase }}"
   - name: Copy networking configuration
     copy:
       src: '02-ant-hill-networking.yaml'
@@ -78,7 +71,8 @@
       vm_net_ip: '192.168.1.51'
       vm_vcpus: 14
       vm_ram_mb: 16384
-      vm_disk_size: 100G
+      vm_swap_size: 16G
+      vm_disk_size: 500G
   - name: Provision ant-services VM
     include_role:
       name: vm_provision
