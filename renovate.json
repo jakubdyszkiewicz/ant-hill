@@ -72,6 +72,16 @@
         "major"
       ],
       "enabled": false
+    },
+    {
+      "description": "MariaDB: stay on the 12.3 LTS. 13.0 is a short-term rolling release; next LTS is 13.3. Relax this once 13.3 is out.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "mariadb"
+      ],
+      "allowedVersions": "<13"
     }
   ]
 }
