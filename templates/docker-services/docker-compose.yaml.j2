@@ -195,7 +195,7 @@ services:
     entrypoint: ["/bin/sh", "/config/rclone/loop.sh"]
     logging: *default-logging
   kong:
-    image: kong/kong-gateway:3.14
+    image: kong/kong-gateway-dev:release-3.16.0.3
     user: '1000:1000'
     container_name: kong
     environment:
