@@ -1,0 +1,30 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["* 0-6 * * 6"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Images in the Jinja compose template (not valid YAML, so the docker-compose manager can't parse it)",
+      "managerFilePatterns": ["/templates/docker-services/docker-compose\\.yaml\\.j2$/"],
+      "matchStrings": ["image:\\s*\"?(?<depName>[^\\s:\"]+):(?<currentValue>[^\\s\"@]+)\"?"],
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["linuxserver/**"],
+      "groupName": "linuxserver"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["prom/**", "grafana/**", "ghcr.io/google/cadvisor"],
+      "groupName": "observability"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}

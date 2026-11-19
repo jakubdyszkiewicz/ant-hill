@@ -1,0 +1,3 @@
+# Used by CI. The runner reaches ant-services over Tailscale, not the LAN.
+[ant-services]
+100.85.253.43 ansible_user=ubuntu
