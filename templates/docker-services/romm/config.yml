@@ -1,0 +1,7 @@
+# RomM config. Since 5.3 the library layout must be declared explicitly or RomM
+# refuses to start. The library uses {platform}/roms/{game} ("structure B").
+# Managed by Ansible: changes made from the RomM UI are overwritten on deploy.
+filesystem:
+  structure:
+    default: "{platform}/roms/{game}"
+    firmware: "{platform}/bios"

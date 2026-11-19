@@ -7,7 +7,7 @@ x-logging:
 
 services:
   plex:
-    image: linuxserver/plex:1.43.4@sha256:1f6f97d76e7bdb013789e94c838f2d9133b01ee4b2d4194148e492c4e4f12d90
+    image: linuxserver/plex:1.43.5@sha256:9a1325bf0b34a50993a04be0bdcc7fab841d2a78161bd11b4db4ff8478a7ac2a
     container_name: plex
     environment:
       - PUID=1000
@@ -27,7 +27,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   syncthing:
-    image: linuxserver/syncthing:2.0.12@sha256:b2dbc42f95154986ae3578256f3fa9612fa7e930184d823aa56192b478fa0b8a
+    image: linuxserver/syncthing:2.1.7@sha256:c4207d8f5b66d5f67eedb636b75500b5a04898e9f33299d252f4b966c41a4128
     container_name: syncthing
     volumes:
       - /mnt/data/services/syncthing:/config
@@ -71,7 +71,7 @@ services:
       - 6789
     logging: *default-logging
   sonarr:
-    image: linuxserver/sonarr:4.0.11@sha256:6221d75e172247220c320bb340ce0ff96a09339216de52b8d861424bfc501cef
+    image: linuxserver/sonarr:4.0.20@sha256:c7d1df25e428da6c9ace05daea0d34e59522978a3843ea1944812f855af4086c
     container_name: sonarr
     environment:
       - PUID=1000
@@ -102,7 +102,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   readarr:
-    image: linuxserver/readarr:0.4.10-develop@sha256:f7cdb1419ee861df7b9716e2c4cb7b321ff6431c31ced2bfbe2ed9e81d67efa9
+    image: linuxserver/readarr:0.4.18-develop@sha256:baf471a7101b58f361ef960de91cd15f23bae82d0126df6a9edbeaf5c5aa4392
     container_name: readarr
     environment:
       - PUID=1000
@@ -118,7 +118,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   bazarr:
-    image: linuxserver/bazarr:1.5.1@sha256:034e679ae691e10841a0a5a54cd349b042f49f5403cd66211c001314056f567f
+    image: linuxserver/bazarr:1.6.2@sha256:e0c5d45965242830c5eeddaafe9ae2b5e8ca3f6c01ecda9ee9364f550921dc50
     container_name: bazarr
     environment:
       - PUID=1000
@@ -422,7 +422,7 @@ services:
   actual:
     container_name: actual
     restart: unless-stopped
-    image: actualbudget/actual-server:26.8.1@sha256:6478d9ddfc0924479c09e6699c205e354c6f2216dfe7de3c0fb7b590d6edcdc5
+    image: actualbudget/actual-server:26.11.0@sha256:06cf186569cf58d93e12659ff1a517b65b5b0ebee7050a3991d4bd8a1d398da6
     volumes:
       - /mnt/data/services/actual:/data
     expose:
@@ -447,7 +447,7 @@ services:
     command: ["--sse", "--enable-write", "--enable-bearer"]
   paperless-redis:
     container_name: paperless-redis
-    image: docker.io/library/redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
+    image: docker.io/library/redis:8.10.3@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53
     restart: unless-stopped
     volumes:
       - /mnt/data/services/paperless/redis:/data
@@ -470,7 +470,7 @@ services:
       - PAPERLESS_REDIS=redis://paperless-redis:6379
       - PAPERLESS_SECRET_KEY={{ paperless_secret_key }}
   romm:
-    image: rommapp/romm:5.1.0@sha256:ce9d86ab531e09fede45d00f426e3bf2d1f5dd14846f94d6360d77a92a413028
+    image: rommapp/romm:5.4.1@sha256:8677fb7b81b1d3db20b849e989a1dadc2a11159e51eb34a2acdcb01102274edf
     container_name: romm
     restart: unless-stopped
     environment:
@@ -489,7 +489,7 @@ services:
       - /mnt/data/services/romm/redis-data:/redis-data # Cached data for background tasks
       - /mnt/data/services/romm/library:/romm/library # Your game library. Check https://docs.romm.app/latest/Getting-Started/Folder-Structure/ for more details.
       - /mnt/data/services/romm/assets:/romm/assets # Uploaded saves, states, etc.
-      - /mnt/data/services/romm/config:/romm/config # (Optional) Path where config.yml is stored
+      - /home/{{ ansible_user }}/docker-services/romm:/romm/config # config.yml, managed in this repo
     depends_on:
       romm-db:
         condition: service_healthy
@@ -497,12 +497,14 @@ services:
     ports:
       - 18082:8080
   romm-db:
-    image: mariadb:12.1.2@sha256:e487701b1f7e3f47319fe005b417c72becb67824a58b7bd35c6505f070f66dcd
+    image: mariadb:12.3.3@sha256:4ebbcf100a3ba320766dfa0e1af008df12261301db6ef72798c7650f70794aed
     container_name: romm-db
     restart: unless-stopped
     environment:
       - MARIADB_ROOT_PASSWORD={{ romm_db_passwd }} # Use a unique, secure password
       - MARIADB_DATABASE=romm
+      # Run mariadb-upgrade on start when the server version changes (with a backup).
+      - MARIADB_AUTO_UPGRADE=1
       - MARIADB_USER=romm-user
       - MARIADB_PASSWORD={{ romm_db_passwd }}
     volumes:
@@ -515,7 +517,7 @@ services:
       timeout: 5s
       retries: 5
   bubblewrap-postgres:
-    image: docker.io/library/postgres:16.13-alpine@sha256:4e6e670bb069649261c9c18031f0aded7bb249a5b6664ddec29c013a89310d50
+    image: docker.io/library/postgres:16.16-alpine@sha256:1d5b02d3a9941fbd52437db4107f8c52d6297dac553ca1e5c299ebb3756b4857
     container_name: bubblewrap-postgres
     restart: unless-stopped
     environment:
@@ -592,7 +594,7 @@ services:
     ports:
       - 13002:8080
   terminus-init-certificates:
-    image: ghcr.io/usetrmnl/terminus:0.72.0@sha256:24393363bd6fb6ec1fc9d67bed949bbf8b49506759a7a31c98cc8de3f2db2ada
+    image: ghcr.io/usetrmnl/terminus:0.84.0@sha256:78316a885994817162cbab2abfcb8d6ac3f49c1d58d89f36266765d9f760721f
     container_name: terminus-init-certificates
     user: root
     volumes:
@@ -602,7 +604,7 @@ services:
     restart: on-failure:3
     logging: *default-logging
   terminus:
-    image: ghcr.io/usetrmnl/terminus:0.72.0@sha256:24393363bd6fb6ec1fc9d67bed949bbf8b49506759a7a31c98cc8de3f2db2ada
+    image: ghcr.io/usetrmnl/terminus:0.84.0@sha256:78316a885994817162cbab2abfcb8d6ac3f49c1d58d89f36266765d9f760721f
     container_name: terminus
     init: true
     environment:
@@ -635,7 +637,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   terminus-worker:
-    image: ghcr.io/usetrmnl/terminus:0.72.0@sha256:24393363bd6fb6ec1fc9d67bed949bbf8b49506759a7a31c98cc8de3f2db2ada
+    image: ghcr.io/usetrmnl/terminus:0.84.0@sha256:78316a885994817162cbab2abfcb8d6ac3f49c1d58d89f36266765d9f760721f
     container_name: terminus-worker
     init: true
     environment:
@@ -678,7 +680,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   terminus-keyvalue:
-    image: valkey/valkey:9.1.2-alpine@sha256:48332870af354a799964c0012ae1194a0bf2bf894eb508f945810596dc2d8d11
+    image: valkey/valkey:9.2.0-alpine@sha256:4d67e1af80c653bd46c0bbe8de438c81a6535ab5a39b22f2100028f314005663
     container_name: terminus-keyvalue
     command: ["valkey-server", "--requirepass", "{{ terminus_keyvalue_password }}", "--maxmemory", "512mb", "--maxmemory-policy", "noeviction", "--port", "6379"]
     volumes:
@@ -751,7 +753,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   sure-db:
-    image: postgres:16.15@sha256:f9a7b9ebf6f56201f949db745e47bc423c0f0f8294bafe991cc10bf74b029657
+    image: postgres:16.16@sha256:3950ad7c3148ca2175ef1b6c36c9efbf78957ae8fbe8b3a5d7c35af50500382f
     container_name: sure-db
     environment:
       POSTGRES_USER: sure
@@ -767,7 +769,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   sure-redis:
-    image: redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
+    image: redis:8.10.3@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53
     container_name: sure-redis
     volumes:
       - /mnt/data/services/sure/redis:/data
