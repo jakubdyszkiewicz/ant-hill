@@ -9,7 +9,7 @@ x-logging:
 
 services:
   plex:
-    image: linuxserver/plex:1.43.4
+    image: linuxserver/plex:1.43.4@sha256:1f6f97d76e7bdb013789e94c838f2d9133b01ee4b2d4194148e492c4e4f12d90
     container_name: plex
     environment:
       - PUID=1000
@@ -29,7 +29,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   syncthing:
-    image: linuxserver/syncthing:2.0.12
+    image: linuxserver/syncthing:2.0.12@sha256:b2dbc42f95154986ae3578256f3fa9612fa7e930184d823aa56192b478fa0b8a
     container_name: syncthing
     volumes:
       - /mnt/data/services/syncthing:/config
@@ -47,7 +47,7 @@ services:
       - 8343
     logging: *default-logging
   syncthing-healthcheck:
-    image: jakubdyszkiewicz/syncthing-healthcheck:0.0.1
+    image: jakubdyszkiewicz/syncthing-healthcheck:0.0.1@sha256:8646197fec8d8d88bfe43b78ba88216aa18aa48970c5c097b75f4a8682badc4d
     container_name: syncthing-healthcheck
     volumes:
       - /home/{{ ansible_user }}/docker-services/syncthing-healthcheck:/config
@@ -59,7 +59,7 @@ services:
       - SYNCTHING_API_KEY={{ syncthing_api_key }}
     logging: *default-logging
   nzbget:
-    image: linuxserver/nzbget:24.5.20250207
+    image: linuxserver/nzbget:24.5.20250207@sha256:2bf66ef175d04a4e8ce64730acbdfa20a473a0e790ab9b3e8e9882d675203f33
     container_name: nzbget
     volumes:
       - /mnt/data/services/nzbget:/config
@@ -73,7 +73,7 @@ services:
       - 6789
     logging: *default-logging
   sonarr:
-    image: linuxserver/sonarr:4.0.11
+    image: linuxserver/sonarr:4.0.11@sha256:6221d75e172247220c320bb340ce0ff96a09339216de52b8d861424bfc501cef
     container_name: sonarr
     environment:
       - PUID=1000
@@ -89,7 +89,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   radarr:
-    image: linuxserver/radarr:5.18.4
+    image: linuxserver/radarr:5.18.4@sha256:1184ee84bc5329c4f62c070a04d73eaf7918878410ca48a1f3dbf82b684eee27
     container_name: radarr
     environment:
       - PUID=1000
@@ -104,7 +104,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   readarr:
-    image: linuxserver/readarr:0.4.10-develop
+    image: linuxserver/readarr:0.4.10-develop@sha256:f7cdb1419ee861df7b9716e2c4cb7b321ff6431c31ced2bfbe2ed9e81d67efa9
     container_name: readarr
     environment:
       - PUID=1000
@@ -120,7 +120,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   bazarr:
-    image: linuxserver/bazarr:1.5.1
+    image: linuxserver/bazarr:1.5.1@sha256:034e679ae691e10841a0a5a54cd349b042f49f5403cd66211c001314056f567f
     container_name: bazarr
     environment:
       - PUID=1000
@@ -136,7 +136,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   adguardhome:
-    image: adguard/adguardhome:latest
+    image: adguard/adguardhome:v0.107.71@sha256:92929135ced2554aaf94706f766a98ad348f211df61b0704e2db7e8498cc00b7
     container_name: adguardhome
     ports: # bind only to specific network interface, 0.0.0.0 has a clash with builtin Ubuntu systemd caching DNS on 127.0.0.1
       - "{{ inventory_hostname }}:53:53/tcp"
@@ -148,7 +148,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   ddclient:
-    image: linuxserver/ddclient:3.10.0 # stale
+    image: linuxserver/ddclient:3.10.0@sha256:d311ca402c42f1f431c846dacac1472c625beb5912e00fa05a9414f0b8e391e0 # stale
     container_name: ddclient
     environment:
       - PUID=1000
@@ -159,7 +159,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   duplicacy:
-    image: saspus/duplicacy-web:v1.8.3
+    image: saspus/duplicacy-web:v1.8.3@sha256:a8e6303f2f695f97a9e053984bf836e6f4ba79a78199ac746f2023de8e450028
     container_name: duplicacy
     hostname: duplicacy-web
     restart: unless-stopped
@@ -177,7 +177,7 @@ services:
     logging: *default-logging
   gickup:
     container_name: gickup
-    image: buddyspencer/gickup:0.10.36
+    image: buddyspencer/gickup:0.10.36@sha256:ad1190dd7b45ea57b5c2a4d7e4c3f18816b76a8a2388c002b6982860e7edd326
     restart: unless-stopped
     user: '1000:1000'
     volumes:
@@ -186,7 +186,7 @@ services:
     logging: *default-logging
   rclone:
     container_name: rclone
-    image: rclone/rclone:1.69.0
+    image: rclone/rclone:1.69.0@sha256:4680f96c8fd7fb9c130d9e2587ac726f8d098232b7f32c5e5302fd0cb3d8922d
     restart: unless-stopped
     user: '1000:1000'
     volumes:
@@ -195,7 +195,7 @@ services:
     entrypoint: ["/bin/sh", "/config/rclone/loop.sh"]
     logging: *default-logging
   kong:
-    image: kong/kong-gateway-dev:release-3.16.0.3
+    image: kong/kong-gateway-dev:release-3.16.0.3@sha256:6355cc4c04451733beadeba4b17c43b12b31bd83c65b743bb2552b3234e2d2c5
     user: '1000:1000'
     container_name: kong
     environment:
@@ -220,7 +220,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   swag:
-    image: linuxserver/swag:3.1.0
+    image: linuxserver/swag:3.1.0@sha256:37b6b78e0b9db48f0b38c8bd6286992404e78bc8aa924cadbd7438bf17ee22c8
     container_name: swag
     cap_add:
       - NET_ADMIN
@@ -240,7 +240,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   samba:
-    image: crazymax/samba:4.19.9
+    image: crazymax/samba:4.19.9@sha256:270a8dcaeb7be73c3a63e2d7cc966cfdc6ca70b418c59e4af406bee6ea41ded7
     container_name: samba
     volumes:
       - /home/{{ ansible_user }}/docker-services/samba:/data
@@ -253,7 +253,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   nodeexporter:
-    image: prom/node-exporter:v1.8.2
+    image: prom/node-exporter:v1.8.2@sha256:4032c6d5bfd752342c3e631c2f1de93ba6b86c41db6b167b9a35372c139e7706
     container_name: nodeexporter
     network_mode: host # required to collect data about host network
     volumes:
@@ -270,7 +270,7 @@ services:
       - 9100
     logging: *default-logging
   prometheus:
-    image: prom/prometheus:v3.1.0
+    image: prom/prometheus:v3.1.0@sha256:6559acbd5d770b15bb3c954629ce190ac3cbbdb2b7f1c30f0385c4e05104e218
     container_name: prometheus
     user: '1000:1000'
     extra_hosts: # required to collect data from nodeexporter
@@ -291,7 +291,7 @@ services:
       - 9090
     logging: *default-logging
   grafana:
-    image: grafana/grafana:11.5.1
+    image: grafana/grafana:11.5.1@sha256:5781759b3d27734d4d548fcbaf60b1180dbf4290e708f01f292faa6ae764c5e6
     container_name: grafana
     user: '1000:1000'
     volumes:
@@ -306,7 +306,7 @@ services:
       - 3000
     restart: unless-stopped
   cadvisor:
-    image: ghcr.io/google/cadvisor:0.56.2
+    image: ghcr.io/google/cadvisor:0.56.2@sha256:5534ae91cbf3428998d60428d107cfdd97272d80658534ac6e54d8ce3b0c4d72
     container_name: cadvisor
     privileged: true
     devices:
@@ -323,14 +323,14 @@ services:
     - "8080"
     logging: *default-logging
   speedtest:
-    image: ghcr.io/danopstech/speedtest_exporter:v0.0.5
+    image: ghcr.io/danopstech/speedtest_exporter:v0.0.5@sha256:99efbe55412b0a328d5827fab8dbcc2286093d4ad0d369e4e9b7e3c4153793be
     container_name: speedtest
     restart: unless-stopped
     expose:
       - 9090
     logging: *default-logging
   promtail:
-    image: grafana/promtail:3.3.2
+    image: grafana/promtail:3.3.2@sha256:cb4990801ec58975c5e231057c2bcf204c85fac428eec65ad66e0016c64b9608
     container_name: promtail
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers
@@ -338,7 +338,7 @@ services:
     command: -config.file=/etc/promtail/docker-config.yml
     logging: *default-logging
   loki:
-    image: grafana/loki:3.3.2
+    image: grafana/loki:3.3.2@sha256:8af2de1abbdd7aa92b27c9bcc96f0f4140c9096b507c77921ffddf1c6ad6c48f
     container_name: loki
     expose:
       - 3100
@@ -347,14 +347,14 @@ services:
       - /home/{{ ansible_user }}/docker-services/loki:/config
     logging: *default-logging
   antui:
-    image: jakubdyszkiewicz/ant-ui:0.0.1
+    image: jakubdyszkiewicz/ant-ui:0.0.1@sha256:88686fca1b99be38b4d010dc51364894684f8568aaba3cd7ba604dbdbe3b59cb
     container_name: antui
     expose:
       - 80
     logging: *default-logging
   homeassistant:
     container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:2025.7.1"
+    image: ghcr.io/home-assistant/home-assistant:2025.7.1@sha256:e876528e4159974e844bbf3555e67ff48d73a78bf432b717dd9d178328230b40
     volumes:
       - /mnt/data/services/homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
@@ -364,7 +364,7 @@ services:
       - 21064:21064
     logging: *default-logging
   mdns-repeater:
-    image: jdbeeler/mdns-repeater
+    image: jdbeeler/mdns-repeater:latest@sha256:3f5ccbef79b7c2f79ee33658e1f76600cdccb54c65d1d327c89fe9db6f037dc5
     container_name: mdns-repeater
     restart: unless-stopped
     network_mode: host
@@ -378,7 +378,7 @@ services:
     logging: *default-logging
   mqtt:
     container_name: mqtt
-    image: eclipse-mosquitto:2.0.20
+    image: eclipse-mosquitto:2.0.20@sha256:21421af7b32bf9ce508e9090c8eb13bb81f410ca778dc205506180a6f862d0eb
     restart: unless-stopped
     volumes:
       - /mnt/data/services/mqtt:/mosquitto
@@ -389,7 +389,7 @@ services:
   zigbee2mqtt:
     container_name: zigbee2mqtt
     restart: unless-stopped
-    image: koenkk/zigbee2mqtt:1.42.0
+    image: koenkk/zigbee2mqtt:1.42.0@sha256:732ae43d714610040bd049487b60af3b2dbcfdefb5f169897455b60d715e2131
     volumes:
       - /mnt/data/services/zigbee2mqtt:/app/data
       - /run/udev:/run/udev:ro
@@ -400,7 +400,7 @@ services:
     devices:
       - /dev/ttyACM0:/dev/ttyACM0
   calendar-fetcher:
-    image: alpine:3.21.2
+    image: alpine:3.21.2@sha256:56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
     container_name: calendar-fetcher
     volumes:
       - /home/{{ ansible_user }}/docker-services/calendar-fetcher:/app
@@ -411,7 +411,7 @@ services:
   spotify-exporter:
     container_name: spotify-exporter
     restart: unless-stopped
-    image: jakubdyszkiewicz/spotify-exporter:v0.0.5
+    image: jakubdyszkiewicz/spotify-exporter:v0.0.5@sha256:4cff830ed9adcb3927672f0d1329ae9052464c34ce455433014cae771fd205a3
     volumes:
       - /home/{{ ansible_user }}/docker-services/spotify-exporter/config.toml:/app/config.toml
       - /mnt/data/services/spotify-exporter/auth-cache:/app/auth-cache
@@ -424,7 +424,7 @@ services:
   actual:
     container_name: actual
     restart: unless-stopped
-    image: actualbudget/actual-server:26.8.1
+    image: actualbudget/actual-server:26.8.1@sha256:6478d9ddfc0924479c09e6699c205e354c6f2216dfe7de3c0fb7b590d6edcdc5
     volumes:
       - /mnt/data/services/actual:/data
     expose:
@@ -435,7 +435,7 @@ services:
   actual-mcp:
     container_name: actual-mcp
     restart: unless-stopped
-    image: sstefanov/actual-mcp:v1.6.0
+    image: sstefanov/actual-mcp:v1.6.0@sha256:7c7f683386381a3ceac8d1338dec8207498749a24f9fb8d584b3616a59a0ca74
     expose:
       - 3000
     ports:
@@ -449,13 +449,13 @@ services:
     command: ["--sse", "--enable-write", "--enable-bearer"]
   paperless-redis:
     container_name: paperless-redis
-    image: docker.io/library/redis:8
+    image: docker.io/library/redis:8.4.0@sha256:47200b04138293fae39737e50878a238b13ec0781083126b1b0c63cf5d992e8d
     restart: unless-stopped
     volumes:
       - /mnt/data/services/paperless/redis:/data
   paperless:
     container_name: paperless
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.3@sha256:57ad9565bff3bdf2378ab1dcc21ea649dfd68ee58e0eeca2bfba0120a26563e8
     restart: unless-stopped
     depends_on:
       - paperless-redis
@@ -471,7 +471,7 @@ services:
       - PAPERLESS_OCR_LANGUAGES=pol
       - PAPERLESS_REDIS=redis://paperless-redis:6379
   romm:
-    image: rommapp/romm:5.1.0
+    image: rommapp/romm:5.1.0@sha256:ce9d86ab531e09fede45d00f426e3bf2d1f5dd14846f94d6360d77a92a413028
     container_name: romm
     restart: unless-stopped
     environment:
@@ -498,7 +498,7 @@ services:
     ports:
       - 18082:8080
   romm-db:
-    image: mariadb:latest
+    image: mariadb:12.1.2@sha256:e1bcd6f85781f4a875abefb11c4166c1d79e4237c23de597bf0df81fec225b40
     container_name: romm-db
     restart: unless-stopped
     environment:
@@ -516,7 +516,7 @@ services:
       timeout: 5s
       retries: 5
   bubblewrap-postgres:
-    image: docker.io/library/postgres:16-alpine
+    image: docker.io/library/postgres:16.13-alpine@sha256:b7587f3cb74f4f4b2a4f9d67f052edbf95eb93f4fec7c5ada3792546caaf7383
     container_name: bubblewrap-postgres
     restart: unless-stopped
     environment:
@@ -533,7 +533,7 @@ services:
       - /mnt/data/services/bubblewrap/postgres:/var/lib/postgresql/data
     logging: *default-logging
   bubblewrap-minio:
-    image: quay.io/minio/minio:RELEASE.2022-02-16T00-35-27Z
+    image: quay.io/minio/minio:RELEASE.2022-02-16T00-35-27Z@sha256:73a2ec4fc91f32c2d5ab4c49b5f9496ee33ac9b67a8c061fa80b506cc16f4a6a
     container_name: bubblewrap-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -545,7 +545,7 @@ services:
       - /mnt/data/services/bubblewrap/minio:/data
     logging: *default-logging
   bubblewrap:
-    image: ghcr.io/jakubdyszkiewicz/bubblewrap:sha-afabc86
+    image: ghcr.io/jakubdyszkiewicz/bubblewrap:sha-afabc86@sha256:fffe44b4f4fe33e067e58ca156507fb3b155bd22cc38c785e4296b2115bbcbed
     container_name: bubblewrap
     restart: unless-stopped
     environment:
@@ -575,7 +575,7 @@ services:
         condition: service_started
     logging: *default-logging
   kroczek:
-    image: ghcr.io/jakubdyszkiewicz/kroczek:sha-2c66a32
+    image: ghcr.io/jakubdyszkiewicz/kroczek:sha-2c66a32@sha256:2f42552915b094d71551aa230221cd81e72d083bc4ccbe3e2b34e494fa29c632
     container_name: kroczek
     restart: unless-stopped
     environment:
@@ -593,7 +593,7 @@ services:
     ports:
       - 13002:8080
   terminus-init-certificates:
-    image: ghcr.io/usetrmnl/terminus:0.72.0
+    image: ghcr.io/usetrmnl/terminus:0.72.0@sha256:24393363bd6fb6ec1fc9d67bed949bbf8b49506759a7a31c98cc8de3f2db2ada
     container_name: terminus-init-certificates
     user: root
     volumes:
@@ -603,7 +603,7 @@ services:
     restart: on-failure:3
     logging: *default-logging
   terminus:
-    image: ghcr.io/usetrmnl/terminus:0.72.0
+    image: ghcr.io/usetrmnl/terminus:0.72.0@sha256:24393363bd6fb6ec1fc9d67bed949bbf8b49506759a7a31c98cc8de3f2db2ada
     container_name: terminus
     init: true
     environment:
@@ -636,7 +636,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   terminus-worker:
-    image: ghcr.io/usetrmnl/terminus:0.72.0
+    image: ghcr.io/usetrmnl/terminus:0.72.0@sha256:24393363bd6fb6ec1fc9d67bed949bbf8b49506759a7a31c98cc8de3f2db2ada
     container_name: terminus-worker
     init: true
     environment:
@@ -663,7 +663,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   terminus-database:
-    image: postgres:18.6-alpine
+    image: postgres:18.6-alpine@sha256:d3e1620b530c944afa6e887d22eb899824da68e19c52024bf98f5220c88a65b2
     container_name: terminus-database
     environment:
       - POSTGRES_USER=terminus
@@ -679,7 +679,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   terminus-keyvalue:
-    image: valkey/valkey:9.1-alpine
+    image: valkey/valkey:9.1.2-alpine@sha256:ccfa19b0d743e48927e1c8c14e39e0acb97b5cea347fef0bfe340247fea920cd
     container_name: terminus-keyvalue
     command: ["valkey-server", "--requirepass", "{{ terminus_keyvalue_password }}", "--maxmemory", "512mb", "--maxmemory-policy", "noeviction", "--port", "6379"]
     volumes:
@@ -693,7 +693,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   tergeo:
-    image: ghcr.io/jakubdyszkiewicz/tergeo:sha-b184a7b
+    image: ghcr.io/jakubdyszkiewicz/tergeo:sha-b184a7b@sha256:ce941781de71f909b3a60b12f278de4d90d8682c51c82c5a35a3bfd323529c5e
     container_name: tergeo
     volumes:
       - /mnt/data/services/tergeo:/data
@@ -702,7 +702,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   terminus-screens:
-    image: ghcr.io/jakubdyszkiewicz/terminus-screens:sha-9aa4c8b
+    image: ghcr.io/jakubdyszkiewicz/terminus-screens:sha-9aa4c8b@sha256:7e78e6c38461494fd578bf5defd6283e94fe47f55852f62807b6fda91beff7ab
     container_name: terminus-screens
     environment:
       TERMINUS_SCREENS_TERGEO_URL: http://tergeo:8080/api/v1
@@ -717,7 +717,7 @@ services:
     logging: *default-logging
 
   sure-web:
-    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched
+    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched@sha256:b716234fe6a014056fdba68e875eaf8856c1dea78bb2636234549c5ace449150
     container_name: sure-web
     environment: &sure-env
       SECRET_KEY_BASE: {{ sure_secret_key_base | to_json }}
@@ -738,7 +738,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   sure-worker:
-    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched
+    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched@sha256:b716234fe6a014056fdba68e875eaf8856c1dea78bb2636234549c5ace449150
     container_name: sure-worker
     command: bundle exec sidekiq
     environment: *sure-env
@@ -752,7 +752,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   sure-db:
-    image: postgres:16
+    image: postgres:16.15@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54
     container_name: sure-db
     environment:
       POSTGRES_USER: sure
@@ -768,7 +768,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   sure-redis:
-    image: redis:8
+    image: redis:8.4.0@sha256:47200b04138293fae39737e50878a238b13ec0781083126b1b0c63cf5d992e8d
     container_name: sure-redis
     volumes:
       - /mnt/data/services/sure/redis:/data
@@ -781,7 +781,7 @@ services:
     logging: *default-logging
 
   tailscale-cleaner:
-    image: ghcr.io/jakubdyszkiewicz/tailscale-cleaner:0.1.0
+    image: ghcr.io/jakubdyszkiewicz/tailscale-cleaner:0.1.0@sha256:f98c2bbfe14cf4415fd2d81209c48ac48b5ae407ca676fa0aeb7f31f89c5c099
     container_name: tailscale-cleaner
     environment:
       - TAILSCALE_API_TOKEN={{ tailscale_api_key }}

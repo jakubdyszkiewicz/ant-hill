@@ -1,29 +1,62 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "schedule": ["* 0-6 * * 6"],
+  "extends": [
+    "config:recommended",
+    "docker:pinDigests"
+  ],
+  "schedule": [
+    "* 0-6 * * 6"
+  ],
   "customManagers": [
     {
       "customType": "regex",
       "description": "Images in the Jinja compose template (not valid YAML, so the docker-compose manager can't parse it)",
-      "managerFilePatterns": ["/templates/docker-services/docker-compose\\.yaml\\.j2$/"],
-      "matchStrings": ["image:\\s*\"?(?<depName>[^\\s:\"]+):(?<currentValue>[^\\s\"@]+)\"?"],
-      "datasourceTemplate": "docker"
+      "managerFilePatterns": [
+        "/templates/docker-services/docker-compose\\.yaml\\.j2$/"
+      ],
+      "matchStrings": [
+        "image:\\s*\"?(?<depName>[^\\s:@\"]+):(?<currentValue>[^\\s\"@]+)(?:@(?<currentDigest>sha256:[a-f0-9]+))?\"?"
+      ],
+      "datasourceTemplate": "docker",
+      "autoReplaceStringTemplate": "image: {{depName}}:{{newValue}}{{#if newDigest}}@{{newDigest}}{{/if}}"
     }
   ],
   "packageRules": [
     {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["linuxserver/**"],
+      "description": "My own images: updated by hand for now",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/jakubdyszkiewicz/**",
+        "jakubdyszkiewicz/**"
+      ],
+      "enabled": false
+    },
+    {
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "linuxserver/**"
+      ],
       "groupName": "linuxserver"
     },
     {
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["prom/**", "grafana/**", "ghcr.io/google/cadvisor"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "prom/**",
+        "grafana/**",
+        "ghcr.io/google/cadvisor"
+      ],
       "groupName": "observability"
     },
     {
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "dependencyDashboardApproval": true
     }
   ]
