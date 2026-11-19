@@ -157,7 +157,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   duplicacy:
-    image: saspus/duplicacy-web:v1.8.3@sha256:a8e6303f2f695f97a9e053984bf836e6f4ba79a78199ac746f2023de8e450028
+    image: saspus/duplicacy-web:v1.8.3@sha256:c51e896c36f76e54669ad9aa2ed98314f8c603a3d1cebbe236d1ad4d43cb6030
     container_name: duplicacy
     hostname: duplicacy-web
     restart: unless-stopped
@@ -175,7 +175,7 @@ services:
     logging: *default-logging
   gickup:
     container_name: gickup
-    image: buddyspencer/gickup:0.10.36@sha256:ad1190dd7b45ea57b5c2a4d7e4c3f18816b76a8a2388c002b6982860e7edd326
+    image: buddyspencer/gickup:0.10.47@sha256:a0307e9c131b45b0d2039417f291b7ef44580d9d9e303bb5a6083aaf82691044
     restart: unless-stopped
     user: '1000:1000'
     volumes:
@@ -184,7 +184,7 @@ services:
     logging: *default-logging
   rclone:
     container_name: rclone
-    image: rclone/rclone:1.69.0@sha256:4680f96c8fd7fb9c130d9e2587ac726f8d098232b7f32c5e5302fd0cb3d8922d
+    image: rclone/rclone:1.76.0@sha256:7cbeec24a44f206067597c0368be4de90ae19a64d5113c7d1938bd737a81e466
     restart: unless-stopped
     user: '1000:1000'
     volumes:
@@ -238,7 +238,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   samba:
-    image: crazymax/samba:4.19.9@sha256:270a8dcaeb7be73c3a63e2d7cc966cfdc6ca70b418c59e4af406bee6ea41ded7
+    image: crazymax/samba:4.23.8@sha256:b37f7af97c773eddb593537f64da6389e5ee6695bcecf44f3ba1a8a6bcf34125
     container_name: samba
     volumes:
       - /home/{{ ansible_user }}/docker-services/samba:/data
@@ -251,7 +251,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   nodeexporter:
-    image: prom/node-exporter:v1.8.2@sha256:4032c6d5bfd752342c3e631c2f1de93ba6b86c41db6b167b9a35372c139e7706
+    image: prom/node-exporter:v1.12.1@sha256:1b4e4438faca4dd7e001dd445d161a4a2091b0fededa84093b3a8dfeae1f1be0
     container_name: nodeexporter
     network_mode: host # required to collect data about host network
     volumes:
@@ -268,7 +268,7 @@ services:
       - 9100
     logging: *default-logging
   prometheus:
-    image: prom/prometheus:v3.1.0@sha256:6559acbd5d770b15bb3c954629ce190ac3cbbdb2b7f1c30f0385c4e05104e218
+    image: prom/prometheus:v3.16.0@sha256:e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06
     container_name: prometheus
     user: '1000:1000'
     extra_hosts: # required to collect data from nodeexporter
@@ -304,7 +304,7 @@ services:
       - 3000
     restart: unless-stopped
   cadvisor:
-    image: ghcr.io/google/cadvisor:0.56.2@sha256:5534ae91cbf3428998d60428d107cfdd97272d80658534ac6e54d8ce3b0c4d72
+    image: ghcr.io/google/cadvisor:v0.61.1@sha256:4929b70e82079d001d0028b85d6a4dd25ad4666b719455c9542b983489963916
     container_name: cadvisor
     privileged: true
     devices:
@@ -328,7 +328,7 @@ services:
       - 9090
     logging: *default-logging
   promtail:
-    image: grafana/promtail:3.3.2@sha256:cb4990801ec58975c5e231057c2bcf204c85fac428eec65ad66e0016c64b9608
+    image: grafana/promtail:3.6.11@sha256:a761cb834cfaeee29745440d4884d6748f0a08d8f68928db1d707018c1dcfbe9
     container_name: promtail
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers
@@ -336,7 +336,7 @@ services:
     command: -config.file=/etc/promtail/docker-config.yml
     logging: *default-logging
   loki:
-    image: grafana/loki:3.3.2@sha256:8af2de1abbdd7aa92b27c9bcc96f0f4140c9096b507c77921ffddf1c6ad6c48f
+    image: grafana/loki:3.7.10@sha256:b43c257ccfc925d4a50b8717cac61a3b51df8c48d01847936057e5c4075a24a7
     container_name: loki
     expose:
       - 3100
@@ -376,7 +376,7 @@ services:
     logging: *default-logging
   mqtt:
     container_name: mqtt
-    image: eclipse-mosquitto:2.0.20@sha256:21421af7b32bf9ce508e9090c8eb13bb81f410ca778dc205506180a6f862d0eb
+    image: eclipse-mosquitto:2.0.23@sha256:6a332cc7a8dbe011cbc076180cbb76b37c6f0f55809682ea08e7980ef0112ad9
     restart: unless-stopped
     volumes:
       - /mnt/data/services/mqtt:/mosquitto
@@ -398,7 +398,7 @@ services:
     devices:
       - /dev/ttyACM0:/dev/ttyACM0
   calendar-fetcher:
-    image: alpine:3.21.2@sha256:56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
+    image: alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
     container_name: calendar-fetcher
     volumes:
       - /home/{{ ansible_user }}/docker-services/calendar-fetcher:/app
@@ -433,7 +433,7 @@ services:
   actual-mcp:
     container_name: actual-mcp
     restart: unless-stopped
-    image: sstefanov/actual-mcp:v1.6.0@sha256:7c7f683386381a3ceac8d1338dec8207498749a24f9fb8d584b3616a59a0ca74
+    image: sstefanov/actual-mcp:v1.15.1@sha256:9d6b216146fcd5f59303945d4f47ee6cbfbdc12a4f6a66f52029507e4ad0cb93
     expose:
       - 3000
     ports:
@@ -447,7 +447,7 @@ services:
     command: ["--sse", "--enable-write", "--enable-bearer"]
   paperless-redis:
     container_name: paperless-redis
-    image: docker.io/library/redis:8.4.0@sha256:47200b04138293fae39737e50878a238b13ec0781083126b1b0c63cf5d992e8d
+    image: docker.io/library/redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
     restart: unless-stopped
     volumes:
       - /mnt/data/services/paperless/redis:/data
@@ -497,7 +497,7 @@ services:
     ports:
       - 18082:8080
   romm-db:
-    image: mariadb:12.1.2@sha256:e1bcd6f85781f4a875abefb11c4166c1d79e4237c23de597bf0df81fec225b40
+    image: mariadb:12.1.2@sha256:e487701b1f7e3f47319fe005b417c72becb67824a58b7bd35c6505f070f66dcd
     container_name: romm-db
     restart: unless-stopped
     environment:
@@ -515,7 +515,7 @@ services:
       timeout: 5s
       retries: 5
   bubblewrap-postgres:
-    image: docker.io/library/postgres:16.13-alpine@sha256:b7587f3cb74f4f4b2a4f9d67f052edbf95eb93f4fec7c5ada3792546caaf7383
+    image: docker.io/library/postgres:16.13-alpine@sha256:4e6e670bb069649261c9c18031f0aded7bb249a5b6664ddec29c013a89310d50
     container_name: bubblewrap-postgres
     restart: unless-stopped
     environment:
@@ -678,7 +678,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   terminus-keyvalue:
-    image: valkey/valkey:9.1.2-alpine@sha256:ccfa19b0d743e48927e1c8c14e39e0acb97b5cea347fef0bfe340247fea920cd
+    image: valkey/valkey:9.1.2-alpine@sha256:48332870af354a799964c0012ae1194a0bf2bf894eb508f945810596dc2d8d11
     container_name: terminus-keyvalue
     command: ["valkey-server", "--requirepass", "{{ terminus_keyvalue_password }}", "--maxmemory", "512mb", "--maxmemory-policy", "noeviction", "--port", "6379"]
     volumes:
@@ -751,7 +751,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   sure-db:
-    image: postgres:16.15@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54
+    image: postgres:16.15@sha256:f9a7b9ebf6f56201f949db745e47bc423c0f0f8294bafe991cc10bf74b029657
     container_name: sure-db
     environment:
       POSTGRES_USER: sure
@@ -767,7 +767,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   sure-redis:
-    image: redis:8.4.0@sha256:47200b04138293fae39737e50878a238b13ec0781083126b1b0c63cf5d992e8d
+    image: redis:8.4.0@sha256:c22af04bb576503bf16b3e34a1fd2fd82de0f765afd866d2e380145e0af30d78
     container_name: sure-redis
     volumes:
       - /mnt/data/services/sure/redis:/data
