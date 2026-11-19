@@ -1,5 +1,6 @@
-protocol=dyndns2
-use=web,web=ipinfo.io/ip
+# OVH needs ?system=dyndns, which only the ovh protocol sends (dyndns2 stopped in 4.0).
+protocol=ovh
+usev4=webv4, webv4=ipinfo.io/ip
 server=www.ovh.com
 login={{ ovh_domain_login }}
 password={{ ovh_domain_password }}
