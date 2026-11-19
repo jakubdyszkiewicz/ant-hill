@@ -57,7 +57,7 @@ services:
       - SYNCTHING_API_KEY={{ syncthing_api_key }}
     logging: *default-logging
   nzbget:
-    image: linuxserver/nzbget:24.5.20250207@sha256:2bf66ef175d04a4e8ce64730acbdfa20a473a0e790ab9b3e8e9882d675203f33
+    image: linuxserver/nzbget:26.3.20261113@sha256:17e13511d47b1439af19b7ef17d08c8643eb2a5f009b1d3f800b704ebe590218
     container_name: nzbget
     volumes:
       - /mnt/data/services/nzbget:/config
@@ -87,7 +87,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   radarr:
-    image: linuxserver/radarr:5.18.4@sha256:1184ee84bc5329c4f62c070a04d73eaf7918878410ca48a1f3dbf82b684eee27
+    image: linuxserver/radarr:7.0.3@sha256:044788f5508b7f67a3e0368cdd142c77c4d4cd5aec2efaba53e1a68b6b6231e7
     container_name: radarr
     environment:
       - PUID=1000
@@ -146,7 +146,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   ddclient:
-    image: linuxserver/ddclient:3.10.0@sha256:d311ca402c42f1f431c846dacac1472c625beb5912e00fa05a9414f0b8e391e0 # stale
+    image: linuxserver/ddclient:4.0.0@sha256:8daff71cbdc8ef9b9e2db35617dcff250f3f219fe3f8110940107ceed0f9eb7b # stale
     container_name: ddclient
     environment:
       - PUID=1000
@@ -218,7 +218,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   swag:
-    image: linuxserver/swag:3.1.0@sha256:37b6b78e0b9db48f0b38c8bd6286992404e78bc8aa924cadbd7438bf17ee22c8
+    image: linuxserver/swag:5.10.0@sha256:64eb21f795cb7aa58c6a95c4c7c1b780cb86d48dbf8283ca0c27d7bb5983b3c0
     container_name: swag
     cap_add:
       - NET_ADMIN
