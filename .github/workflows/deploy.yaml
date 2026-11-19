@@ -6,6 +6,7 @@ on:
     paths:
       - templates/docker-services/**
       - ant-services.yaml
+      - ansible.cfg
       - vars/**
       - roles/dotfiles/**
       - files/ci-deploy.pub
