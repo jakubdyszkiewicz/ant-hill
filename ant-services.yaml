@@ -170,6 +170,7 @@
     community.docker.docker_compose_v2:
       project_src: "/home/{{ ansible_user }}/docker-services"
       state: present
+      remove_orphans: true
   - name: Restart Kong if config changed
     become: yes
     community.docker.docker_compose_v2:
