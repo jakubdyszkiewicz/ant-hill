@@ -193,7 +193,7 @@ services:
     entrypoint: ["/bin/sh", "/config/rclone/loop.sh"]
     logging: *default-logging
   kong:
-    image: kong/kong-gateway-dev:release-3.16.0.3@sha256:6355cc4c04451733beadeba4b17c43b12b31bd83c65b743bb2552b3234e2d2c5
+    image: kong/kong-gateway:3.16.0.3@sha256:10bc524c16dd8857b8b8d9baa4fa700d7c1fda5e96c5f3fd4ca5b82761589911
     user: '1000:1000'
     container_name: kong
     environment:
