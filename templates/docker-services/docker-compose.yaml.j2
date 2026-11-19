@@ -134,7 +134,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   adguardhome:
-    image: adguard/adguardhome:v0.107.71@sha256:92929135ced2554aaf94706f766a98ad348f211df61b0704e2db7e8498cc00b7
+    image: adguard/adguardhome:v1.0.0@sha256:f00a586f0d1caa74f149340bfb225014960310488ffa838406b89256900a96c2
     container_name: adguardhome
     ports: # bind only to specific network interface, 0.0.0.0 has a clash with builtin Ubuntu systemd caching DNS on 127.0.0.1
       - "{{ inventory_hostname }}:53:53/tcp"
