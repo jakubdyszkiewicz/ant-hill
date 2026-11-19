@@ -515,7 +515,7 @@ services:
       timeout: 5s
       retries: 5
   bubblewrap-postgres:
-    image: docker.io/library/postgres:18.7-alpine@sha256:ff64c9e3bdf8e2120107d3559de8db314e8305f7e38c5105903c6295876738ff
+    image: docker.io/library/postgres:16.13-alpine@sha256:b7587f3cb74f4f4b2a4f9d67f052edbf95eb93f4fec7c5ada3792546caaf7383
     container_name: bubblewrap-postgres
     restart: unless-stopped
     environment:
@@ -751,7 +751,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   sure-db:
-    image: postgres:18.7@sha256:e754b839f447639b7004895f4d8a4bfcb4e9dbe3a1bc035f27f646562a16fd61
+    image: postgres:16.15@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54
     container_name: sure-db
     environment:
       POSTGRES_USER: sure

@@ -58,6 +58,20 @@
         "major"
       ],
       "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Postgres majors need a manual dump/restore or pg_upgrade; Postgres data can't be upgraded by swapping the image",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "postgres",
+        "docker.io/library/postgres"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
     }
   ]
 }
