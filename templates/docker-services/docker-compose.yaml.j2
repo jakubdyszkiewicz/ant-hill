@@ -244,6 +244,9 @@ services:
       - KONG_SSL_CERT=/certs/live/{{ ant_domain }}/fullchain.pem
       - KONG_SSL_CERT_KEY=/certs/live/{{ ant_domain }}/privkey.pem
       - KONG_MEM_CACHE_SIZE=32m
+      # Re-resolve upstream containers every 10s. Docker DNS TTLs are long, so after a
+      # deploy recreates a container Kong kept sending traffic to its old IP (502s).
+      - KONG_DNS_VALID_TTL=10
       - KONG_NGINX_WORKER_PROCESSES="1"
     ports:
       - 443:8443
