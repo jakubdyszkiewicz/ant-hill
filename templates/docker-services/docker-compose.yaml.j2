@@ -352,6 +352,7 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true # secured via Kong
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Editor
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=https://grafana.{{ ant_domain }}/ # links in alert notifications
     expose:
       - 3000
     restart: unless-stopped

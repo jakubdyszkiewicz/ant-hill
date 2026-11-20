@@ -1,0 +1,119 @@
+# Grafana alert rules. Not a Jinja template: {{ }} below is Grafana's templating.
+# Container metrics come from Telegraf (docker_container_*), Kong logs from Loki.
+apiVersion: 1
+groups:
+  - orgId: 1
+    name: containers
+    folder: Alerts
+    interval: 1m
+    rules:
+      - uid: container-restarting
+        title: Container restarting
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: PBFA97CFB590B2093 # Prometheus
+            model:
+              refId: A
+              instant: true
+              # Docker restarts (crash loops). Deploys recreate containers, which resets
+              # the counter instead of increasing it, so they don't trigger this.
+              expr: max by (container_name) (increase(docker_container_status_restart_count[15m]))
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [0.5] } }] }
+        for: 0m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: warning }
+        annotations:
+          summary: '{{ $labels.container_name }} restarted {{ printf "%.0f" $values.A.Value }} time(s) in the last 15 minutes'
+      - uid: container-unhealthy
+        title: Container unhealthy
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              expr: max by (container_name) (docker_container_health_failing_streak{health_status="unhealthy"})
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [0] } }] }
+        for: 5m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: warning }
+        annotations:
+          summary: '{{ $labels.container_name }} is unhealthy ({{ printf "%.0f" $values.A.Value }} failed healthchecks in a row)'
+      - uid: container-exited-error
+        title: Container exited with error
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              # One-off jobs that exit 0 (terminus-init-certificates) don't count.
+              expr: max by (container_name) (docker_container_status_exitcode{container_status=~"exited|dead"})
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [0] } }] }
+        for: 2m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: '{{ $labels.container_name }} stopped with exit code {{ printf "%.0f" $values.A.Value }}'
+      - uid: container-oom-killed
+        title: Container OOM-killed
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              # Docker clears the flag when the container starts again, so look back 15m.
+              expr: max by (container_name) (max_over_time(docker_container_status_oomkilled[15m]))
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [0] } }] }
+        for: 0m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: '{{ $labels.container_name }} was killed for running out of memory'
+  - orgId: 1
+    name: kong
+    folder: Alerts
+    interval: 1m
+    rules:
+      - uid: kong-upstream-errors
+        title: Kong upstream errors
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: P8E80F9AEF21F6940 # Loki
+            model:
+              refId: A
+              queryType: instant
+              # Kong can't reach the service behind a hostname (502 for users), e.g. stale DNS after a deploy.
+              expr: 'sum by (host) (count_over_time({container_name="kong"} |~ "connect\\(\\) failed|upstream timed out|no live upstreams" | regexp "host: \"(?P<host>[^\"]+)\"" [5m]))'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [10] } }] }
+        for: 2m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: 'Kong cannot reach the upstream for {{ $labels.host }} ({{ printf "%.0f" $values.A.Value }} errors in 5 minutes)'
