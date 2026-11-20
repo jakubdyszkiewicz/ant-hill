@@ -200,8 +200,11 @@ services:
     expose:
       - 3875
     environment:
-      - USR_ID=1000
-      - GRP_ID=1000
+      # Run backups as root: services keep private files (postgres/mariadb data dirs,
+      # AdGuardHome.yaml, HA .storage/auth, ...) that uid 1000 can't read, so they were
+      # silently skipped. /mnt/data is mounted read-only below.
+      - USR_ID=0
+      - GRP_ID=0
       - TZ=Europe/Warsaw
     volumes:
       - /mnt/data/services/duplicacy:/config
