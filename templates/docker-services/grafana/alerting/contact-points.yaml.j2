@@ -1,0 +1,25 @@
+# Grafana alerting: where notifications go. Rendered by Ansible (webhook is in the vault).
+apiVersion: 1
+contactPoints:
+  - orgId: 1
+    name: Discord
+    receivers:
+      - uid: discord
+        type: discord
+        disableResolveMessage: false
+        settings:
+          url: {{ grafana_discord_webhook_url | to_json }}
+          use_discord_username: false
+          # One line per alert instead of Grafana's verbose default. raw: Grafana templating, not Jinja.
+          title: '{% raw %}{{ if eq .Status "firing" }}🔴 {{ .CommonLabels.alertname }}{{ else }}✅ Resolved: {{ .CommonLabels.alertname }}{{ end }}{% endraw %}'
+          message: |-
+            {% raw %}{{ range .Alerts }}{{ .Annotations.summary }} · [view]({{ .GeneratorURL }})
+            {{ end }}{% endraw %}
+policies:
+  - orgId: 1
+    receiver: Discord
+    # One notification thread per alert and container (or Kong host).
+    group_by: [grafana_folder, alertname, container_name, host]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 12h
