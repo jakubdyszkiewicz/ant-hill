@@ -451,7 +451,7 @@ services:
   zigbee2mqtt:
     container_name: zigbee2mqtt
     restart: unless-stopped
-    image: koenkk/zigbee2mqtt:1.42.0@sha256:732ae43d714610040bd049487b60af3b2dbcfdefb5f169897455b60d715e2131
+    image: koenkk/zigbee2mqtt:2.14.3@sha256:fb4a6b0f6868ad1cd6a9996479802b2420e599c3463b62bbff8c8cd9a908f43a
     healthcheck:
       <<: *default-healthcheck
       test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/"]
