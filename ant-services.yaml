@@ -178,6 +178,34 @@
       project_src: "/home/{{ ansible_user }}/docker-services"
       state: present
       remove_orphans: true
+  # --- mDNS between the LAN and the docker-services network ---
+  # Home Assistant runs on the compose bridge network, and multicast doesn't cross
+  # it. avahi on the host reflects mDNS both ways, so Apple Home finds the HomeKit
+  # Bridge and HA discovers Cast/Apple TV/LG TV. Replaces the mdns-repeater container.
+  - name: Find the docker-services bridge interface
+    become: yes
+    ansible.builtin.command: docker network inspect -f '{% raw %}{{.Id}}{% endraw %}' docker-services_default
+    register: docker_services_network
+    changed_when: false
+    check_mode: false # read-only; needed for --check runs too
+  - name: Reflect mDNS between the LAN and the docker-services bridge
+    become: yes
+    community.general.ini_file:
+      path: /etc/avahi/avahi-daemon.conf
+      section: "{{ item.section }}"
+      option: "{{ item.option }}"
+      value: "{{ item.value }}"
+      no_extra_spaces: true
+    loop:
+      - { section: server, option: allow-interfaces, value: "{{ ansible_facts['default_ipv4']['interface'] }},br-{{ docker_services_network.stdout[:12] }}" }
+      - { section: reflector, option: enable-reflector, value: "yes" }
+    register: avahi_config
+  - name: Restart avahi if its config changed
+    become: yes
+    ansible.builtin.systemd_service:
+      name: avahi-daemon
+      state: restarted
+    when: avahi_config.changed
   - name: Restart Kong if config changed
     become: yes
     community.docker.docker_compose_v2:
