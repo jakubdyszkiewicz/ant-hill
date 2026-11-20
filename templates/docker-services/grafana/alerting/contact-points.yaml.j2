@@ -11,10 +11,12 @@ contactPoints:
           url: {{ grafana_discord_webhook_url | to_json }}
           use_discord_username: false
           # One line per alert instead of Grafana's verbose default. raw: Grafana templating, not Jinja.
+          # Keep the blank line after endraw: Ansible's trim_blocks eats the newline after a block tag.
           title: '{% raw %}{{ if eq .Status "firing" }}🔴 {{ .CommonLabels.alertname }}{{ else }}✅ Resolved: {{ .CommonLabels.alertname }}{{ end }}{% endraw %}'
           message: |-
             {% raw %}{{ range .Alerts }}{{ .Annotations.summary }} · [view]({{ .GeneratorURL }})
             {{ end }}{% endraw %}
+
 policies:
   - orgId: 1
     receiver: Discord
