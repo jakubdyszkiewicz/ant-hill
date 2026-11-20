@@ -222,6 +222,36 @@
       name: avahi-daemon
       state: restarted
     when: avahi_config.changed
+  # --- Nightly database dumps (consistent copies for the 02:00 Duplicacy backup) ---
+  - name: Install database dump script
+    become: yes
+    ansible.builtin.copy:
+      src: files/db-dumps/ant-db-dumps.sh
+      dest: /usr/local/bin/ant-db-dumps
+      mode: '0755'
+  - name: Install database dump systemd units
+    become: yes
+    ansible.builtin.copy:
+      src: "files/db-dumps/{{ item }}"
+      dest: "/etc/systemd/system/{{ item }}"
+      mode: '0644'
+    loop:
+      - ant-db-dumps.service
+      - ant-db-dumps.timer
+    register: db_dump_units
+  - name: Directory for node-exporter textfile metrics (dump status)
+    become: yes
+    ansible.builtin.file:
+      path: /var/lib/node_exporter/textfile
+      state: directory
+      mode: '0755'
+  - name: Enable the nightly database dump timer
+    become: yes
+    ansible.builtin.systemd_service:
+      name: ant-db-dumps.timer
+      enabled: true
+      state: started
+      daemon_reload: "{{ db_dump_units.changed }}"
   - name: Restart Kong if config changed
     become: yes
     community.docker.docker_compose_v2:

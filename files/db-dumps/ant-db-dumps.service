@@ -1,0 +1,8 @@
+[Unit]
+Description=Dump service databases for the nightly backup
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ant-db-dumps

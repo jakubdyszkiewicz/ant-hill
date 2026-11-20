@@ -117,3 +117,49 @@ groups:
         labels: { severity: critical }
         annotations:
           summary: 'Kong cannot reach the upstream for {{ $labels.host }} ({{ printf "%.0f" $values.A.Value }} errors in 5 minutes)'
+  - orgId: 1
+    name: backups
+    folder: Alerts
+    interval: 5m
+    rules:
+      - uid: db-dump-failed
+        title: Database dump failed
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              # Written by /usr/local/bin/ant-db-dumps (systemd timer, 01:30 Europe/Warsaw).
+              expr: min by (db) (ant_db_dump_success)
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: lt, params: [1] } }] }
+        for: 0m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: 'Nightly dump of {{ $labels.db }} failed, so tonight''s B2 backup has no consistent copy of it'
+      - uid: db-dump-stale
+        title: Database dump stale
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              expr: time() - max by (db) (ant_db_dump_last_run_timestamp_seconds)
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [93600] } }] }
+        for: 0m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: 'No dump of {{ $labels.db }} for {{ humanizeDuration $values.A.Value }} (expected nightly)'
