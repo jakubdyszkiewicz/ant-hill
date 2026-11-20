@@ -14,6 +14,12 @@ scrape_configs:
       - targets: ['cadvisor:8080']
         labels:
           host: 'ant-services'
+  - job_name: 'telegraf'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['telegraf:9273']
+        labels:
+          host: 'ant-services'
   - job_name: 'speedtest-exporter'
     scrape_interval: 1h
     scrape_timeout: 1m

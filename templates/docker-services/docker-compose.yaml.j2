@@ -321,6 +321,17 @@ services:
     expose:
     - "8080"
     logging: *default-logging
+  telegraf: # per-container restart count, state, exit code, health
+    image: telegraf:1.40.3-alpine@sha256:10fe8c974752c8088858f012cb47b71f5bb67c5695829be56d87dfbf8e0092b8
+    container_name: telegraf
+    user: "telegraf:{{ docker_sock_gid }}" # docker socket group, read by Ansible
+    volumes:
+    - /home/{{ ansible_user }}/docker-services/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    expose:
+    - "9273"
+    logging: *default-logging
   speedtest:
     image: ghcr.io/danopstech/speedtest_exporter:v0.0.5@sha256:99efbe55412b0a328d5827fab8dbcc2286093d4ad0d369e4e9b7e3c4153793be
     container_name: speedtest
