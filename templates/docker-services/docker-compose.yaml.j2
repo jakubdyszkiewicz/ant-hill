@@ -434,19 +434,6 @@ services:
       - 8123:8123
       - 21064:21064
     logging: *default-logging
-  mdns-repeater:
-    image: jdbeeler/mdns-repeater:latest@sha256:3f5ccbef79b7c2f79ee33658e1f76600cdccb54c65d1d327c89fe9db6f037dc5
-    container_name: mdns-repeater
-    restart: unless-stopped
-    network_mode: host
-    privileged: true
-    environment:
-      - EXTERNAL_INTERFACE=enp1s0
-      - DOCKER_NETWORK_NAME=docker-services_default
-      - USE_MDNS_REPEATER=1
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    logging: *default-logging
   mqtt:
     container_name: mqtt
     image: eclipse-mosquitto:2.0.23@sha256:6a332cc7a8dbe011cbc076180cbb76b37c6f0f55809682ea08e7980ef0112ad9
