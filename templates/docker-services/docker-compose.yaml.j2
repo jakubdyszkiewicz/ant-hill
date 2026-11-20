@@ -5,9 +5,21 @@ x-logging:
   options:
     tag: "{% raw %}{{ .Name }}{% endraw %}"
 
+x-healthcheck:
+  &default-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 2m
+  start_interval: 5s # check often while starting, so healthy shows up quickly
+
 services:
   plex:
     image: linuxserver/plex:1.43.5@sha256:9a1325bf0b34a50993a04be0bdcc7fab841d2a78161bd11b4db4ff8478a7ac2a
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:32400/identity"]
+      start_period: 5m
     container_name: plex
     environment:
       - PUID=1000
@@ -28,6 +40,9 @@ services:
     restart: unless-stopped
   syncthing:
     image: linuxserver/syncthing:2.1.7@sha256:c4207d8f5b66d5f67eedb636b75500b5a04898e9f33299d252f4b966c41a4128
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:8384/rest/noauth/health"]
     container_name: syncthing
     volumes:
       - /mnt/data/services/syncthing:/config
@@ -58,6 +73,9 @@ services:
     logging: *default-logging
   nzbget:
     image: linuxserver/nzbget:26.3.20261113@sha256:17e13511d47b1439af19b7ef17d08c8643eb2a5f009b1d3f800b704ebe590218
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:6789/ | grep -qE '^(200|401)$$'"]
     container_name: nzbget
     volumes:
       - /mnt/data/services/nzbget:/config
@@ -72,6 +90,9 @@ services:
     logging: *default-logging
   sonarr:
     image: linuxserver/sonarr:4.0.20@sha256:c7d1df25e428da6c9ace05daea0d34e59522978a3843ea1944812f855af4086c
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:8989/ping"]
     container_name: sonarr
     environment:
       - PUID=1000
@@ -88,6 +109,9 @@ services:
     restart: unless-stopped
   radarr:
     image: linuxserver/radarr:7.0.3@sha256:044788f5508b7f67a3e0368cdd142c77c4d4cd5aec2efaba53e1a68b6b6231e7
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:7878/ping"]
     container_name: radarr
     environment:
       - PUID=1000
@@ -103,6 +127,9 @@ services:
     restart: unless-stopped
   readarr:
     image: linuxserver/readarr:0.4.18-develop@sha256:baf471a7101b58f361ef960de91cd15f23bae82d0126df6a9edbeaf5c5aa4392
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:8787/ping"]
     container_name: readarr
     environment:
       - PUID=1000
@@ -119,6 +146,9 @@ services:
     restart: unless-stopped
   bazarr:
     image: linuxserver/bazarr:1.6.2@sha256:e0c5d45965242830c5eeddaafe9ae2b5e8ca3f6c01ecda9ee9364f550921dc50
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:6767/api/system/ping"]
     container_name: bazarr
     environment:
       - PUID=1000
@@ -135,6 +165,9 @@ services:
     restart: unless-stopped
   adguardhome:
     image: adguard/adguardhome:v1.0.0@sha256:f00a586f0d1caa74f149340bfb225014960310488ffa838406b89256900a96c2
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "nslookup -type=a doubleclick.net 127.0.0.1 >/dev/null"]
     container_name: adguardhome
     ports: # bind only to specific network interface, 0.0.0.0 has a clash with builtin Ubuntu systemd caching DNS on 127.0.0.1
       - "{{ inventory_hostname }}:53:53/tcp"
@@ -158,6 +191,9 @@ services:
     restart: unless-stopped
   duplicacy:
     image: saspus/duplicacy-web:v1.8.3@sha256:c51e896c36f76e54669ad9aa2ed98314f8c603a3d1cebbe236d1ad4d43cb6030
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:3875/"]
     container_name: duplicacy
     hostname: duplicacy-web
     restart: unless-stopped
@@ -219,6 +255,9 @@ services:
     logging: *default-logging
   swag:
     image: linuxserver/swag:5.10.0@sha256:64eb21f795cb7aa58c6a95c4c7c1b780cb86d48dbf8283ca0c27d7bb5983b3c0
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -sk -o /dev/null -w '%{http_code}' https://localhost/ | grep -qvE '^000$$'"]
     container_name: swag
     cap_add:
       - NET_ADMIN
@@ -252,6 +291,9 @@ services:
     logging: *default-logging
   nodeexporter:
     image: prom/node-exporter:v1.13.1@sha256:7296504d4ada44b7d7ab4431e27e9f9900d8488f8d55842f4b12ae2704e16dfe
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9100/"]
     container_name: nodeexporter
     network_mode: host # required to collect data about host network
     volumes:
@@ -270,6 +312,9 @@ services:
     logging: *default-logging
   prometheus:
     image: prom/prometheus:v3.16.0@sha256:e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9090/-/healthy"]
     container_name: prometheus
     user: '1000:1000'
     extra_hosts: # required to collect data from nodeexporter
@@ -291,6 +336,9 @@ services:
     logging: *default-logging
   grafana:
     image: grafana/grafana:13.3.1@sha256:0615ec4fbd4072004b7d86b46ded63013a74b7d6eb1119273dd89e8fa25c13cf
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:3000/api/health"]
     container_name: grafana
     user: '1000:1000'
     volumes:
@@ -323,6 +371,9 @@ services:
     logging: *default-logging
   telegraf: # per-container restart count, state, exit code, health
     image: telegraf:1.40.3-alpine@sha256:10fe8c974752c8088858f012cb47b71f5bb67c5695829be56d87dfbf8e0092b8
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9273/metrics"]
     container_name: telegraf
     user: "telegraf:{{ docker_sock_gid }}" # docker socket group, read by Ansible
     volumes:
@@ -358,6 +409,9 @@ services:
     logging: *default-logging
   antui:
     image: jakubdyszkiewicz/ant-ui:0.0.1@sha256:88686fca1b99be38b4d010dc51364894684f8568aaba3cd7ba604dbdbe3b59cb
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:80/"]
     container_name: antui
     expose:
       - 80
@@ -365,6 +419,10 @@ services:
   homeassistant:
     container_name: homeassistant
     image: ghcr.io/home-assistant/home-assistant:2025.7.1@sha256:e876528e4159974e844bbf3555e67ff48d73a78bf432b717dd9d178328230b40
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:8123/manifest.json"]
+      start_period: 5m
     volumes:
       - /mnt/data/services/homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
@@ -389,6 +447,9 @@ services:
   mqtt:
     container_name: mqtt
     image: eclipse-mosquitto:2.0.23@sha256:6a332cc7a8dbe011cbc076180cbb76b37c6f0f55809682ea08e7980ef0112ad9
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "mosquitto_sub -h localhost -t '$$SYS/broker/uptime' -C 1 -W 5 >/dev/null"]
     restart: unless-stopped
     volumes:
       - /mnt/data/services/mqtt:/mosquitto
@@ -400,6 +461,9 @@ services:
     container_name: zigbee2mqtt
     restart: unless-stopped
     image: koenkk/zigbee2mqtt:1.42.0@sha256:732ae43d714610040bd049487b60af3b2dbcfdefb5f169897455b60d715e2131
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/"]
     volumes:
       - /mnt/data/services/zigbee2mqtt:/app/data
       - /run/udev:/run/udev:ro
@@ -422,6 +486,9 @@ services:
     container_name: spotify-exporter
     restart: unless-stopped
     image: jakubdyszkiewicz/spotify-exporter:v0.0.5@sha256:4cff830ed9adcb3927672f0d1329ae9052464c34ce455433014cae771fd205a3
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8888/', timeout=5)"]
     volumes:
       - /home/{{ ansible_user }}/docker-services/spotify-exporter/config.toml:/app/config.toml
       - /mnt/data/services/spotify-exporter/auth-cache:/app/auth-cache
@@ -435,6 +502,9 @@ services:
     container_name: actual
     restart: unless-stopped
     image: actualbudget/actual-server:26.11.0@sha256:06cf186569cf58d93e12659ff1a517b65b5b0ebee7050a3991d4bd8a1d398da6
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5006/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
     volumes:
       - /mnt/data/services/actual:/data
     expose:
@@ -446,6 +516,9 @@ services:
     container_name: actual-mcp
     restart: unless-stopped
     image: sstefanov/actual-mcp:v1.15.1@sha256:9d6b216146fcd5f59303945d4f47ee6cbfbdc12a4f6a66f52029507e4ad0cb93
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"]
     expose:
       - 3000
     ports:
@@ -460,6 +533,9 @@ services:
   paperless-redis:
     container_name: paperless-redis
     image: docker.io/library/redis:8.10.3@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
     restart: unless-stopped
     volumes:
       - /mnt/data/services/paperless/redis:/data
@@ -483,6 +559,10 @@ services:
       - PAPERLESS_SECRET_KEY={{ paperless_secret_key }}
   romm:
     image: rommapp/romm:5.4.1@sha256:8677fb7b81b1d3db20b849e989a1dadc2a11159e51eb34a2acdcb01102274edf
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:8080/api/heartbeat"]
+      start_period: 10m
     container_name: romm
     restart: unless-stopped
     environment:
@@ -547,6 +627,9 @@ services:
     logging: *default-logging
   bubblewrap-minio:
     image: quay.io/minio/minio:RELEASE.2022-02-16T00-35-27Z@sha256:73a2ec4fc91f32c2d5ab4c49b5f9496ee33ac9b67a8c061fa80b506cc16f4a6a
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:9000/minio/health/live"]
     container_name: bubblewrap-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
@@ -559,6 +642,9 @@ services:
     logging: *default-logging
   bubblewrap:
     image: ghcr.io/jakubdyszkiewicz/bubblewrap:sha-afabc86@sha256:fffe44b4f4fe33e067e58ca156507fb3b155bd22cc38c785e4296b2115bbcbed
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/"]
     container_name: bubblewrap
     restart: unless-stopped
     environment:
@@ -731,6 +817,9 @@ services:
 
   sure-web:
     image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched@sha256:b716234fe6a014056fdba68e875eaf8856c1dea78bb2636234549c5ace449150
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:3000/up"]
     container_name: sure-web
     environment: &sure-env
       SECRET_KEY_BASE: {{ sure_secret_key_base | to_json }}
@@ -752,6 +841,9 @@ services:
     logging: *default-logging
   sure-worker:
     image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched@sha256:b716234fe6a014056fdba68e875eaf8856c1dea78bb2636234549c5ace449150
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "pgrep -f sidekiq >/dev/null"]
     container_name: sure-worker
     command: bundle exec sidekiq
     environment: *sure-env
