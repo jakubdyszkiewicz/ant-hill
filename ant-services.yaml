@@ -170,7 +170,10 @@
       # Your template files should be stored with a .j2 file extension,
       # but should not be deployed with it. splitext|first removes it.
       dest: "/home/{{ ansible_user }}/docker-services/{{ item.path | splitext | first }}"
-      mode: '0644'
+      # ddclient tightens its config to 0600 itself; keep it there instead of reverting it every deploy.
+      mode: "{{ '0600' if item.path == 'ddclient/ddclient.conf.j2' else '0644' }}"
+      # rclone rewrites its config with each refreshed OAuth token; the vault token only seeds it.
+      force: "{{ item.path != 'rclone/rclone.conf.j2' }}"
     with_community.general.filetree: templates/docker-services/
     when:
     - item.state == 'file'
