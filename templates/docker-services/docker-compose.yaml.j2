@@ -634,8 +634,28 @@ services:
     volumes:
       - /mnt/data/services/bubblewrap/minio:/data
     logging: *default-logging
+  # S3 storage replacing MinIO (archived, images withdrawn). Single-node setup per
+  # bubblewrap's README. Same credentials as MinIO. Only bubblewrap talks to it, over
+  # the compose network: no published ports (some SeaweedFS ports are unauthenticated).
+  bubblewrap-seaweedfs:
+    image: chrislusf/seaweedfs:4.54@sha256:4b42c212543a0acd4c0e675215ecdcaf62a186ef98def76c7e12701871222d15
+    healthcheck:
+      <<: *default-healthcheck
+      # 127.0.0.1, not localhost: localhost resolves to ::1 and weed only listens on IPv4.
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8333/healthz"]
+    container_name: bubblewrap-seaweedfs
+    restart: unless-stopped
+    # -volume.max=0: size from free disk (default is 8 x 30 GB); telemetry off.
+    command: server -dir=/data -s3 -volume.max=0 -master.telemetry=false
+    environment:
+      - TZ=Europe/Warsaw
+      - AWS_ACCESS_KEY_ID=app
+      - AWS_SECRET_ACCESS_KEY={{ bubblewrap_minio_password }}
+    volumes:
+      - /mnt/data/services/bubblewrap/seaweedfs:/data
+    logging: *default-logging
   bubblewrap:
-    image: ghcr.io/jakubdyszkiewicz/bubblewrap:sha-afabc86@sha256:fffe44b4f4fe33e067e58ca156507fb3b155bd22cc38c785e4296b2115bbcbed
+    image: ghcr.io/jakubdyszkiewicz/bubblewrap:sha-f6c1209@sha256:2bb2bf4da417fd798742af6330c43d73624645f7d6e7a28997e85cd88e1b72a5
     healthcheck:
       <<: *default-healthcheck
       test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/"]
