@@ -307,11 +307,13 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
       - /run/udev:/run/udev:ro # device labels (model, serial, path) for diskstats
+      - /var/lib/node_exporter/textfile:/host/textfile:ro # metrics written by host jobs (backup prep)
     command:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.textfile.directory=/host/textfile'
     restart: unless-stopped
     expose:
       - 9100

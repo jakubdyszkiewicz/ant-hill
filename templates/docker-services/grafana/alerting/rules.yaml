@@ -117,3 +117,49 @@ groups:
         labels: { severity: critical }
         annotations:
           summary: 'Kong cannot reach the upstream for {{ $labels.host }} ({{ printf "%.0f" $values.A.Value }} errors in 5 minutes)'
+  - orgId: 1
+    name: backups
+    folder: Alerts
+    interval: 5m
+    rules:
+      - uid: backup-prep-failed
+        title: Backup prep job failed
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              # Written by /usr/local/bin/ant-backup-prep (systemd timer, 01:30 Europe/Warsaw).
+              expr: min by (job) (ant_backup_success)
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: lt, params: [1] } }] }
+        for: 0m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: 'Nightly backup prep for {{ $labels.job }} failed, so tonight''s B2 backup has no consistent copy of it'
+      - uid: backup-prep-stale
+        title: Backup prep job stale
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              expr: time() - max by (job) (ant_backup_last_run_timestamp_seconds)
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [93600] } }] }
+        for: 0m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: 'No backup prep run for {{ $labels.job }} for {{ humanizeDuration $values.A.Value }} (expected nightly)'
