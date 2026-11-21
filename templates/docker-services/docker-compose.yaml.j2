@@ -316,6 +316,20 @@ services:
     expose:
       - 9100
     logging: *default-logging
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.29.1@sha256:ea1c7aa3ef3f307cd03e85f34abb604478ccb90b567fc690da0cd9776da76b13
+    container_name: blackbox-exporter
+    healthcheck:
+      <<: *default-healthcheck
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9115/-/healthy"]
+    volumes:
+      - /home/{{ ansible_user }}/docker-services/blackbox-exporter:/etc/blackbox_exporter:ro
+    command:
+      - '--config.file=/etc/blackbox_exporter/blackbox.yml'
+    expose:
+      - 9115
+    logging: *default-logging
+    restart: unless-stopped
   prometheus:
     image: prom/prometheus:v3.16.0@sha256:e04987641b57704f408e31f6373ba4138ecf27cb4a165d24aabb6c38fddd0f06
     healthcheck:

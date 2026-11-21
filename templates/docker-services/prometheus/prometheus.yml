@@ -35,3 +35,18 @@ scrape_configs:
       - targets: ['192.168.1.51:9100']
         labels:
           host: 'ant-dev'
+  # Public hostnames through public DNS and Kong (targets rendered from kong.yml).
+  - job_name: 'blackbox-exporter'
+    scrape_interval: 1m
+    metrics_path: /probe
+    params:
+      module: [kong_https]
+    file_sd_configs:
+      - files: ['/etc/prometheus/blackbox-targets.yml']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
