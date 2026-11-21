@@ -246,7 +246,7 @@
       services:
         - "{{ item }}"
       state: restarted
-    loop: [grafana, prometheus, blackbox]
+    loop: [grafana, prometheus, blackbox-exporter]
     when: >-
       (docker_templates.results + docker_files.results)
       | selectattr('changed', 'defined') | selectattr('changed')

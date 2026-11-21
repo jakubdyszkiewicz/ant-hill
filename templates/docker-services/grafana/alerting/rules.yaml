@@ -225,7 +225,7 @@ groups:
               instant: true
               # Blackbox requests every Kong hostname through public DNS. A failure means DNS
               # points elsewhere (ddclient), the port forward or Kong is broken, or TLS is invalid.
-              expr: 'min by (instance) (probe_success{job="blackbox"})'
+              expr: 'min by (instance) (probe_success{job="blackbox-exporter"})'
           - refId: C
             datasourceUid: __expr__
             model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: lt, params: [1] } }] }
@@ -247,7 +247,7 @@ groups:
               instant: true
               # One wildcard certificate serves every hostname. SWAG renews at 30 days left,
               # so under 14 means renewal has been failing for two weeks.
-              expr: 'min((probe_ssl_earliest_cert_expiry{job="blackbox"} - time()) / 86400)'
+              expr: 'min((probe_ssl_earliest_cert_expiry{job="blackbox-exporter"} - time()) / 86400)'
           - refId: C
             datasourceUid: __expr__
             model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: lt, params: [14] } }] }
@@ -267,8 +267,8 @@ groups:
             model:
               refId: A
               instant: true
-              # The rules above stay silent if blackbox is down or the target list is empty.
-              expr: 'absent(probe_success{job="blackbox"})'
+              # The rules above stay silent if blackbox-exporter is down or the target list is empty.
+              expr: 'absent(probe_success{job="blackbox-exporter"})'
           - refId: C
             datasourceUid: __expr__
             model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [0] } }] }
@@ -277,4 +277,4 @@ groups:
         execErrState: Error
         labels: { severity: warning }
         annotations:
-          summary: 'No blackbox probe results; check the blackbox container and prometheus/blackbox-targets.yml'
+          summary: 'No blackbox probe results; check the blackbox-exporter container and prometheus/blackbox-targets.yml'
