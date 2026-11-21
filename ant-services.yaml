@@ -70,6 +70,22 @@
       groups: docker
       append: yes
     become: yes
+  # Private images (bubblewrap, kroczek, sure-patched, ...) live on ghcr.io. The deploy pulls
+  # as root (docker compose with become); log in ubuntu too for manual pulls.
+  # Token: classic PAT with read:packages only, in the vault.
+  - name: Log in to ghcr.io (root)
+    become: yes
+    ansible.builtin.command:
+      cmd: docker login ghcr.io --username jakubdyszkiewicz --password-stdin
+      stdin: "{{ ghcr_read_token }}"
+    changed_when: false
+    no_log: true
+  - name: Log in to ghcr.io ({{ ansible_user }})
+    ansible.builtin.command:
+      cmd: docker login ghcr.io --username jakubdyszkiewicz --password-stdin
+      stdin: "{{ ghcr_read_token }}"
+    changed_when: false
+    no_log: true
   # --- Volumes ---
   - name: Mount media directory exists
     become: true
