@@ -34,7 +34,7 @@ jobs:
       - name: Install Ansible
         run: |
           # renovate: datasource=pypi depName=ansible-core
-          pipx install ansible-core==2.21.5
+          pipx install ansible-core==2.22.0
           ansible-galaxy install -r requirements.yaml
       - name: Configure SSH
         run: |
