@@ -117,3 +117,93 @@ groups:
         labels: { severity: critical }
         annotations:
           summary: 'Kong cannot reach the upstream for {{ $labels.host }} ({{ printf "%.0f" $values.A.Value }} errors in 5 minutes)'
+  - orgId: 1
+    name: disks
+    folder: Alerts
+    interval: 1m
+    rules:
+      - uid: disk-space-low
+        title: Disk space low
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093 # Prometheus
+            model:
+              refId: A
+              instant: true
+              # Covers every filesystem node-exporter reports on both hosts, including the 1 GB /boot.
+              expr: 'min by (host, mountpoint) (100 * node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs"})'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: lt, params: [10] } }] }
+        for: 10m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: '{{ $labels.mountpoint }} on {{ $labels.host }} has {{ printf "%.1f" $values.A.Value }}% free'
+      - uid: disk-filling-up
+        title: Disk filling up
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              # Days until full at the last 24h's rate, only for filesystems under 30% free:
+              # a big download that lands and then moves to /mnt/media shouldn't page.
+              expr: 'min by (host, mountpoint) (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs"}) / -min by (host, mountpoint) (deriv(node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs"}[24h])) / 86400 > 0 and min by (host, mountpoint) (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay|squashfs|ramfs"}) < 0.3'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: lt, params: [4] } }] }
+        for: 1h
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: warning }
+        annotations:
+          summary: '{{ $labels.mountpoint }} on {{ $labels.host }} will be full in about {{ printf "%.1f" $values.A.Value }} days at the current rate'
+      - uid: disk-read-only
+        title: Filesystem read-only
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              # ext4 remounts read-only on disk errors; every write then fails.
+              expr: 'max by (host, mountpoint) (node_filesystem_readonly{fstype!~"tmpfs|overlay|squashfs|ramfs"})'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [0] } }] }
+        for: 2m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: '{{ $labels.mountpoint }} on {{ $labels.host }} is mounted read-only (disk errors?)'
+      - uid: data-volume-not-mounted
+        title: Data volume not mounted
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              # If a volume isn't mounted, services write into the empty directory on / instead.
+              expr: 'absent(node_filesystem_size_bytes{host="ant-services", mountpoint="/mnt/data"}) or absent(node_filesystem_size_bytes{host="ant-services", mountpoint="/mnt/media"})'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [0] } }] }
+        for: 5m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: '{{ $labels.mountpoint }} is not mounted on {{ $labels.host }}'
