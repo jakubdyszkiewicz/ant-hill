@@ -60,10 +60,13 @@
   - name: Install Docker Compose plugin binary
     become: yes
     get_url:
-      url: "https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64"
+      url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-x86_64"
       dest: /usr/local/lib/docker/cli-plugins/docker-compose
       mode: "0755"
-      checksum: "sha256:7af95166a730b87e172d4fc9aefea8725d3c6c7327d59149267b452114ddb7d4"
+      # get_url verifies against the release's own checksums.txt, so a version bump is the only edit.
+      checksum: "sha256:https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/checksums.txt"
+    vars:
+      docker_compose_version: v2.39.4 # renovate: datasource=github-releases depName=docker/compose
   - name: adding existing user '{{ ansible_user }}' to group docker
     user:
       name: "{{ ansible_user }}"

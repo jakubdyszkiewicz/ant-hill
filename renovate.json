@@ -19,6 +19,18 @@
       ],
       "datasourceTemplate": "docker",
       "autoReplaceStringTemplate": "image: {{depName}}:{{newValue}}{{#if newDigest}}@{{newDigest}}{{/if}}"
+    },
+    {
+      "customType": "regex",
+      "description": "Versions annotated with '# renovate: datasource=... depName=...' (Docker Compose plugin in the playbook, ansible-core in CI)",
+      "managerFilePatterns": [
+        "/^ant-services\\.yaml$/",
+        "/^\\.github/workflows/deploy\\.yaml$/"
+      ],
+      "matchStrings": [
+        "(?<currentValue>v?[0-9][0-9.]*) # renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)",
+        "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\n\\s*pipx install [a-z-]+==(?<currentValue>[0-9][0-9.]*)"
+      ]
     }
   ],
   "packageRules": [
@@ -54,6 +66,17 @@
       "groupName": "observability"
     },
     {
+      "description": "Same-version rebuilds (digest-only) in one weekly PR instead of one per image",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "digest",
+        "pinDigest"
+      ],
+      "groupName": "docker digests"
+    },
+    {
       "matchUpdateTypes": [
         "major"
       ],
@@ -82,6 +105,18 @@
         "mariadb"
       ],
       "allowedVersions": "<13"
+    },
+    {
+      "description": "Home Assistant: approve every release on the dashboard. Monthly releases count as 'minor' but carry breaking changes (2026.3 removed light 'kelvin'); review the release notes first.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/home-assistant/home-assistant"
+      ],
+      "dependencyDashboardApproval": true
     }
-  ]
+  ],
+  "timezone": "Europe/Warsaw",
+  "prHourlyLimit": 0
 }

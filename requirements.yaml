@@ -4,8 +4,14 @@ roles:
   version: "v2.5.5"
 collections:
 - name: community.libvirt
+  version: "2.4.0"
 - name: community.crypto
+  version: "3.5.1"
 - name: ansible.posix
+  version: "2.2.2"
 - name: community.docker
+  version: "5.4.0"
 - name: community.general
+  version: "14.0.1"
 - name: artis3n.tailscale
+  version: "1.2.1"

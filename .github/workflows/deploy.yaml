@@ -33,6 +33,7 @@ jobs:
       # Install before joining the tailnet to save ephemeral node minutes.
       - name: Install Ansible
         run: |
+          # renovate: datasource=pypi depName=ansible-core
           pipx install ansible-core==2.21.5
           ansible-galaxy install -r requirements.yaml
       - name: Configure SSH
