@@ -208,3 +208,73 @@ groups:
         labels: { severity: critical }
         annotations:
           summary: '{{ $labels.mountpoint }} is not mounted on {{ $labels.host }}'
+  - orgId: 1
+    name: probes
+    folder: Alerts
+    interval: 1m
+    rules:
+      - uid: public-endpoint-down
+        title: Public endpoint down
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093 # Prometheus
+            model:
+              refId: A
+              instant: true
+              # Blackbox requests every Kong hostname through public DNS. A failure means DNS
+              # points elsewhere (ddclient), the port forward or Kong is broken, or TLS is invalid.
+              expr: 'min by (instance) (probe_success{job="blackbox"})'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: lt, params: [1] } }] }
+        for: 5m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: '{{ $labels.instance }} is unreachable through public DNS and Kong'
+      - uid: tls-certificate-expiring
+        title: TLS certificate expiring
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              # One wildcard certificate serves every hostname. SWAG renews at 30 days left,
+              # so under 14 means renewal has been failing for two weeks.
+              expr: 'min((probe_ssl_earliest_cert_expiry{job="blackbox"} - time()) / 86400)'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: lt, params: [14] } }] }
+        for: 1h
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: critical }
+        annotations:
+          summary: 'The TLS certificate served by Kong expires in {{ printf "%.0f" $values.A.Value }} days; check SWAG renewal'
+      - uid: probes-missing
+        title: Public endpoint probes missing
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093
+            model:
+              refId: A
+              instant: true
+              # The rules above stay silent if blackbox is down or the target list is empty.
+              expr: 'absent(probe_success{job="blackbox"})'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [0] } }] }
+        for: 10m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: warning }
+        annotations:
+          summary: 'No blackbox probe results; check the blackbox container and prometheus/blackbox-targets.yml'

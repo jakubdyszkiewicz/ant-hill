@@ -1,0 +1,4 @@
+{# Every hostname Kong routes, read from kong.yml so new services get probed automatically. #}
+{% set kong = lookup('ansible.builtin.template', playbook_dir ~ '/templates/docker-services/kong/kong.yml.j2') | from_yaml %}
+{% set hosts = kong.services | map(attribute='routes') | flatten | map(attribute='hosts') | flatten | unique | sort %}
+{{ [{'targets': hosts | map('regex_replace', '^(.*)$', 'https://\\1/') | list}] | to_nice_yaml(indent=2) }}

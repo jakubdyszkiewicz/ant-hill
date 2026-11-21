@@ -238,15 +238,16 @@
         - kong
       state: restarted
     when: kong_config.changed
-  # Grafana reads provisioning (alert rules, contact points, datasources) only at startup.
-  - name: Restart Grafana if its provisioning changed
+  # These read their config only at startup (Grafana: alert rules, contact points, datasources).
+  - name: Restart services whose config files changed
     become: yes
     community.docker.docker_compose_v2:
       project_src: "/home/{{ ansible_user }}/docker-services"
       services:
-        - grafana
+        - "{{ item }}"
       state: restarted
+    loop: [grafana, prometheus, blackbox]
     when: >-
       (docker_templates.results + docker_files.results)
       | selectattr('changed', 'defined') | selectattr('changed')
-      | map(attribute='item.path') | select('match', 'grafana/') | list | length > 0
+      | map(attribute='item.path') | select('match', item ~ '/') | list | length > 0
