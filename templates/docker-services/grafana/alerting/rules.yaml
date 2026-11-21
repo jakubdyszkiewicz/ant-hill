@@ -111,7 +111,8 @@ groups:
           - refId: C
             datasourceUid: __expr__
             model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [10] } }] }
-        for: 2m
+        # Longer than the 5m window, so a burst while a deploy restarts a service ages out before firing.
+        for: 5m
         noDataState: OK
         execErrState: Error
         labels: { severity: critical }
