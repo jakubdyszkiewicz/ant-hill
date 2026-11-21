@@ -39,7 +39,7 @@ services:
     logging: *default-logging
     restart: unless-stopped
   syncthing:
-    image: linuxserver/syncthing:2.1.7@sha256:c4207d8f5b66d5f67eedb636b75500b5a04898e9f33299d252f4b966c41a4128
+    image: linuxserver/syncthing:2.1.7@sha256:91e5a75d719b4f9919fc5332c7350d1477cf07bd62143506cec88694e94fbbc9
     healthcheck:
       <<: *default-healthcheck
       test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:8384/rest/noauth/health"]
@@ -72,7 +72,7 @@ services:
       - SYNCTHING_API_KEY={{ syncthing_api_key }}
     logging: *default-logging
   nzbget:
-    image: linuxserver/nzbget:26.3.20261113@sha256:17e13511d47b1439af19b7ef17d08c8643eb2a5f009b1d3f800b704ebe590218
+    image: linuxserver/nzbget:26.3.20261120@sha256:217c7028b9d671b34bfb60adcd09f3d6d24761226ec7025b3438eaa55fc0728e
     healthcheck:
       <<: *default-healthcheck
       test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:6789/ | grep -qE '^(200|401)$$'"]
@@ -89,7 +89,7 @@ services:
       - 6789
     logging: *default-logging
   sonarr:
-    image: linuxserver/sonarr:4.0.20@sha256:c7d1df25e428da6c9ace05daea0d34e59522978a3843ea1944812f855af4086c
+    image: linuxserver/sonarr:4.0.20@sha256:339814bbf50599ac3b59077c252f29833d0138b59a062d0e82ce37bdc7f04f86
     healthcheck:
       <<: *default-healthcheck
       test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:8989/ping"]
