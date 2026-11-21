@@ -307,7 +307,7 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
       - /run/udev:/run/udev:ro # device labels (model, serial, path) for diskstats
-      - /var/lib/node_exporter/textfile:/host/textfile:ro # metrics written by host jobs (db dumps)
+      - /var/lib/node_exporter/textfile:/host/textfile:ro # metrics written by host jobs (backup prep)
     command:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
