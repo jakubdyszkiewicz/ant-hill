@@ -8,3 +8,8 @@ modules:
       # Most routes need a client certificate, an API key or a password, so Kong answers 401.
       # That still proves public DNS, the router's port forward, Kong and the certificate work.
       valid_status_codes: [200, 401]
+  http_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      preferred_ip_protocol: ip4
