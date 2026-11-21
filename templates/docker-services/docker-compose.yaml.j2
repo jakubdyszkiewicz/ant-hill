@@ -690,16 +690,6 @@ services:
     logging: *default-logging
     ports:
       - 13002:8080
-  terminus-init-certificates:
-    image: ghcr.io/usetrmnl/terminus:0.84.0@sha256:78316a885994817162cbab2abfcb8d6ac3f49c1d58d89f36266765d9f760721f
-    container_name: terminus-init-certificates
-    user: root
-    volumes:
-      - terminus-certificates:/etc/ssl/certs
-    entrypoint: ["/bin/bash", "-c"]
-    command: scripts/docker/install-certificates
-    restart: on-failure:3
-    logging: *default-logging
   terminus:
     image: ghcr.io/usetrmnl/terminus:0.84.0@sha256:78316a885994817162cbab2abfcb8d6ac3f49c1d58d89f36266765d9f760721f
     container_name: terminus
@@ -714,13 +704,10 @@ services:
     ports:
       - "2300:2300"
     volumes:
-      - terminus-certificates:/etc/ssl/certs
       - /mnt/data/services/terminus/fonts:/app/public/fonts
       - /mnt/data/services/terminus/fonts:/usr/share/fonts/terminus
       - /mnt/data/services/terminus/uploads:/app/public/uploads
     depends_on:
-      terminus-init-certificates:
-        condition: service_completed_successfully
       terminus-database:
         condition: service_healthy
       terminus-keyvalue:
@@ -745,7 +732,6 @@ services:
       - KEYVALUE_URL=redis://:{{ terminus_keyvalue_password }}@terminus-keyvalue:6379/0
     command: bundle exec sidekiq -r ./config/sidekiq.rb
     volumes:
-      - terminus-certificates:/etc/ssl/certs
       - /mnt/data/services/terminus/fonts:/app/public/fonts
       - /mnt/data/services/terminus/fonts:/usr/share/fonts/terminus
       - /mnt/data/services/terminus/uploads:/app/public/uploads
@@ -893,6 +879,3 @@ services:
     command: ["-mode", "interval"]
     restart: unless-stopped
     logging: *default-logging
-
-volumes:
-  terminus-certificates:
