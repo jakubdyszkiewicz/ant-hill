@@ -66,7 +66,7 @@
       # get_url verifies against the release's own checksums.txt, so a version bump is the only edit.
       checksum: "sha256:https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/checksums.txt"
     vars:
-      docker_compose_version: v2.39.4 # renovate: datasource=github-releases depName=docker/compose
+      docker_compose_version: v5.8.0 # renovate: datasource=github-releases depName=docker/compose
   - name: adding existing user '{{ ansible_user }}' to group docker
     user:
       name: "{{ ansible_user }}"
