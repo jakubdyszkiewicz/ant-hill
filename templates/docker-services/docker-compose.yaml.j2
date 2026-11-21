@@ -619,24 +619,6 @@ services:
     volumes:
       - /mnt/data/services/bubblewrap/postgres:/var/lib/postgresql/data
     logging: *default-logging
-  bubblewrap-minio:
-    image: quay.io/minio/minio:RELEASE.2022-02-16T00-35-27Z@sha256:73a2ec4fc91f32c2d5ab4c49b5f9496ee33ac9b67a8c061fa80b506cc16f4a6a
-    healthcheck:
-      <<: *default-healthcheck
-      test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:9000/minio/health/live"]
-    container_name: bubblewrap-minio
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      - TZ=Europe/Warsaw
-      - MINIO_ROOT_USER=app
-      - MINIO_ROOT_PASSWORD={{ bubblewrap_minio_password }}
-    volumes:
-      - /mnt/data/services/bubblewrap/minio:/data
-    logging: *default-logging
-  # S3 storage replacing MinIO (archived, images withdrawn). Single-node setup per
-  # bubblewrap's README. Same credentials as MinIO. Only bubblewrap talks to it, over
-  # the compose network: no published ports (some SeaweedFS ports are unauthenticated).
   bubblewrap-seaweedfs:
     image: chrislusf/seaweedfs:4.54@sha256:4b42c212543a0acd4c0e675215ecdcaf62a186ef98def76c7e12701871222d15
     healthcheck:
@@ -666,10 +648,13 @@ services:
       - API_HOST=0.0.0.0
       - API_ALLOWED_ORIGINS="https://bubblewrap.{{ ant_domain}}"
       - DATABASE_URL=postgres://app:{{ bubblewrap_postgres_password }}@bubblewrap-postgres:5432/bubblewrap?sslmode=disable
-      - MINIO_ENDPOINT=bubblewrap-minio:9000
-      - MINIO_ACCESS_KEY=app
-      - MINIO_SECRET_KEY={{ bubblewrap_minio_password }}
-      - MINIO_BUCKET=family-media
+      - S3_ENDPOINT=http://bubblewrap-seaweedfs:8333
+      - S3_REGION=us-east-1
+      - S3_ACCESS_KEY=app
+      - S3_SECRET_KEY={{ bubblewrap_minio_password }} # vault name kept from MinIO days
+      - S3_BUCKET=family-media
+      - S3_USE_SSL=false
+      - S3_FORCE_PATH_STYLE=true
       - AUTH_TOKEN_SECRET={{ bubblewrap_auth_token_secret }}
       - RESEND_API_KEY={{ resend_api_key }}
       - RESEND_FROM_EMAIL=no-reply@updates.{{ ant_domain }}
@@ -684,8 +669,8 @@ services:
     depends_on:
       bubblewrap-postgres:
         condition: service_healthy
-      bubblewrap-minio:
-        condition: service_started
+      bubblewrap-seaweedfs:
+        condition: service_healthy
     logging: *default-logging
   kroczek:
     image: ghcr.io/jakubdyszkiewicz/kroczek:sha-2c66a32@sha256:2f42552915b094d71551aa230221cd81e72d083bc4ccbe3e2b34e494fa29c632
