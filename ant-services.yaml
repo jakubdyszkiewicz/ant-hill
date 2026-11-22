@@ -52,6 +52,12 @@
       cache_valid_time: 86400 # One day
   # With nofail in fstab, local-fs.target no longer waits for the data disks. Docker must,
   # or containers would start on empty directories on the root disk.
+  - name: Docker drop-in directory
+    become: yes
+    ansible.builtin.file:
+      path: /etc/systemd/system/docker.service.d
+      state: directory
+      mode: "0755"
   - name: Make Docker wait for the data disks
     become: yes
     ansible.builtin.copy:
