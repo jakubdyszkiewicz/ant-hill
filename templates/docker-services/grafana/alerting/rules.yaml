@@ -111,8 +111,9 @@ groups:
           - refId: C
             datasourceUid: __expr__
             model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [10] } }] }
-        # Longer than the 5m window, so a burst while a deploy restarts a service ages out before firing.
-        for: 5m
+        # Longer than the 5m window plus a burst, so errors while a deploy restarts a service age out
+        # before firing (5m raced: a burst during Grafana's restart cleared only at the last second).
+        for: 7m
         noDataState: OK
         execErrState: Error
         labels: { severity: critical }
@@ -321,7 +322,7 @@ groups:
               refId: A
               instant: true
               # Written by /usr/local/bin/ant-backup-prep (systemd timer, 01:30 Europe/Warsaw).
-              expr: min by (job) (ant_backup_success)
+              expr: min by (database) (ant_backup_success)
           - refId: C
             datasourceUid: __expr__
             model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: lt, params: [1] } }] }
@@ -330,7 +331,7 @@ groups:
         execErrState: Error
         labels: { severity: critical }
         annotations:
-          summary: 'Nightly backup prep for {{ $labels.job }} failed, so tonight''s B2 backup has no consistent copy of it'
+          summary: 'Nightly backup prep for {{ $labels.database }} failed, so tonight''s B2 backup has no consistent copy of it'
       - uid: backup-prep-stale
         title: Backup prep job stale
         condition: C
@@ -341,7 +342,7 @@ groups:
             model:
               refId: A
               instant: true
-              expr: time() - max by (job) (ant_backup_last_run_timestamp_seconds)
+              expr: time() - max by (database) (ant_backup_last_run_timestamp_seconds)
           - refId: C
             datasourceUid: __expr__
             model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [93600] } }] }
@@ -350,4 +351,4 @@ groups:
         execErrState: Error
         labels: { severity: critical }
         annotations:
-          summary: 'No backup prep run for {{ $labels.job }} for {{ humanizeDuration $values.A.Value }} (expected nightly)'
+          summary: 'No backup prep run for {{ $labels.database }} for {{ humanizeDuration $values.A.Value }} (expected nightly)'
