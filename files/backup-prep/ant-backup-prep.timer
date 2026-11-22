@@ -1,0 +1,9 @@
+[Unit]
+Description=Dump databases before the 02:00 Duplicacy backup
+
+[Timer]
+OnCalendar=*-*-* 01:30:00 Europe/Warsaw
+Persistent=true
+
+[Install]
+WantedBy=timers.target
