@@ -278,3 +278,30 @@ groups:
         labels: { severity: warning }
         annotations:
           summary: 'No blackbox probe results; check the blackbox-exporter container and prometheus/blackbox-targets.yml'
+  - orgId: 1
+    name: zigbee
+    folder: Alerts
+    interval: 1m
+    rules:
+      - uid: zigbee-adapter-out-of-buffers
+        title: Zigbee adapter out of buffers
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: P8E80F9AEF21F6940 # Loki
+            model:
+              refId: A
+              queryType: instant
+              # The dongle refuses outgoing messages, so commands fail (a light that won't turn off)
+              # until zigbee2mqtt is restarted. Started after the EmberZNet 7.4.4 reflash.
+              expr: 'sum(count_over_time({container_name="zigbee2mqtt"} |~ "run out of buffers|MAX_MESSAGE_LIMIT_REACHED" [15m]))'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [2] } }] }
+        for: 0m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: warning }
+        annotations:
+          summary: 'The Zigbee adapter ran out of buffers {{ printf "%.0f" $values.A.Value }} times in 15 minutes; Zigbee commands may fail until zigbee2mqtt is restarted'
