@@ -47,10 +47,14 @@
     apt:
       pkg:
       - docker.io
-      - docker-compose
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
+  - name: Remove Compose v1 # replaced by the Compose plugin below
+    become: yes
+    apt:
+      pkg: docker-compose
+      state: absent
   - name: Ensure cli-plugins dir exists (system-wide)
     become: yes
     file:
