@@ -2,6 +2,8 @@
 Description=Dump databases for the nightly backup
 After=docker.service
 Requires=docker.service
+# Never dump into an empty /mnt/data on the root disk.
+RequiresMountsFor=/mnt/data /mnt/media
 
 [Service]
 Type=oneshot
