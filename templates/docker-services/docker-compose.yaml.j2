@@ -422,6 +422,7 @@ services:
       - /home/{{ ansible_user }}/docker-services/promtail/docker-config.yml:/etc/promtail/docker-config.yml
     command: -config.file=/etc/promtail/docker-config.yml
     logging: *default-logging
+    restart: unless-stopped
   loki:
     image: grafana/loki:3.7.10@sha256:b43c257ccfc925d4a50b8717cac61a3b51df8c48d01847936057e5c4075a24a7
     container_name: loki
@@ -431,6 +432,7 @@ services:
     volumes:
       - /home/{{ ansible_user }}/docker-services/loki:/config
     logging: *default-logging
+    restart: unless-stopped
   antui:
     image: jakubdyszkiewicz/ant-ui:0.0.1@sha256:88686fca1b99be38b4d010dc51364894684f8568aaba3cd7ba604dbdbe3b59cb
     healthcheck:
@@ -440,6 +442,7 @@ services:
     expose:
       - 80
     logging: *default-logging
+    restart: unless-stopped
   homeassistant:
     container_name: homeassistant
     image: ghcr.io/home-assistant/home-assistant:2026.11.2@sha256:493a07e8f6530fc640223f4a0a5248f20a61ca2f718bb1d31efbf08a2c5ea28f
