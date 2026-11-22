@@ -50,6 +50,22 @@
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
+  # With nofail in fstab, local-fs.target no longer waits for the data disks. Docker must,
+  # or containers would start on empty directories on the root disk.
+  - name: Make Docker wait for the data disks
+    become: yes
+    ansible.builtin.copy:
+      dest: /etc/systemd/system/docker.service.d/10-require-mounts.conf
+      content: |
+        [Unit]
+        RequiresMountsFor=/mnt/data /mnt/media
+      mode: "0644"
+    register: docker_mounts_dropin
+  - name: Reload systemd for the Docker drop-in # takes effect at the next start; no restart now
+    become: yes
+    ansible.builtin.systemd_service:
+      daemon_reload: true
+    when: docker_mounts_dropin.changed
   - name: Remove Compose v1 # replaced by the Compose plugin below
     become: yes
     apt:
@@ -108,6 +124,9 @@
       path: "/mnt/media"
       boot: true
       fstype: ext4
+      # nofail: a missing disk doesn't stop boot (SSH and Tailscale still come up);
+      # Docker waits for the mount instead (RequiresMountsFor drop-in).
+      opts: defaults,nofail
       state: mounted
   - name: Mount data directory exists
     become: true
@@ -123,6 +142,9 @@
       path: "/mnt/data"
       boot: true
       fstype: ext4
+      # nofail: a missing disk doesn't stop boot (SSH and Tailscale still come up);
+      # Docker waits for the mount instead (RequiresMountsFor drop-in).
+      opts: defaults,nofail
       state: mounted
   - name: Create docker-services directories
     ansible.builtin.file:
