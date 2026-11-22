@@ -234,6 +234,36 @@
       name: avahi-daemon
       state: restarted
     when: avahi_config.changed
+  # --- Nightly backup prep: database dumps before the 02:00 Duplicacy backup ---
+  - name: Install backup prep script
+    become: yes
+    ansible.builtin.copy:
+      src: files/backup-prep/ant-backup-prep.sh
+      dest: /usr/local/bin/ant-backup-prep
+      mode: '0755'
+  - name: Install backup prep systemd units
+    become: yes
+    ansible.builtin.copy:
+      src: "files/backup-prep/{{ item }}"
+      dest: "/etc/systemd/system/{{ item }}"
+      mode: '0644'
+    loop:
+      - ant-backup-prep.service
+      - ant-backup-prep.timer
+    register: backup_prep_units
+  - name: Directory for node-exporter textfile metrics (backup prep status)
+    become: yes
+    ansible.builtin.file:
+      path: /var/lib/node_exporter/textfile
+      state: directory
+      mode: '0755'
+  - name: Enable the nightly backup prep timer
+    become: yes
+    ansible.builtin.systemd_service:
+      name: ant-backup-prep.timer
+      enabled: true
+      state: started
+      daemon_reload: "{{ backup_prep_units.changed }}"
   - name: Restart Kong if config changed
     become: yes
     community.docker.docker_compose_v2:

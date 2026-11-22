@@ -10,6 +10,7 @@ on:
       - vars/**
       - roles/dotfiles/**
       - files/ci-deploy.pub
+      - files/backup-prep/**
       - requirements.yaml
       - services.sh
       - ci/**
