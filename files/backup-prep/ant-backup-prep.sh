@@ -23,10 +23,10 @@ mkdir -p "$DUMPS" "$PROM_DIR"
 metrics=$(mktemp)
 failed=0
 
-record() { # job success size
-  echo "ant_backup_success{job=\"$1\"} $2" >> "$metrics"
-  echo "ant_backup_size_bytes{job=\"$1\"} $3" >> "$metrics"
-  echo "ant_backup_last_run_timestamp_seconds{job=\"$1\"} $NOW" >> "$metrics"
+record() { # database success size
+  echo "ant_backup_success{database=\"$1\"} $2" >> "$metrics"
+  echo "ant_backup_size_bytes{database=\"$1\"} $3" >> "$metrics"
+  echo "ant_backup_last_run_timestamp_seconds{database=\"$1\"} $NOW" >> "$metrics"
 }
 
 # --- Database dumps ---
