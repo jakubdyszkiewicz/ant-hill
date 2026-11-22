@@ -42,11 +42,15 @@
   - name: Install VPN (tailscale) # auth key is encrypted in vars/secrets.yaml
     include_role:
       name: artis3n.tailscale.machine
+  # Updated here, at deploy time, not by unattended-upgrades: upgrading them restarts
+  # the Docker daemon and every container (see files/apt/52ant-unattended-upgrades).
   - name: Install docker
     become: yes
     apt:
       pkg:
       - docker.io
+      - containerd
+      - runc
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
