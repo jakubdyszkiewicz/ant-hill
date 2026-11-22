@@ -11,6 +11,8 @@ on:
       - roles/dotfiles/**
       - files/ci-deploy.pub
       - files/backup-prep/**
+      - files/reboot-required/**
+      - files/apt/**
       - requirements.yaml
       - services.sh
       - ci/**

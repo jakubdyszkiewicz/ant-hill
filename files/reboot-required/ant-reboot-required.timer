@@ -1,0 +1,9 @@
+[Unit]
+Description=Hourly check whether a reboot is pending
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1h
+
+[Install]
+WantedBy=timers.target
