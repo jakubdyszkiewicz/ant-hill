@@ -373,6 +373,7 @@ services:
     expose:
       - 3000
     restart: unless-stopped
+    logging: *default-logging
   cadvisor:
     image: ghcr.io/google/cadvisor:v0.61.1@sha256:4929b70e82079d001d0028b85d6a4dd25ad4666b719455c9542b983489963916
     container_name: cadvisor
@@ -465,6 +466,7 @@ services:
       - 1883
       - 9001
     command: "mosquitto -c /mosquitto-no-auth.conf"
+    logging: *default-logging
   zigbee2mqtt:
     container_name: zigbee2mqtt
     restart: unless-stopped
@@ -481,6 +483,7 @@ services:
       - TZ=Europe/Warsaw
     devices:
       - /dev/ttyACM0:/dev/ttyACM0
+    logging: *default-logging
   calendar-fetcher:
     image: alpine:3.24.4@sha256:f59abe656b692d901e184be3445e084786602108599d2a51d229c0f5a48c71bf
     container_name: calendar-fetcher
@@ -538,6 +541,7 @@ services:
       - ACTUAL_BUDGET_SYNC_ID=5e2afa2a-b8d5-4757-9039-73e219c97d6c
       - BEARER_TOKEN={{ actual_mcp_token }}
     command: ["--sse", "--enable-write", "--enable-bearer"]
+    logging: *default-logging
   paperless-redis:
     container_name: paperless-redis
     image: docker.io/library/redis:8.10.3@sha256:1f88291b4c57bdf249f02eb085a8669889b2d2954e91d4de5118a5da6b78dd53
@@ -547,6 +551,7 @@ services:
     restart: unless-stopped
     volumes:
       - /mnt/data/services/paperless/redis:/data
+    logging: *default-logging
   paperless:
     container_name: paperless
     image: ghcr.io/paperless-ngx/paperless-ngx:3.5.1@sha256:8508853b8a0f8394074260957d0be186c8c64f346973b24a7583de4580f306b9
@@ -565,6 +570,7 @@ services:
       - PAPERLESS_OCR_LANGUAGES=pol
       - PAPERLESS_REDIS=redis://paperless-redis:6379
       - PAPERLESS_SECRET_KEY={{ paperless_secret_key }}
+    logging: *default-logging
   romm:
     image: rommapp/romm:5.4.1@sha256:8677fb7b81b1d3db20b849e989a1dadc2a11159e51eb34a2acdcb01102274edf
     healthcheck:
@@ -596,6 +602,7 @@ services:
         restart: true
     ports:
       - 18082:8080
+    logging: *default-logging
   romm-db:
     image: mariadb:12.3.3@sha256:4aaf88b3106382c8c18e49f0cec60267be618fc22f858c4503afb2a2555afed3
     container_name: romm-db
@@ -616,6 +623,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging: *default-logging
   bubblewrap-postgres:
     image: docker.io/library/postgres:16.16-alpine@sha256:1d5b02d3a9941fbd52437db4107f8c52d6297dac553ca1e5c299ebb3756b4857
     container_name: bubblewrap-postgres
