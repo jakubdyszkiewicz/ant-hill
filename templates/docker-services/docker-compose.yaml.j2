@@ -208,8 +208,8 @@ services:
       - TZ=Europe/Warsaw
     volumes:
       - /mnt/data/services/duplicacy:/config
-      - /home/jakub/docker-services/duplicacy/cache:/cache
-      - /home/jakub/docker-services/duplicacy/logs:/logs
+      - /home/{{ ansible_user }}/docker-services/duplicacy/cache:/cache
+      - /home/{{ ansible_user }}/docker-services/duplicacy/logs:/logs
       - /mnt/data:/data:ro
     logging: *default-logging
   gickup:
