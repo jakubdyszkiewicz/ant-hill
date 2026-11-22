@@ -352,3 +352,30 @@ groups:
         labels: { severity: critical }
         annotations:
           summary: 'No backup prep run for {{ $labels.database }} for {{ humanizeDuration $values.A.Value }} (expected nightly)'
+  - orgId: 1
+    name: host
+    folder: Alerts
+    interval: 5m
+    rules:
+      - uid: reboot-pending
+        title: Reboot pending
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: PBFA97CFB590B2093 # Prometheus
+            model:
+              refId: A
+              instant: true
+              # Days since an update (kernel, libc, ...) asked for a reboot. Written hourly by
+              # ant-reboot-required; the series only exists while a reboot is pending.
+              expr: 'max by (packages) ((time() - ant_reboot_required_since_timestamp_seconds) / 86400)'
+          - refId: C
+            datasourceUid: __expr__
+            model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [7] } }] }
+        for: 0m
+        noDataState: OK
+        execErrState: Error
+        labels: { severity: warning }
+        annotations:
+          summary: 'ant-services has needed a reboot for {{ printf "%.0f" $values.A.Value }} days ({{ $labels.packages }}); updates are installed but not active until then. Remember to unlock Duplicacy afterwards if needed.'

@@ -42,11 +42,15 @@
   - name: Install VPN (tailscale) # auth key is encrypted in vars/secrets.yaml
     include_role:
       name: artis3n.tailscale.machine
+  # Updated here, at deploy time, not by unattended-upgrades: upgrading them restarts
+  # the Docker daemon and every container (see files/apt/52ant-unattended-upgrades).
   - name: Install docker
     become: yes
     apt:
       pkg:
       - docker.io
+      - containerd
+      - runc
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
@@ -292,6 +296,37 @@
       enabled: true
       state: started
       daemon_reload: "{{ backup_prep_units.changed }}"
+  # --- OS updates: unattended-upgrades already installs security fixes daily ---
+  - name: Unattended upgrades also install bug-fix updates (not Docker)
+    become: yes
+    ansible.builtin.copy:
+      src: files/apt/52ant-unattended-upgrades
+      dest: /etc/apt/apt.conf.d/52ant-unattended-upgrades
+      mode: '0644'
+  # Nothing reboots automatically; report a pending reboot so Grafana can alert after a week.
+  - name: Install reboot-pending check
+    become: yes
+    ansible.builtin.copy:
+      src: files/reboot-required/ant-reboot-required.sh
+      dest: /usr/local/bin/ant-reboot-required
+      mode: '0755'
+  - name: Install reboot-pending check systemd units
+    become: yes
+    ansible.builtin.copy:
+      src: "files/reboot-required/{{ item }}"
+      dest: "/etc/systemd/system/{{ item }}"
+      mode: '0644'
+    loop:
+      - ant-reboot-required.service
+      - ant-reboot-required.timer
+    register: reboot_required_units
+  - name: Enable the hourly reboot-pending check
+    become: yes
+    ansible.builtin.systemd_service:
+      name: ant-reboot-required.timer
+      enabled: true
+      state: started
+      daemon_reload: "{{ reboot_required_units.changed }}"
   - name: Restart Kong if config changed
     become: yes
     community.docker.docker_compose_v2:

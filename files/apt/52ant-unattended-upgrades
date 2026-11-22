@@ -1,0 +1,12 @@
+// Managed by ant-hill (ant-services.yaml). Adds to Ubuntu's 50unattended-upgrades.
+// Also install regular bug-fix updates, not only security fixes.
+Unattended-Upgrade::Allowed-Origins {
+	"${distro_id}:${distro_codename}-updates";
+};
+// Upgrading these restarts the Docker daemon and with it every container;
+// they update through deploys instead ("Install docker", apt state=latest, in ant-services.yaml).
+Unattended-Upgrade::Package-Blacklist {
+	"docker.io";
+	"containerd";
+	"runc";
+};

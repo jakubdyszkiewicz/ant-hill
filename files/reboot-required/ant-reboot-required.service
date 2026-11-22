@@ -1,0 +1,6 @@
+[Unit]
+Description=Report whether a reboot is pending (node-exporter textfile)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ant-reboot-required
