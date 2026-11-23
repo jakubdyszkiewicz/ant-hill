@@ -19,7 +19,11 @@ groups:
               instant: true
               # Docker restarts (crash loops). Deploys recreate containers, which resets
               # the counter instead of increasing it, so they don't trigger this.
-              expr: max by (container_name) (increase(docker_container_status_restart_count[15m]))
+              # After a reboot the Docker daemon starts containers in any order (depends_on only
+              # applies to "docker compose up"), so apps that beat their database restart a few
+              # times; ignore the first 20 min after boot (the 15m window plus margin). "unless" keeps the alert working
+              # if node-exporter (boot time) is down.
+              expr: 'max by (container_name) (increase(docker_container_status_restart_count[15m])) unless on() (time() - max(node_boot_time_seconds{host="ant-services"}) < 1200)'
           - refId: C
             datasourceUid: __expr__
             model: { refId: C, type: threshold, expression: A, conditions: [{ evaluator: { type: gt, params: [0.5] } }] }
