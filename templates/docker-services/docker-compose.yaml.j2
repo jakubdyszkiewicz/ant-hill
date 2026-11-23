@@ -417,6 +417,9 @@ services:
       - CONTAINERS=1
       - INFO=1
       - POST=0
+      # HAProxy logs every request at info: ~2500 lines/min (~1 GB/day) of telegraf/cadvisor
+      # polling. Denied requests log at info too, so warning drops them as well.
+      - LOG_LEVEL=warning
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock:ro
     read_only: true
