@@ -31,11 +31,39 @@
       state: latest
       update_cache: true
       cache_valid_time: 86400 # One day
-  - name: Authorize CI deploy key (Tailscale source addresses only)
-    ansible.posix.authorized_key:
-      user: "{{ ansible_user }}"
-      key: "{{ lookup('file', 'files/ci-deploy.pub') }}"
-      key_options: 'from="100.64.0.0/10"'
+  # --- SSH: only the keys listed here can log in, and only as {{ ansible_user }} ---
+  - name: Authorized SSH keys (exclusive; keys added by hand are removed)
+    ansible.builtin.copy:
+      dest: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+      content: |
+        {{ lookup('file', 'files/ssh/jakub-macbook.pub') }}
+        from="100.64.0.0/10" {{ lookup('file', 'files/ssh/ci-deploy.pub') }}
+      mode: "0600"
+  # cloud-init (disable_root: false) copied the keys to root. Root logs in via sudo instead.
+  - name: No SSH keys for root
+    become: yes
+    ansible.builtin.file:
+      path: /root/.ssh/authorized_keys
+      state: absent
+  - name: Harden sshd
+    become: yes
+    ansible.builtin.copy:
+      # sshd keeps the first value it reads, and drop-ins are included before the
+      # main config's own lines: 10- wins over 60-cloudimg-settings.conf and sshd_config.
+      dest: /etc/ssh/sshd_config.d/10-ant-hardening.conf
+      content: |
+        PermitRootLogin no
+        X11Forwarding no
+      mode: "0644"
+    register: sshd_hardening
+  # Reload, not restart: open sessions (this one included) stay up. ssh.service's
+  # ExecReload runs `sshd -t` first, so a broken config fails here instead of applying.
+  - name: Reload sshd
+    become: yes
+    ansible.builtin.systemd_service:
+      name: ssh
+      state: reloaded
+    when: sshd_hardening.changed
   - name: Install dotfiles
     include_role:
       name: dotfiles

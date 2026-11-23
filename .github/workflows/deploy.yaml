@@ -9,7 +9,7 @@ on:
       - ansible.cfg
       - vars/**
       - roles/dotfiles/**
-      - files/ci-deploy.pub
+      - files/ssh/**
       - files/backup-prep/**
       - files/reboot-required/**
       - files/apt/**
