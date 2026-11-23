@@ -379,12 +379,13 @@ services:
   cadvisor:
     image: ghcr.io/google/cadvisor:v0.61.1@sha256:4929b70e82079d001d0028b85d6a4dd25ad4666b719455c9542b983489963916
     container_name: cadvisor
-    privileged: true
-    devices:
-    - /dev/kmsg:/dev/kmsg
+    # Not privileged and no docker.sock: container names come from the read-only socket proxy.
+    # Without /dev/kmsg there are no OOM events; telegraf reports oomkilled instead.
+    command: ["--docker=tcp://docker-socket-proxy:2375"]
+    networks: [default, docker-socket-proxy]
+    depends_on: [docker-socket-proxy]
     volumes:
     - /:/rootfs:ro
-    - /var/run:/var/run:rw
     - /sys:/sys:ro
     - /sys/fs/cgroup:/sys/fs/cgroup:ro
     - /var/lib/docker:/var/lib/docker:ro
@@ -399,13 +400,30 @@ services:
       <<: *default-healthcheck
       test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9273/metrics"]
     container_name: telegraf
-    user: "telegraf:{{ docker_sock_gid }}" # docker socket group, read by Ansible
+    networks: [default, docker-socket-proxy]
+    depends_on: [docker-socket-proxy]
     volumes:
     - /home/{{ ansible_user }}/docker-services/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
-    - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
     expose:
     - "9273"
+    logging: *default-logging
+  # docker.sock is root on the host, and :ro doesn't limit the API. Monitoring gets this
+  # proxy instead: read-only container and system info only (no exec, images, volumes, POST).
+  docker-socket-proxy:
+    image: linuxserver/socket-proxy:3.4.8@sha256:6beb1743581ec3b2ed1a2bafd617e8c7a1d7ae2fe835293e333327618fc2b925
+    container_name: docker-socket-proxy
+    environment:
+      - CONTAINERS=1
+      - INFO=1
+      - POST=0
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    read_only: true
+    tmpfs:
+    - /run
+    networks: [docker-socket-proxy] # reachable only by cadvisor and telegraf
+    restart: unless-stopped
     logging: *default-logging
   speedtest:
     image: ghcr.io/danopstech/speedtest_exporter:v0.0.5@sha256:99efbe55412b0a328d5827fab8dbcc2286093d4ad0d369e4e9b7e3c4153793be
@@ -906,3 +924,8 @@ services:
     command: ["-mode", "interval"]
     restart: unless-stopped
     logging: *default-logging
+
+networks:
+  default: {}
+  docker-socket-proxy:
+    internal: true # no outside access; only containers attached to it can reach the proxy

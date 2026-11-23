@@ -193,13 +193,6 @@
       mode: '0755'
     with_community.general.filetree: templates/docker-services/
     when: item.state == 'directory'
-  - name: Read docker socket group # telegraf runs as this group to read container state
-    ansible.builtin.stat:
-      path: /var/run/docker.sock
-    register: docker_sock
-  - name: Set docker socket gid
-    ansible.builtin.set_fact:
-      docker_sock_gid: "{{ docker_sock.stat.gid }}"
   - name: Template docker-services files
     ansible.builtin.template:
       src: '{{ item.src }}'
