@@ -476,7 +476,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
     restart: unless-stopped
     ports:
-      - 8123:8123
+      # HomeKit Bridge (HAP): Apple Home hubs connect directly; can't go through Kong.
+      # The UI and API are only at homeassistant.<domain> through Kong (mTLS).
       - 21064:21064
     logging: *default-logging
   mqtt:
