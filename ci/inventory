@@ -1,4 +1,4 @@
 # Used by CI. The host keeps its LAN name because templates render
-# inventory_hostname (e.g. AdGuard binds DNS to it); CI connects over Tailscale.
+# inventory_hostname (e.g. terminus API_URI); CI connects over Tailscale.
 [ant-services]
 192.168.1.52 ansible_host=100.85.253.43 ansible_user=ubuntu
