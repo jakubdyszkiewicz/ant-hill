@@ -828,7 +828,7 @@ services:
     logging: *default-logging
 
   sure-web:
-    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched@sha256:b716234fe6a014056fdba68e875eaf8856c1dea78bb2636234549c5ace449150
+    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.6-hotfix.2-patched@sha256:dac5e4114efa021c811f4cdef52abf1fc2538eb6f45ef635e8926d5a3de3bf1c
     healthcheck:
       <<: *default-healthcheck
       test: ["CMD-SHELL", "curl -fsS -o /dev/null http://localhost:3000/up"]
@@ -840,6 +840,8 @@ services:
       POSTGRES_USER: sure
       POSTGRES_PASSWORD: {{ sure_postgres_password | to_json }}
       REDIS_URL: redis://sure-redis:6379/1
+      # v0.7.6 sends anonymous product feedback to PostHog by default.
+      POSTHOG_FEEDBACK_ENABLED: "false"
     volumes:
       - /mnt/data/services/sure/storage:/rails/storage
     expose:
@@ -852,7 +854,7 @@ services:
     restart: unless-stopped
     logging: *default-logging
   sure-worker:
-    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.5-hotfix.1-patched@sha256:b716234fe6a014056fdba68e875eaf8856c1dea78bb2636234549c5ace449150
+    image: ghcr.io/jakubdyszkiewicz/sure-patched:v0.7.6-hotfix.2-patched@sha256:dac5e4114efa021c811f4cdef52abf1fc2538eb6f45ef635e8926d5a3de3bf1c
     healthcheck:
       <<: *default-healthcheck
       test: ["CMD-SHELL", "pgrep -f sidekiq >/dev/null"]
