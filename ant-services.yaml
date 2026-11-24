@@ -3,7 +3,7 @@
   vars:
     # prod doesn't follow dotfishy master: Renovate proposes bumps, and merging one deploys it.
     # renovate: datasource=git-refs depName=https://github.com/jakubdyszkiewicz/dotfishy currentValue=master
-    dotfiles_version: "0e50d69cf5c1d8322adfd42239052ea59bf13d49"
+    dotfiles_version: "2a262608f0a24a9a8190f20668d5b442e9a6799d"
   vars_files:
   - vars/secrets.yaml
   pre_tasks:
