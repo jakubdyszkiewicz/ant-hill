@@ -1,5 +1,5 @@
 ---
-# Go is installed by mise from dotfishy (mise/config.dev.toml), see the dotfiles role.
+# Go and build-essential come from dotfishy's mise/config.dev.toml, see the dotfiles role.
 - name: Install dependencies for Kuma
   become: yes
   apt:
@@ -11,7 +11,6 @@
     - docker-compose
     - clang-format
     - unzip
-    - build-essential
     state: latest
     update_cache: true
     cache_valid_time: 86400 # One day
