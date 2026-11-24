@@ -1,7 +1,7 @@
 ---
-# System side stays here (apt, login shell). Everything in the user's home
-# (fish/vim/tmux links, user tools) is declared in dotfishy's mise config and
-# applied with `mise bootstrap`, the same way as on the Macs.
+# dotfishy's mise config declares this machine's environment, the same way as on the Macs:
+# apt packages (run as root), dotfile links and user tools (run as the user).
+# The login shell stays here: chsh needs root, and mise would ask for a sudo password.
 - name: mise apt repository
   become: true
   ansible.builtin.deb822_repository:
@@ -12,16 +12,13 @@
     components: main
     signed_by: https://mise.jdx.dev/gpg-key.pub
   register: mise_apt_repo
-- name: Install packages
+# Only what's needed to fetch and run dotfishy. The rest (fish, tmux, vim, ...) is
+# declared in dotfishy's mise/config.linux.toml and installed by mise below.
+- name: Install git and mise
   become: true
   apt:
     pkg:
     - git
-    - vim
-    - tmux
-    - fish
-    - fzf
-    - unzip
     - mise
     state: latest
     update_cache: true
@@ -53,8 +50,25 @@
 - name: Trust dotfiles mise config
   ansible.builtin.shell: for f in ~/.dotfishy/mise/config*.toml; do mise trust "$f"; done
   changed_when: false
-# A dry run lists the links and installs it would make, besides mise's own status lines.
-# Anything else (including output this filter doesn't know) triggers the apply, which is idempotent.
+# Each step dry-runs first and applies only when the dry run lists something besides
+# mise's own status lines, so the task reports `changed` correctly. Output this filter
+# doesn't know also triggers the apply, which is idempotent.
+- name: Check system packages (mise bootstrap dry run, as root)
+  become: true
+  environment:
+    MISE_CONFIG_DIR: "{{ ansible_facts['user_dir'] }}/.config/mise" # the user's config, not root's
+  ansible.builtin.shell: mise bootstrap -E {{ dotfiles_mise_envs | quote }} --only packages --dry-run --yes 2>&1
+  register: mise_packages_dry_run
+  changed_when: false
+  check_mode: false # read-only
+- name: Install system packages (mise bootstrap, as root)
+  become: true
+  environment:
+    MISE_CONFIG_DIR: "{{ ansible_facts['user_dir'] }}/.config/mise"
+  ansible.builtin.command:
+    argv: [mise, bootstrap, -E, "{{ dotfiles_mise_envs }}", --only, packages, --yes]
+  when: mise_packages_dry_run.stdout_lines | reject('match', '^mise (bootstrap:|all tools are installed)') | list | length > 0
+# Same check for the user's links and tools.
 - name: Check dotfiles and tools (mise bootstrap dry run)
   ansible.builtin.shell: mise bootstrap -E {{ dotfiles_mise_envs | quote }} --only dotfiles,tools --dry-run --yes 2>&1
   register: mise_dry_run
