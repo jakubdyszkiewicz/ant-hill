@@ -61,7 +61,7 @@
       include_role:
         name: dotfiles
       vars:
-        dotfiles_mise_envs: linux,dev # dev runtimes (go, node, java, rust, cmake) from dotfishy's mise/config.dev.toml
+        dotfiles_mise_envs: linux,dev # dev tools (go, node, java, rust, cmake, opencode, claude-code) from dotfishy's mise/config.dev.toml
     - name: Install Kong development environment
       include_role:
         name: kong-dev
