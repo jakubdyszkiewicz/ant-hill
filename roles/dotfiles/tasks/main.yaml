@@ -1,4 +1,17 @@
 ---
+# System side stays here (apt, login shell). Everything in the user's home
+# (fish/vim/tmux links, user tools) is declared in dotfishy's mise config and
+# applied with `mise bootstrap`, the same way as on the Macs.
+- name: mise apt repository
+  become: true
+  ansible.builtin.deb822_repository:
+    name: mise
+    types: deb
+    uris: https://mise.jdx.dev/deb
+    suites: stable
+    components: main
+    signed_by: https://mise.jdx.dev/gpg-key.pub
+  register: mise_apt_repo
 - name: Install packages
   become: true
   apt:
@@ -9,13 +22,15 @@
     - fish
     - fzf
     - unzip
+    - mise
     state: latest
     update_cache: true
-    cache_valid_time: 86400 # One day
+    cache_valid_time: "{{ 0 if mise_apt_repo.changed else 86400 }}" # One day, or now for a new repo
 - name: Clone dotfiles
   git:
     repo: 'https://github.com/jakubdyszkiewicz/dotfishy'
     dest: '~/.dotfishy'
+    version: "{{ dotfiles_version }}"
     force: true # discard any pending changes
 - name: Create directory for z
   file:
@@ -25,30 +40,30 @@
   file:
     path: ~/.config
     state: directory
-- name: Link fish config
+- name: Link mise config (makes dotfishy's mise/ the global mise config)
   file:
-    src: ~/.dotfishy/fish
-    dest: ~/.config/fish
+    src: ~/.dotfishy/mise
+    dest: ~/.config/mise
     state: link
-- name: Link vim config
+# Earlier versions of this role linked vimrc here, where vim doesn't read it. mise links ~/.vimrc.
+- name: Remove misplaced vimrc link
   file:
-    src: ~/.dotfishy/vim/vimrc
-    dest: ~/.config/vimrc
-    state: link
-- name: Vim colors directory exists
-  file:
-    path: ~/.vim/colors
-    state: directory
-- name: Link vim config
-  file:
-    src: ~/.dotfishy/vim/solarized.vim
-    dest: ~/.vim/colors/solarized.vim
-    state: link
-- name: Link tmux config
-  file:
-    src: ~/.dotfishy/tmux/tmux.conf
-    dest: ~/.tmux.conf
-    state: link
+    path: ~/.config/vimrc
+    state: absent
+- name: Trust dotfiles mise config
+  ansible.builtin.shell: for f in ~/.dotfishy/mise/config*.toml; do mise trust "$f"; done
+  changed_when: false
+# A dry run lists the links and installs it would make, besides mise's own status lines.
+# Anything else (including output this filter doesn't know) triggers the apply, which is idempotent.
+- name: Check dotfiles and tools (mise bootstrap dry run)
+  ansible.builtin.shell: mise bootstrap -E {{ dotfiles_mise_envs | quote }} --only dotfiles,tools --dry-run --yes 2>&1
+  register: mise_dry_run
+  changed_when: false
+  check_mode: false # read-only
+- name: Apply dotfiles and tools (mise bootstrap)
+  ansible.builtin.command:
+    argv: [mise, bootstrap, -E, "{{ dotfiles_mise_envs }}", --save-env, --only, "dotfiles,tools", --yes]
+  when: mise_dry_run.stdout_lines | reject('match', '^mise (bootstrap:|all tools are installed)') | list | length > 0
 - name: Change user shell to fish
   become: true
   user:

@@ -1,0 +1,5 @@
+---
+# dotfishy ref to deploy. Hosts that must not follow master (ant-services) pin a commit.
+dotfiles_version: master
+# mise config layers from ~/.dotfishy/mise (config.<env>.toml), see the dotfishy README.
+dotfiles_mise_envs: linux

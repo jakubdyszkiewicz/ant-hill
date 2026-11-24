@@ -60,6 +60,8 @@
     - name: Install dotfiles
       include_role:
         name: dotfiles
+      vars:
+        dotfiles_mise_envs: linux,dev # Go comes from dotfishy's mise/config.dev.toml
     - name: Install Kong development environment
       include_role:
         name: kong-dev

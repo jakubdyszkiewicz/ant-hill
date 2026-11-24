@@ -1,7 +1,5 @@
 ---
-- name: Install Go
-  include_role:
-    name: andrewrothstein.go
+# Go is installed by mise from dotfishy (mise/config.dev.toml), see the dotfiles role.
 - name: Install dependencies for Kuma
   become: yes
   apt:

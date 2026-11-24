@@ -1,5 +1,9 @@
 ---
 - hosts: ant-services
+  vars:
+    # prod doesn't follow dotfishy master: Renovate proposes bumps, and merging one deploys it.
+    # renovate: datasource=git-refs depName=https://github.com/jakubdyszkiewicz/dotfishy currentValue=master
+    dotfiles_version: "17a0201b554524cffb800a7aca06e22c2f60eb2d"
   vars_files:
   - vars/secrets.yaml
   pre_tasks:
