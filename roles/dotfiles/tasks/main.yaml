@@ -63,12 +63,17 @@
   file:
     path: ~/.config/vimrc
     state: absent
+# dotfishy switched vim from Solarized to Everforest (~/.vim/pack/themes).
+- name: Remove old Solarized vim colors link
+  file:
+    path: ~/.vim/colors/solarized.vim
+    state: absent
 - name: Trust dotfiles mise config
   ansible.builtin.shell: for f in ~/.dotfishy/mise/config*.toml; do mise trust "$f"; done
   changed_when: false
 # Each step dry-runs first and applies only when the dry run lists something besides
-# mise's own status lines, so the task reports `changed` correctly. Output this filter
-# doesn't know also triggers the apply, which is idempotent.
+# mise's own status lines (mise_unchanged_line in defaults), so the task reports `changed`
+# correctly. Output the filter doesn't know also triggers the apply, which is idempotent.
 - name: Check system packages (mise bootstrap dry run, as root)
   become: true
   environment:
@@ -83,7 +88,7 @@
     MISE_CONFIG_DIR: "{{ ansible_facts['user_dir'] }}/.config/mise"
   ansible.builtin.command:
     argv: [mise, bootstrap, -E, "{{ dotfiles_mise_envs }}", --only, packages, --yes]
-  when: mise_packages_dry_run.stdout_lines | reject('match', '^mise (bootstrap:|all tools are installed)') | list | length > 0
+  when: mise_packages_dry_run.stdout_lines | reject('match', mise_unchanged_line) | list | length > 0
 # Same check for the user's links and tools.
 - name: Check dotfiles and tools (mise bootstrap dry run)
   ansible.builtin.shell: mise bootstrap -E {{ dotfiles_mise_envs | quote }} --only dotfiles,tools --dry-run --yes 2>&1
@@ -93,7 +98,7 @@
 - name: Apply dotfiles and tools (mise bootstrap)
   ansible.builtin.command:
     argv: [mise, bootstrap, -E, "{{ dotfiles_mise_envs }}", --save-env, --only, "dotfiles,tools", --yes]
-  when: mise_dry_run.stdout_lines | reject('match', '^mise (bootstrap:|all tools are installed)') | list | length > 0
+  when: mise_dry_run.stdout_lines | reject('match', mise_unchanged_line) | list | length > 0
 - name: Change user shell to fish
   become: true
   user:

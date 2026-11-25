@@ -3,3 +3,5 @@
 dotfiles_version: master
 # mise config layers from ~/.dotfishy/mise (config.<env>.toml), see the dotfishy README.
 dotfiles_mise_envs: linux
+# mise bootstrap --dry-run lines that mean "nothing to do" (checked on Ubuntu 24.04 with mise 2026.11).
+mise_unchanged_line: '^mise (bootstrap:|all tools are installed|files: all files are applied|[a-z-]+: [0-9]+ package\(s\) already installed)'
