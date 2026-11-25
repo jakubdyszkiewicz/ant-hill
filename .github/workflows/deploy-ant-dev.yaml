@@ -8,6 +8,9 @@ on:
       - ansible.cfg
       - vars/**
       - roles/dotfiles/**
+      - roles/docker/**
+      - templates/ant-dev/**
+      - files/apt/**
       - files/ssh/**
       - requirements.yaml
       - dev.sh
