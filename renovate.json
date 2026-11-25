@@ -22,9 +22,9 @@
     },
     {
       "customType": "regex",
-      "description": "Versions annotated with '# renovate: datasource=... depName=...' (Docker Compose plugin in the playbook, ansible-core in CI)",
+      "description": "Versions annotated with '# renovate: datasource=... depName=...' (Docker Compose plugin in roles/docker, ansible-core in CI)",
       "managerFilePatterns": [
-        "/^ant-services\\.yaml$/",
+        "/^roles/docker/defaults/main\\.yaml$/",
         "/^\\.github/workflows/ansible-deploy\\.yaml$/"
       ],
       "matchStrings": [

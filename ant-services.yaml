@@ -74,18 +74,9 @@
   - name: Install VPN (tailscale) # auth key is encrypted in vars/secrets.yaml
     include_role:
       name: artis3n.tailscale.machine
-  # Updated here, at deploy time, not by unattended-upgrades: upgrading them restarts
-  # the Docker daemon and every container (see files/apt/52ant-unattended-upgrades).
   - name: Install docker
-    become: yes
-    apt:
-      pkg:
-      - docker.io
-      - containerd
-      - runc
-      state: latest
-      update_cache: true
-      cache_valid_time: 86400 # One day
+    include_role:
+      name: docker
   # With nofail in fstab, local-fs.target no longer waits for the data disks. Docker must,
   # or containers would start on empty directories on the root disk.
   - name: Docker drop-in directory
@@ -108,33 +99,6 @@
     ansible.builtin.systemd_service:
       daemon_reload: true
     when: docker_mounts_dropin.changed
-  - name: Remove Compose v1 # replaced by the Compose plugin below
-    become: yes
-    apt:
-      pkg: docker-compose
-      state: absent
-  - name: Ensure cli-plugins dir exists (system-wide)
-    become: yes
-    file:
-      path: /usr/local/lib/docker/cli-plugins
-      state: directory
-      mode: "0755"
-  - name: Install Docker Compose plugin binary
-    become: yes
-    get_url:
-      url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-x86_64"
-      dest: /usr/local/lib/docker/cli-plugins/docker-compose
-      mode: "0755"
-      # get_url verifies against the release's own checksums.txt, so a version bump is the only edit.
-      checksum: "sha256:https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/checksums.txt"
-    vars:
-      docker_compose_version: v5.8.0 # renovate: datasource=github-releases depName=docker/compose
-  - name: adding existing user '{{ ansible_user }}' to group docker
-    user:
-      name: "{{ ansible_user }}"
-      groups: docker
-      append: yes
-    become: yes
   # Private images (bubblewrap, kroczek, sure-patched, ...) live on ghcr.io. The deploy pulls
   # as root (docker compose with become); log in ubuntu too for manual pulls.
   # Token: classic PAT with read:packages only, in the vault.

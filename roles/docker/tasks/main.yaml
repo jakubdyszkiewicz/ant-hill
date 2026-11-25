@@ -1,0 +1,48 @@
+---
+# Updated here, at deploy time, not by unattended-upgrades: upgrading them restarts
+# the Docker daemon and every container (see files/apt/52ant-unattended-upgrades).
+- name: Install docker
+  become: yes
+  apt:
+    pkg:
+    - docker.io
+    - containerd
+    - runc
+    state: latest
+    update_cache: true
+    cache_valid_time: 86400 # One day
+- name: Remove Compose v1 # replaced by the Compose plugin below
+  become: yes
+  apt:
+    pkg: docker-compose
+    state: absent
+# Docker looks in ~/.docker/cli-plugins first, so a plugin installed there by hand
+# would shadow the system-wide one below.
+- name: Remove per-user Compose plugin
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.docker/cli-plugins/docker-compose"
+    state: absent
+- name: Ensure cli-plugins dir exists (system-wide)
+  become: yes
+  file:
+    path: /usr/local/lib/docker/cli-plugins
+    state: directory
+    mode: "0755"
+  register: docker_cli_plugins_dir
+- name: Install Docker Compose plugin binary
+  become: yes
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-x86_64"
+    dest: /usr/local/lib/docker/cli-plugins/docker-compose
+    mode: "0755"
+    # get_url verifies against the release's own checksums.txt, so a version bump is the only edit.
+    checksum: "sha256:https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/checksums.txt"
+  # In --check the directory above isn't really created, and get_url fails on the missing dest.
+  when: not (ansible_check_mode and docker_cli_plugins_dir.changed)
+- name: adding existing user '{{ ansible_user }}' to group docker
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  become: yes
+  when: ansible_user != 'root'

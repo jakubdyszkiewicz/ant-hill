@@ -1,5 +1,8 @@
 ---
 - hosts: ant-dev
+  vars:
+    ant_dev_tailscale_ip: 100.115.153.105 # awf advertises it to Paseo agents
+    ant_dev_services_dir: "{{ ansible_facts['user_dir'] }}/docker-services"
   vars_files:
     - vars/secrets.yaml
   tasks:
@@ -70,6 +73,84 @@
         name: dotfiles
       vars:
         dotfiles_mise_envs: linux,dev # dev tools (go, node, java, rust, cmake, opencode, claude-code, codex) from dotfishy's mise/config.dev.toml
+    - name: Install docker
+      include_role:
+        name: docker
+    - name: Unattended upgrades also install bug-fix updates (not Docker)
+      become: true
+      ansible.builtin.copy:
+        src: files/apt/52ant-unattended-upgrades
+        dest: /etc/apt/apt.conf.d/52ant-unattended-upgrades
+        mode: '0644'
+    # --- docker-services (templates/ant-dev/docker-services) ---
+    # Secrets come from the vault: the GitHub App key and IDs, and the awf signing key.
+    - name: Create docker-services directories
+      ansible.builtin.file:
+        path: "{{ ant_dev_services_dir }}/{{ item.path }}"
+        state: directory
+        mode: "{{ '0700' if item.path == 'github-app-token/secrets' else '0755' }}"
+      with_community.general.filetree: templates/ant-dev/docker-services/
+      when: item.state == 'directory'
+    - name: Template docker-services files
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ ant_dev_services_dir }}/{{ item.path | splitext | first }}"
+        mode: '0600' # only secrets are templated
+      with_community.general.filetree: templates/ant-dev/docker-services/
+      when:
+        - item.state == 'file'
+        - item.path.endswith('.j2')
+      register: ant_dev_templates
+      no_log: true
+    - name: Copy docker-services files
+      ansible.builtin.copy:
+        src: "{{ item.src }}"
+        dest: "{{ ant_dev_services_dir }}/{{ item.path }}"
+        mode: '0644'
+      with_community.general.filetree: templates/ant-dev/docker-services/
+      when:
+        - item.state == 'file'
+        - not item.path.endswith('.j2')
+      register: ant_dev_files
+    - name: Directory for awf config
+      ansible.builtin.file:
+        path: "{{ ansible_facts['user_dir'] }}/.config/awf"
+        state: directory
+        mode: '0700'
+    - name: awf server config
+      ansible.builtin.template:
+        src: templates/ant-dev/awf-server.env.j2
+        dest: "{{ ansible_facts['user_dir'] }}/.config/awf/server.env"
+        mode: '0600'
+      no_log: true
+    # `up` below builds only missing images. Rebuild github-app-token when its source changes;
+    # awf is never rebuilt here (built by hand from /root/dev/awf).
+    - name: Rebuild github-app-token if its image source changed
+      community.docker.docker_compose_v2:
+        project_src: "{{ ant_dev_services_dir }}"
+        services:
+          - github-app-token
+        build: always
+        state: present
+      when: >-
+        ant_dev_files.results | selectattr('changed', 'defined') | selectattr('changed')
+        | map(attribute='item.path') | select('match', 'github-app-token/(Dockerfile|refresh\.py|\.dockerignore)$') | list | length > 0
+    # Recreates containers whose definition or env_file values changed.
+    - name: Run all services with docker compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ ant_dev_services_dir }}"
+        state: present
+        remove_orphans: true
+    # Read only at startup.
+    - name: Restart registry-mirror if its config changed
+      community.docker.docker_compose_v2:
+        project_src: "{{ ant_dev_services_dir }}"
+        services:
+          - registry-mirror
+        state: restarted
+      when: >-
+        ant_dev_files.results | selectattr('changed', 'defined') | selectattr('changed')
+        | map(attribute='item.path') | select('equalto', 'registry-mirror/config.yml') | list | length > 0
     - name: Enable IPv4 forwarding for exit node
       become: true
       ansible.posix.sysctl:

@@ -9,6 +9,7 @@ on:
       - ansible.cfg
       - vars/**
       - roles/dotfiles/**
+      - roles/docker/**
       - files/ssh/**
       - files/backup-prep/**
       - files/reboot-required/**

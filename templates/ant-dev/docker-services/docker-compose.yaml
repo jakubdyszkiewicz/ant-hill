@@ -1,0 +1,75 @@
+# Managed by ant-hill (ant-dev.yaml): edits on the host are overwritten by the next deploy.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: '3'
+
+services:
+  nodeexporter:
+    image: prom/node-exporter:v1.13.1@sha256:7296504d4ada44b7d7ab4431e27e9f9900d8488f8d55842f4b12ae2704e16dfe
+    container_name: nodeexporter
+    network_mode: host # port 9100 is bound straight on the host, reachable from ant-services
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--web.listen-address=:9100' # explicit, since there's no ports: to make it visible
+    restart: unless-stopped
+    logging: *default-logging
+
+  github-app-token:
+    build: ./github-app-token
+    container_name: github-app-token
+    env_file: ./github-app-token/config.env
+    volumes:
+      - ./github-app-token/secrets:/run/secrets:ro
+      - ./github-app-token/output:/output
+    restart: unless-stopped
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
+
+  # Built from the working checkout, by hand (see awf/README.md). The deploy builds it
+  # only when the image is missing, so it never replaces a manual build.
+  awf:
+    image: docker-services-awf:local
+    build:
+      context: /root/dev/awf
+    container_name: awf
+    network_mode: host
+    env_file: /root/.config/awf/server.env
+    environment:
+      AWF_SERVER_ADDR: 0.0.0.0:8080
+      AWF_SERVER_DB_PATH: /data/awf.db
+      AWF_SERVER_GITHUB_TOKEN_FILE: /run/github-token/token
+    volumes:
+      - /root/.local/share/awf:/data
+      - /root/docker-services/github-app-token/output:/run/github-token:ro
+      - /root/.paseo/worktrees:/root/.paseo/worktrees:ro
+      - /root/dev:/root/dev:ro
+    depends_on:
+      github-app-token:
+        condition: service_started
+    restart: unless-stopped
+    logging: *default-logging
+
+  registry-mirror:
+    image: registry:3.0.0
+    container_name: registry-mirror
+    network_mode: host # 0.0.0.0:5000; isodev containers reach it via their network gateway
+    environment:
+      OTEL_TRACES_EXPORTER: none # registry v3 exports traces to localhost:4318 by default
+    volumes:
+      - ./registry-mirror/config.yml:/etc/distribution/config.yml:ro
+      - /root/.cache/registry-mirror:/var/lib/registry
+    restart: unless-stopped
+    logging: *default-logging
