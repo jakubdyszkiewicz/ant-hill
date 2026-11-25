@@ -32,7 +32,7 @@
     - name: Read active swap files
       become: true
       ansible.builtin.command:
-        argv: [swapon, --show, --noheadings, --raw, --output, NAME]
+        argv: [swapon, --show=NAME, --noheadings, --raw] # --show takes the columns; --output is ignored
       register: ant_dev_active_swap
       changed_when: false
     - name: Activate swap file
