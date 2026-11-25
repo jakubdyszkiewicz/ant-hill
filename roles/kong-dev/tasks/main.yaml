@@ -1,5 +1,6 @@
 ---
-# Go and build-essential come from dotfishy's mise/config.dev.toml, see the dotfiles role.
+# Go, build-essential, Docker and its Compose v2 plugin come from dotfishy's
+# mise/config.dev.toml, see the dotfiles role.
 - name: Install dependencies for Kuma
   become: yes
   apt:
@@ -7,13 +8,16 @@
     - git
     - unzip
     - make
-    - docker.io
-    - docker-compose
     - clang-format
     - unzip
     state: latest
     update_cache: true
     cache_valid_time: 86400 # One day
+- name: Remove Compose v1 # the Python docker-compose; `docker compose` comes from dotfishy
+  become: yes
+  apt:
+    pkg: docker-compose
+    state: absent
 - name: Creates kong working dir
   file:
     path: ~/kong
