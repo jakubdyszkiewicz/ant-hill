@@ -62,9 +62,6 @@
         name: dotfiles
       vars:
         dotfiles_mise_envs: linux,dev # dev tools (go, node, java, rust, cmake, opencode, claude-code, codex) from dotfishy's mise/config.dev.toml
-    - name: Install Kong development environment
-      include_role:
-        name: kong-dev
     - name: Enable IPv4 forwarding for exit node
       become: true
       ansible.posix.sysctl:
