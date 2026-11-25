@@ -37,37 +37,11 @@
   file:
     path: ~/.config
     state: directory
-# A mise config directory from before this role managed mise (ant-dev has one with global
-# tools) would block the link. Keep it as a backup instead of deleting it.
-- name: Check for an existing mise config directory
-  ansible.builtin.stat:
-    path: ~/.config/mise
-  register: mise_config_dir
-- name: Move an existing mise config directory aside
-  ansible.builtin.command:
-    argv: [mv, "{{ ansible_facts['user_dir'] }}/.config/mise", "{{ ansible_facts['user_dir'] }}/.config/mise.backup-{{ ansible_facts['date_time']['iso8601_basic_short'] }}"]
-  when: mise_config_dir.stat.isdir | default(false) # a symlink is not a dir here: stat doesn't follow links
 - name: Link mise config (makes dotfishy's mise/ the global mise config)
   file:
     src: ~/.dotfishy/mise
     dest: ~/.config/mise
     state: link
-# mise installed earlier with the mise.run script would shadow the apt one on PATH.
-# Installed tools live in ~/.local/share/mise and keep working.
-- name: Remove mise installed by the mise.run script
-  file:
-    path: ~/.local/bin/mise
-    state: absent
-# Earlier versions of this role linked vimrc here, where vim doesn't read it. mise links ~/.vimrc.
-- name: Remove misplaced vimrc link
-  file:
-    path: ~/.config/vimrc
-    state: absent
-# dotfishy switched vim from Solarized to Everforest (~/.vim/pack/themes).
-- name: Remove old Solarized vim colors link
-  file:
-    path: ~/.vim/colors/solarized.vim
-    state: absent
 - name: Trust dotfiles mise config
   ansible.builtin.shell: for f in ~/.dotfishy/mise/config*.toml; do mise trust "$f"; done
   changed_when: false
