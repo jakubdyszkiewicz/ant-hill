@@ -3,6 +3,14 @@
   vars_files:
     - vars/secrets.yaml
   tasks:
+    # Added next to the keys already there (not exclusive like on ant-services).
+    # from=: the key only works over Tailscale, where CI connects from.
+    - name: Authorize the CI deploy key
+      ansible.posix.authorized_key:
+        user: "{{ ansible_user }}"
+        key: "{{ lookup('file', 'files/ssh/ci-deploy.pub') }}"
+        key_options: 'from="100.64.0.0/10"'
+        state: present
     - name: Allocate swap file
       become: true
       ansible.builtin.command:

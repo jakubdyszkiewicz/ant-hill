@@ -1,0 +1,27 @@
+name: Deploy ant-dev
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ant-dev.yaml
+      - ansible.cfg
+      - vars/**
+      - roles/dotfiles/**
+      - files/ssh/**
+      - requirements.yaml
+      - dev.sh
+      - ci/**
+      - .github/workflows/deploy-ant-dev.yaml
+      - .github/workflows/ansible-deploy.yaml
+  # ant-dev follows dotfishy master, so pushes there don't trigger this; run it by hand.
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/ansible-deploy.yaml
+    with:
+      host: ant-dev
+      script: ./dev.sh
+      ssh_target: root@100.115.153.105
+    secrets: inherit

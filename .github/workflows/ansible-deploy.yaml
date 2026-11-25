@@ -1,0 +1,73 @@
+name: Ansible deploy
+
+# Shared by the per-host deploy workflows (deploy-*.yaml).
+on:
+  workflow_call:
+    inputs:
+      host:
+        description: Inventory group, GitHub environment and log destination name
+        type: string
+        required: true
+      script:
+        description: Playbook wrapper script, e.g. ./services.sh
+        type: string
+        required: true
+      ssh_target:
+        description: user@tailscale-ip used to store the full log
+        type: string
+        required: true
+
+concurrency:
+  group: deploy-${{ inputs.host }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.host }}
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write # OIDC token for Tailscale workload identity federation
+    steps:
+      - uses: actions/checkout@v7
+      # Install before joining the tailnet to save ephemeral node minutes.
+      - name: Install Ansible
+        run: |
+          # renovate: datasource=pypi depName=ansible-core
+          pipx install ansible-core==2.22.0
+          ansible-galaxy install -r requirements.yaml
+      - name: Configure SSH
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cp ci/ssh_known_hosts ~/.ssh/known_hosts
+      - name: Join tailnet
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ vars.TS_CLIENT_ID }}
+          audience: ${{ vars.TS_AUDIENCE }}
+          tags: tag:ci
+      # Logs of a public repo are public. Keep the full Ansible output (which may
+      # contain rendered secrets on failure) on the host; print only task
+      # names of failures and the recap here.
+      - name: Run playbook
+        run: |
+          status=0
+          ${{ inputs.script }} > deploy.log 2>&1 || status=$?
+          awk '/^TASK \[/ { task = $0 } /^(fatal|failed):/ { print "FAILED " task }' deploy.log
+          sed -n '/^PLAY RECAP/,$p' deploy.log
+          echo "Full log: ~/deploy-logs/${{ github.run_id }}.log on ${{ inputs.host }}"
+          exit $status
+        env:
+          INVENTORY: ci/inventory
+          VAULT_PASSWORD: ${{ secrets.VAULT_PASSWORD }}
+          # Equivalent of -v --diff. Safe only because the output goes to deploy.log.
+          ANSIBLE_VERBOSITY: "1"
+          ANSIBLE_DIFF_ALWAYS: "true"
+      - name: Store log on ${{ inputs.host }}
+        if: always() && hashFiles('deploy.log') != ''
+        run: |
+          ssh ${{ inputs.ssh_target }} 'mkdir -p -m 700 ~/deploy-logs && find ~/deploy-logs -name "*.log" -mtime +90 -delete'
+          scp deploy.log "${{ inputs.ssh_target }}:deploy-logs/${{ github.run_id }}.log"

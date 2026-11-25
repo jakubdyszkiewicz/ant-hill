@@ -1,2 +1,2 @@
 #!/bin/bash
-ANSIBLE_ALLOW_BROKEN_CONDITIONALS=true ansible-playbook --vault-password-file <(cat <<<"$VAULT_PASSWORD") -i inventory ant-dev.yaml
+ANSIBLE_ALLOW_BROKEN_CONDITIONALS=true ansible-playbook --vault-password-file <(cat <<<"$VAULT_PASSWORD") -i "${INVENTORY:-inventory}" ant-dev.yaml

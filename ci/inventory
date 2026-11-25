@@ -2,3 +2,6 @@
 # inventory_hostname (e.g. terminus API_URI); CI connects over Tailscale.
 [ant-services]
 192.168.1.52 ansible_host=100.85.253.43 ansible_user=ubuntu
+
+[ant-dev]
+192.168.1.51 ansible_host=100.115.153.105 ansible_user=root
