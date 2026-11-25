@@ -32,7 +32,7 @@
     - name: Read active swap files
       become: true
       ansible.builtin.command:
-        argv: [swapon, --show, --noheadings, --raw, --output, NAME]
+        argv: [swapon, --show=NAME, --noheadings, --raw] # --show takes the columns; --output is ignored
       register: ant_dev_active_swap
       changed_when: false
     - name: Activate swap file
@@ -60,6 +60,8 @@
     - name: Install dotfiles
       include_role:
         name: dotfiles
+      vars:
+        dotfiles_mise_envs: linux,dev # dev tools (go, node, java, rust, cmake, opencode, claude-code, codex) from dotfishy's mise/config.dev.toml
     - name: Install Kong development environment
       include_role:
         name: kong-dev

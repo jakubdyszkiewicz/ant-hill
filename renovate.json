@@ -31,6 +31,16 @@
         "(?<currentValue>v?[0-9][0-9.]*) # renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)",
         "# renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)\\n\\s*pipx install [a-z-]+==(?<currentValue>[0-9][0-9.]*)"
       ]
+    },
+    {
+      "customType": "regex",
+      "description": "dotfishy commit pinned for ant-services (the dotfiles role)",
+      "managerFilePatterns": [
+        "/^ant-services\\.yaml$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>git-refs) depName=(?<depName>\\S+) currentValue=(?<currentValue>\\S+)\\n\\s*dotfiles_version: \"(?<currentDigest>[a-f0-9]{40})\""
+      ]
     }
   ],
   "packageRules": [
