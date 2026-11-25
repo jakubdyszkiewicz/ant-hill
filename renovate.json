@@ -25,7 +25,7 @@
       "description": "Versions annotated with '# renovate: datasource=... depName=...' (Docker Compose plugin in the playbook, ansible-core in CI)",
       "managerFilePatterns": [
         "/^ant-services\\.yaml$/",
-        "/^\\.github/workflows/deploy\\.yaml$/"
+        "/^\\.github/workflows/ansible-deploy\\.yaml$/"
       ],
       "matchStrings": [
         "(?<currentValue>v?[0-9][0-9.]*) # renovate: datasource=(?<datasource>[a-z-]+) depName=(?<depName>\\S+)",
