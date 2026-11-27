@@ -99,6 +99,9 @@ services:
       - PGID=1000
       - TZ=PST
       - UMASK_SET=022 #optional
+      # Trust X-Forwarded-* from Kong (Docker's address pool), so redirects use the public
+      # hostname and https. Since 4.0.20/7.0 only loopback is trusted by default.
+      - SONARR__SERVER__TRUSTEDNETWORKS=172.16.0.0/12
     volumes:
       - /mnt/data/services/sonarr:/config
       - /mnt/media/tvshows:/mnt/media/tvshows
@@ -117,6 +120,9 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=PST
+      # Trust X-Forwarded-* from Kong (Docker's address pool), so redirects use the public
+      # hostname and https. Since 4.0.20/7.0 only loopback is trusted by default.
+      - RADARR__SERVER__TRUSTEDNETWORKS=172.16.0.0/12
     volumes:
       - /mnt/data/services/radarr:/config
       - /mnt/media/movies:/mnt/media/movies
