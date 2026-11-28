@@ -72,7 +72,7 @@ services:
       - SYNCTHING_API_KEY={{ syncthing_api_key }}
     logging: *default-logging
   nzbget:
-    image: linuxserver/nzbget:26.3.20261120@sha256:217c7028b9d671b34bfb60adcd09f3d6d24761226ec7025b3438eaa55fc0728e
+    image: linuxserver/nzbget:26.3.20261127@sha256:c2c2d92d62e6c1c2ed054fc0bbfc9ca3629b38ba7d10714af0031a46ea92e18d
     healthcheck:
       <<: *default-healthcheck
       test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:6789/ | grep -qE '^(200|401)$$'"]
@@ -396,7 +396,7 @@ services:
   # docker.sock is root on the host, and :ro doesn't limit the API. Monitoring gets this
   # proxy instead: read-only container and system info only (no exec, images, volumes, POST).
   docker-socket-proxy:
-    image: linuxserver/socket-proxy:3.4.8@sha256:6beb1743581ec3b2ed1a2bafd617e8c7a1d7ae2fe835293e333327618fc2b925
+    image: linuxserver/socket-proxy:3.4.9@sha256:b345bc46664acbabec2086875fa3b2d8cb248a06786dd55806f597055b27b201
     container_name: docker-socket-proxy
     environment:
       - CONTAINERS=1
