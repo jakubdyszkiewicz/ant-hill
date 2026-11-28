@@ -1,2 +1,2 @@
 ---
-docker_compose_version: v5.8.0 # renovate: datasource=github-releases depName=docker/compose
+docker_compose_version: v5.8.1 # renovate: datasource=github-releases depName=docker/compose
