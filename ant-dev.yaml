@@ -1,7 +1,7 @@
 ---
 - hosts: ant-dev
   vars:
-    ant_dev_tailscale_ip: 100.115.153.105 # awf advertises it to Paseo agents
+    ant_dev_tailscale_ip: 100.115.153.105 # Agency advertises it to Paseo agents
     ant_dev_services_dir: "{{ ansible_facts['user_dir'] }}/docker-services"
   vars_files:
     - vars/secrets.yaml
@@ -83,7 +83,7 @@
         dest: /etc/apt/apt.conf.d/52ant-unattended-upgrades
         mode: '0644'
     # --- docker-services (templates/ant-dev/docker-services) ---
-    # Secrets come from the vault: the GitHub App key and IDs, and the awf signing key.
+    # Secrets come from the vault: the GitHub App key and IDs, and the Agency signing key.
     - name: Create docker-services directories
       ansible.builtin.file:
         path: "{{ ant_dev_services_dir }}/{{ item.path }}"
@@ -112,19 +112,19 @@
         - item.state == 'file'
         - not item.path.endswith('.j2')
       register: ant_dev_files
-    - name: Directory for awf config
+    - name: Directory for Agency config
       ansible.builtin.file:
-        path: "{{ ansible_facts['user_dir'] }}/.config/awf"
+        path: "{{ ansible_facts['user_dir'] }}/.config/agency"
         state: directory
         mode: '0700'
-    - name: awf server config
+    - name: Agency server config
       ansible.builtin.template:
-        src: templates/ant-dev/awf-server.env.j2
-        dest: "{{ ansible_facts['user_dir'] }}/.config/awf/server.env"
+        src: templates/ant-dev/agency-server.env.j2
+        dest: "{{ ansible_facts['user_dir'] }}/.config/agency/server.env"
         mode: '0600'
       no_log: true
     # `up` below builds only missing images. Rebuild github-app-token when its source changes;
-    # awf is never rebuilt here (built by hand from /root/dev/awf).
+    # agency is never rebuilt here (built by hand from /root/dev/agency).
     - name: Rebuild github-app-token if its image source changed
       community.docker.docker_compose_v2:
         project_src: "{{ ant_dev_services_dir }}"
