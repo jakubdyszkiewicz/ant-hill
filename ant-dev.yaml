@@ -1,7 +1,7 @@
 ---
 - hosts: ant-dev
   vars:
-    ant_dev_tailscale_ip: 100.115.153.105 # awf advertises it to Paseo agents
+    ant_dev_tailscale_ip: 100.115.153.105 # Agency (the awf service) advertises it to Paseo agents
     ant_dev_services_dir: "{{ ansible_facts['user_dir'] }}/docker-services"
   vars_files:
     - vars/secrets.yaml
@@ -83,7 +83,7 @@
         dest: /etc/apt/apt.conf.d/52ant-unattended-upgrades
         mode: '0644'
     # --- docker-services (templates/ant-dev/docker-services) ---
-    # Secrets come from the vault: the GitHub App key and IDs, and the awf signing key.
+    # Secrets come from the vault: the GitHub App key and IDs, and the Agency signing key.
     - name: Create docker-services directories
       ansible.builtin.file:
         path: "{{ ant_dev_services_dir }}/{{ item.path }}"
