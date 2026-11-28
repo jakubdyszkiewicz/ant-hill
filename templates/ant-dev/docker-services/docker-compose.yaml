@@ -38,21 +38,21 @@ services:
       - no-new-privileges:true
     logging: *default-logging
 
-  # Agency, built from the working checkout by hand (see awf/README.md). The deploy builds it
+  # Agency, built from the working checkout by hand (see agency/README.md). The deploy builds it
   # only when the image is missing, so it never replaces a manual build.
-  awf:
-    image: docker-services-awf:local
+  agency:
+    image: docker-services-agency:local
     build:
-      context: /root/dev/awf
-    container_name: awf
+      context: /root/dev/agency
+    container_name: agency
     network_mode: host
-    env_file: /root/.config/awf/server.env
+    env_file: /root/.config/agency/server.env
     environment:
       AGENCY_SERVER_ADDR: 0.0.0.0:8080
-      AGENCY_SERVER_DB_PATH: /data/awf.db
+      AGENCY_SERVER_DB_PATH: /data/agency.db
       AGENCY_SERVER_GITHUB_TOKEN_FILE: /run/github-token/token
     volumes:
-      - /root/.local/share/awf:/data
+      - /root/.local/share/agency:/data
       - /root/docker-services/github-app-token/output:/run/github-token:ro
       - /root/.paseo/worktrees:/root/.paseo/worktrees:ro
       - /root/dev:/root/dev:ro
