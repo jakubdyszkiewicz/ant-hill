@@ -63,7 +63,7 @@ services:
     logging: *default-logging
 
   registry-mirror:
-    image: registry:3.0.0
+    image: registry:3.0.0@sha256:6c5666b861f3505b116bb9aa9b25175e71210414bd010d92035ff64018f9457e
     container_name: registry-mirror
     network_mode: host # 0.0.0.0:5000; isodev containers reach it via their network gateway
     environment:
